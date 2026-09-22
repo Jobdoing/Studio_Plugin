@@ -1,0 +1,5 @@
+{
+  "title": "近90天工程類招標",
+  "sql": "SELECT tender_case_no, org_name, title, category, publish_date, deadline, budget_amount, detail_url FROM tender.tenders WHERE category = '工程' AND publish_date >= current_date - 90 ORDER BY publish_date DESC, tender_case_no LIMIT 500",
+  "source": "tender"
+}

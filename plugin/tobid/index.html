@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>標案快訊</title>
+<link rel="stylesheet" href="/studio-kit.css">
+<style>
+  .tobid-root { padding: 12px; }
+  .summary { margin-bottom: 12px; color: #555; }
+  .actions { margin-bottom: 12px; }
+  .tobid-root table { width: 100%; border-collapse: collapse; }
+  .tobid-root th, .tobid-root td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #e0e0e0; font-size: 14px; }
+  .tobid-root button { cursor: pointer; }
+  .error { color: #b00020; }
+</style>
+</head>
+<body>
+<div class="tobid-root">
+  <div class="actions">
+    <button id="open-tobid" type="button">前往 tobid.tw 搜尋標案</button>
+  </div>
+  <div id="summary" class="summary">載入中…</div>
+  <div id="list"></div>
+</div>
+<script src="/studio-plugin.js"></script>
+<script>
+(function () {
+  var BLOCK_ID = "tender-recent-construction";
+  document.getElementById("open-tobid").addEventListener("click", function () {
+    studio.openExternal("https://tobid.tw/");
+  });
+  function fmtBudget(value) { return value == null ? "—" : Number(value).toLocaleString("zh-Hant-TW"); }
+  studio.query(BLOCK_ID).then(function (data) {
+    var rows = data.rows || [];
+    var budgets = rows.map(function (row) { return row.budget_amount; }).filter(function (value) { return value != null; });
+    var min = budgets.length ? Math.min.apply(null, budgets) : null;
+    var max = budgets.length ? Math.max.apply(null, budgets) : null;
+    document.getElementById("summary").textContent =
+      "近90天工程類招標 " + rows.length + " 件" +
+      (budgets.length ? ",預算 " + fmtBudget(min) + " ~ " + fmtBudget(max) + " 元" : "");
+    var table = document.createElement("table");
+    var head = table.createTHead().insertRow();
+    ["機關", "標案名稱", "公告日", "截止日", "預算(元)"].forEach(function (label) {
+      var th = document.createElement("th"); th.textContent = label; head.appendChild(th);
+    });
+    var body = table.createTBody();
+    rows.forEach(function (row) {
+      var tr = body.insertRow();
+      [row.org_name, row.title, row.publish_date, row.deadline, fmtBudget(row.budget_amount)].forEach(function (value) {
+        tr.insertCell().textContent = value == null ? "" : String(value);
+      });
+      if (row.detail_url) {
+        tr.style.cursor = "pointer";
+        tr.addEventListener("click", function () { studio.openExternal(row.detail_url); });
+      }
+    });
+    document.getElementById("list").appendChild(table);
+  }).catch(function (err) {
+    var summary = document.getElementById("summary");
+    summary.className = "summary error";
+    summary.textContent = "資料載入失敗:" + (err && err.message ? err.message : String(err));
+  });
+})();
+</script>
+</body>
+</html>
