@@ -10,14 +10,15 @@
 //   node fetch-kb.mjs <out-dir> [--from <local-clone-path>]
 //
 // Without --from: shallow-clones github.com/h30190/HJPLUS_Taiwan_Architect_KB
-// into /Volumes/Vibe-Temp/architect-kb-fetch then reads from there.
+// into a temp directory then reads from there.
 
 import { mkdirSync, writeFileSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative, basename } from "node:path";
+import { tmpdir } from "node:os";
 import { spawnSync } from "node:child_process";
 
 const REPO_URL = "https://github.com/h30190/HJPLUS_Taiwan_Architect_KB";
-const DEFAULT_CLONE_DIR = "/Volumes/Vibe-Temp/architect-kb-fetch";
+const DEFAULT_CLONE_DIR = join(tmpdir(), "architect-kb-fetch");
 const REPO_BLOB_BASE = "https://github.com/h30190/HJPLUS_Taiwan_Architect_KB/blob/main/";
 
 // --- CLI arg parsing ---

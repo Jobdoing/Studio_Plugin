@@ -21,7 +21,7 @@ Studio5 第二個第一方範例外掛，以 HJPLUS 台灣 AEC 開源知識庫�
 
 ```sh
 # 從本地 clone 讀取（建議開發用）
-node ingestion/fetch-kb.mjs /tmp/kb-out --from /Volumes/Vibe-Temp/architect-kb-probe
+node ingestion/fetch-kb.mjs /tmp/kb-out --from /path/to/HJPLUS_Taiwan_Architect_KB
 
 # 直接 clone 並讀取
 node ingestion/fetch-kb.mjs /tmp/kb-out
