@@ -2,7 +2,13 @@
 
 ## 這是什麼
 
-Studio5（vibe-coding 平台）的第一個第一方開源外掛範例——台灣政府標案快訊（資料來源：政府電子採購網 OpenData）。
+Studio 的公開「外掛範例」(showcase)，以台灣政府標案資料為題，示範外掛框架的六項能力：**資料查詢(studio.query)**、**站內列表**、**站內明細**、**?tender= 深連結**、**對外連結(openExternal)**、以及**沙箱邊界**（iframe 無法自行連外）。
+
+**官方資料現況（照實陳述）：**
+- **資料來源**：政府電子採購網 OpenData 雙月批次 XML，發布延遲約 6–8 週，每筆僅 6 欄
+- **預算金額**：官方 OpenData 不提供（政策選擇）；民間要求開放 API 的提案至今未被接受
+- **個案連結**：無有效 permalink——官方網站忽略案號查詢參數，OpenData 亦無 pkPmsMain
+- **民間替代**：[pcc.g0v.ronny.tw](https://pcc.g0v.ronny.tw)（openfunltd 維護）每日爬取、含預算金額——但僅允許瀏覽器存取，授權需另行評估
 
 ## 外掛的構成
 
@@ -67,3 +73,5 @@ node ingestion/build-artifact.mjs rows.jsonl tender-<YYYYMMDD>.duckdb
 ## 授權
 
 MIT — Copyright (c) 2026 jobdone.cc
+
+後續範例方向：將以民間開放資料嘗試不同性質的範例外掛（不以真實產品功能為目標）。

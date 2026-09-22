@@ -17,23 +17,62 @@
   .detail-grid dd { margin: 0; }
   .detail-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
   .notice { color: #b00020; margin-bottom: 8px; font-size: 14px; }
+  /* showcase labels */
+  .showcase-banner { background: #f5f5f5; border-left: 3px solid #bbb; padding: 6px 10px; margin-bottom: 10px; font-size: 12px; color: #666; }
+  .cap-label { font-size: 11px; color: #999; margin-bottom: 6px; }
+  /* caveat note under openExternal button */
+  .caveat { font-size: 12px; color: #888; margin-top: 6px; line-height: 1.4; }
+  /* collapsible data-reality sections */
+  .data-note { margin-top: 16px; font-size: 13px; }
+  .data-note summary { cursor: pointer; color: #666; font-weight: bold; }
+  .data-note ul { margin: 6px 0 0 0; padding-left: 18px; color: #555; line-height: 1.6; }
+  .data-note li { margin-bottom: 4px; }
 </style>
 </head>
 <body>
 <div class="tobid-root">
+  <!-- showcase banner -->
+  <div class="showcase-banner">Studio 外掛範例 — 本外掛用真實(但官方供應不完整的)政府標案資料,示範外掛框架的能力與邊界。</div>
+
   <div id="list-view">
+    <div class="cap-label">示範:studio.query 資料查詢/站內列表</div>
     <div class="actions">
       <button id="open-tobid" type="button">前往 tobid.tw 搜尋標案</button>
     </div>
     <div id="notice" class="notice" hidden></div>
     <div id="summary" class="summary">載入中…</div>
     <div id="list"></div>
+
+    <!-- data reality notes -->
+    <details class="data-note">
+      <summary>資料現況說明(照實陳述)</summary>
+      <ul>
+        <li>資料來源:政府電子採購網 OpenData 雙月批次 XML(<a href="https://web.pcc.gov.tw/tps/tp/OpenData/showList" target="_blank" rel="noopener">官方列表頁</a>),發布延遲約 6–8 週,每筆僅 6 欄。</li>
+        <li>預算金額:官方 OpenData <strong>不提供</strong>(政策選擇)。民間要求開放 API 的提案(<a href="https://data.gov.tw/suggests/88841" target="_blank" rel="noopener">data.gov.tw suggests/88841</a>)至今未被接受;國發會工程標案 API 已停止服務申請。</li>
+        <li>決標資料(award_*.xml):有決標金額(成交價),無預算金額,同樣延遲。</li>
+        <li>個案連結:官方網站忽略案號參數,OpenData 也無 pkPmsMain,故無有效 permalink。</li>
+        <li>民間資料:<a href="https://pcc.g0v.ronny.tw" target="_blank" rel="noopener">pcc.g0v.ronny.tw</a>(openfunltd 維護)每日爬取、含預算金額與個案頁——但 Cloudflare 僅允許瀏覽器存取,且為非官方爬蟲資料,授權需另行評估。</li>
+        <li>本外掛的處理:公告已按案號+機關去重(留最新)、類別對映 工程/財物/勞務、artifact 內嵌 schema_version 供平台啟動時驗證。</li>
+      </ul>
+    </details>
+
+    <details class="data-note">
+      <summary>外掛的邊界(框架安全設計)</summary>
+      <ul>
+        <li>本外掛跑在 sandboxed iframe,無法自行連外抓資料——所有資料由平台以唯讀 SQL 供應(allowlist + 列數上限)。</li>
+        <li>對外開啟由 shell 代理並經確認(反釣魚)。</li>
+        <li>外掛只有靜態前端,零伺服器端程式。</li>
+      </ul>
+    </details>
   </div>
+
   <div id="detail-view" hidden>
+    <div class="cap-label">示範:站內明細 + ?tender= 深連結</div>
     <div class="detail-actions">
       <button id="back-btn" type="button">← 返回列表</button>
       <button id="external-btn" type="button">在政府電子採購網開啟</button>
     </div>
+    <p class="caveat">⚠ 官方網站會忽略案號參數(readTenderBasic?tenderCaseNo=… 只會回到搜尋首頁)——官方未提供可程式使用的個案連結。此按鈕保留作為 openExternal 能力示範。</p>
     <dl class="detail-grid" id="detail-grid"></dl>
   </div>
 </div>
