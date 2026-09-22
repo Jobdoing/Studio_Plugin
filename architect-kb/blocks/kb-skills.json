@@ -1,0 +1,1 @@
+{"title":"知識技能索引","sql":"SELECT name, category, class, status, data_currency, region, description, source_url FROM architect_kb.kb_skills ORDER BY category, name","source":"architect_kb"}

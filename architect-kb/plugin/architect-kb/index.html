@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>建築知識庫(Sample)</title>
+<link rel="stylesheet" href="/studio-kit.css">
+<style>
+  .kb-root { padding: 12px; }
+  .showcase-banner { background: #f5f5f5; border-left: 3px solid #bbb; padding: 6px 10px; margin-bottom: 10px; font-size: 12px; color: #666; }
+  .cap-label { font-size: 11px; color: #999; margin-bottom: 4px; }
+  .tabs { display: flex; gap: 4px; margin-bottom: 12px; border-bottom: 2px solid #e0e0e0; }
+  .tabs button { background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -2px; padding: 8px 14px; font-size: 14px; cursor: pointer; color: #555; }
+  .tabs button.active { border-bottom-color: #1565c0; color: #1565c0; font-weight: bold; }
+  .filter-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; align-items: center; }
+  .filter-bar input, .filter-bar select { padding: 4px 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; }
+  .filter-bar label { font-size: 12px; color: #555; }
+  .kb-root table { width: 100%; border-collapse: collapse; }
+  .kb-root th, .kb-root td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #e0e0e0; font-size: 14px; vertical-align: top; }
+  .kb-root th { background: #f8f8f8; font-weight: bold; }
+  .kb-root tr.active-row { background: #e3f2fd; }
+  .desc-short { cursor: pointer; }
+  .desc-short:hover { text-decoration: underline; }
+  .ext-link { font-size: 12px; color: #1565c0; cursor: pointer; white-space: nowrap; }
+  .ext-link:hover { text-decoration: underline; }
+  .notice { color: #b00020; margin-bottom: 8px; font-size: 14px; }
+  .error { color: #b00020; }
+  .summary { margin-bottom: 8px; color: #555; font-size: 13px; }
+  .attribution { margin-top: 18px; padding: 10px; background: #f5f5f5; border-left: 3px solid #bbb; font-size: 12px; color: #666; line-height: 1.6; }
+  .attribution a { color: #1565c0; }
+</style>
+</head>
+<body>
+<div class="kb-root">
+  <!-- showcase banner -->
+  <div class="showcase-banner">Studio 外掛範例 — 示範:一個資料源、多個 data block</div>
+
+  <!-- tabs -->
+  <div class="tabs">
+    <button id="tab-mep" class="active" type="button">MEP 建材品項</button>
+    <button id="tab-skills" type="button">知識技能</button>
+  </div>
+
+  <!-- MEP section -->
+  <div id="section-mep">
+    <div class="cap-label">示範:站內即時篩選</div>
+    <div class="filter-bar">
+      <label>關鍵字 <input type="text" id="mep-keyword" placeholder="名稱/廠商/說明" style="width:160px"></label>
+      <label>廠商 <select id="mep-vendor"><option value="">全部</option></select></label>
+    </div>
+    <div id="mep-notice" class="notice" hidden></div>
+    <div id="mep-summary" class="summary">載入中…</div>
+    <div id="mep-list"></div>
+  </div>
+
+  <!-- Skills section -->
+  <div id="section-skills" hidden>
+    <div class="cap-label">示範:站內即時篩選</div>
+    <div class="filter-bar">
+      <label>類別 <select id="skill-category"><option value="">全部</option></select></label>
+      <label>狀態 <select id="skill-status"><option value="">全部</option></select></label>
+      <label>關鍵字 <input type="text" id="skill-keyword" placeholder="名稱/說明" style="width:160px"></label>
+    </div>
+    <div id="skill-notice" class="notice" hidden></div>
+    <div id="skill-summary" class="summary">載入中…</div>
+    <div id="skill-list"></div>
+  </div>
+
+  <!-- attribution footer -->
+  <div class="attribution">
+    資料來源:HJPLUS 台灣 AEC 開源知識庫(<a href="https://github.com/h30190/HJPLUS_Taiwan_Architect_KB" target="_blank" rel="noopener">github.com/h30190/HJPLUS_Taiwan_Architect_KB</a>),內容授權 CC BY-SA 4.0;本外掛之資料 artifact 依同授權再散布並標示出處。
+  </div>
+</div>
+<script src="/studio-plugin.js"></script>
+<script>
+(function () {
+  var MEP_BLOCK = "kb-mep-materials";
+  var SKILL_BLOCK = "kb-skills";
+
+  // ---- tab switching ----
+  var tabMep = document.getElementById("tab-mep");
+  var tabSkills = document.getElementById("tab-skills");
+  var secMep = document.getElementById("section-mep");
+  var secSkills = document.getElementById("section-skills");
+
+  tabMep.addEventListener("click", function () {
+    tabMep.className = "active"; tabSkills.className = "";
+    secMep.hidden = false; secSkills.hidden = true;
+  });
+  tabSkills.addEventListener("click", function () {
+    tabSkills.className = "active"; tabMep.className = "";
+    secSkills.hidden = false; secMep.hidden = true;
+  });
+
+  // ---- utils ----
+  function clearElement(el) { while (el.firstChild) el.removeChild(el.firstChild); }
+
+  function truncate(s, max) {
+    if (!s) return "";
+    return s.length > max ? s.slice(0, max) + "…" : s;
+  }
+
+  // ---- MEP section ----
+  var mepRows = [];
+  var mepExpanded = {};
+
+  function renderMep() {
+    var keyword = document.getElementById("mep-keyword").value.trim().toLowerCase();
+    var vendor = document.getElementById("mep-vendor").value;
+    var filtered = mepRows.filter(function (r) {
+      if (vendor && r.vendor !== vendor) return false;
+      if (keyword) {
+        var haystack = [(r.name || ""), (r.vendor || ""), (r.description || "")].join(" ").toLowerCase();
+        if (haystack.indexOf(keyword) === -1) return false;
+      }
+      return true;
+    });
+    document.getElementById("mep-summary").textContent = "共 " + mepRows.length + " 筆，顯示 " + filtered.length + " 筆";
+    var list = document.getElementById("mep-list");
+    clearElement(list);
+    var table = document.createElement("table");
+    var head = table.createTHead().insertRow();
+    ["編號", "名稱", "廠商", "說明", "資料來源", "登錄日期"].forEach(function (label) {
+      var th = document.createElement("th"); th.textContent = label; head.appendChild(th);
+    });
+    var body = table.createTBody();
+    filtered.forEach(function (row) {
+      var expanded = !!mepExpanded[row.id];
+      var tr = body.insertRow();
+      if (expanded) tr.className = "active-row";
+
+      // id
+      tr.insertCell().textContent = row.id == null ? "" : String(row.id);
+
+      // name
+      var tdName = tr.insertCell();
+      tdName.textContent = row.name || "";
+
+      // vendor
+      tr.insertCell().textContent = row.vendor || "";
+
+      // description — inline with expand
+      var tdDesc = tr.insertCell();
+      var descText = row.description || "";
+      if (!expanded) {
+        var span = document.createElement("span");
+        span.className = "desc-short";
+        span.title = "點擊展開全文";
+        span.textContent = truncate(descText, 60);
+        span.addEventListener("click", function () { mepExpanded[row.id] = true; renderMep(); });
+        tdDesc.appendChild(span);
+      } else {
+        tdDesc.textContent = descText;
+        tdDesc.style.whiteSpace = "pre-wrap";
+        var collapse = document.createElement("span");
+        collapse.className = "desc-short";
+        collapse.textContent = " [收起]";
+        collapse.style.color = "#999";
+        collapse.addEventListener("click", function () { delete mepExpanded[row.id]; renderMep(); });
+        tdDesc.appendChild(collapse);
+      }
+
+      // source_url with openExternal
+      var tdUrl = tr.insertCell();
+      if (row.source_url) {
+        var a = document.createElement("span");
+        a.className = "ext-link";
+        // NOTE: label documents that MEP source_url = vendor website, links work
+        a.title = "示範:有效的個案外部連結(對照:標案範例的官方連結不可用)";
+        a.textContent = "🔗 開啟";
+        a.addEventListener("click", function (url) {
+          return function () { studio.openExternal(url); };
+        }(row.source_url));
+        tdUrl.appendChild(a);
+      }
+
+      // registered_at
+      tr.insertCell().textContent = row.registered_at || "";
+    });
+    list.appendChild(table);
+
+    // handle ?mep= deep link
+    var params = new URLSearchParams(location.search);
+    var mepId = params.get("mep");
+    if (mepId && !list._deepLinkHandled) {
+      list._deepLinkHandled = true;
+      var matched = mepRows.filter(function (r) { return String(r.id) === String(mepId); })[0];
+      if (matched) {
+        mepExpanded[matched.id] = true;
+        renderMep();
+      } else {
+        var notice = document.getElementById("mep-notice");
+        notice.textContent = "找不到指定的 MEP 品項 id=" + mepId;
+        notice.hidden = false;
+      }
+    }
+  }
+
+  studio.query(MEP_BLOCK).then(function (data) {
+    mepRows = data.rows || [];
+    // build vendor dropdown
+    var vendors = Array.from(new Set(mepRows.map(function (r) { return r.vendor; }).filter(Boolean))).sort();
+    var sel = document.getElementById("mep-vendor");
+    vendors.forEach(function (v) {
+      var opt = document.createElement("option"); opt.value = v; opt.textContent = v; sel.appendChild(opt);
+    });
+    document.getElementById("mep-keyword").addEventListener("input", renderMep);
+    sel.addEventListener("change", renderMep);
+    renderMep();
+  }).catch(function (err) {
+    var el = document.getElementById("mep-summary");
+    el.className = "summary error";
+    el.textContent = "MEP 資料載入失敗:" + (err && err.message ? err.message : String(err));
+  });
+
+  // ---- Skills section ----
+  var skillRows = [];
+
+  function renderSkills() {
+    var category = document.getElementById("skill-category").value;
+    var status = document.getElementById("skill-status").value;
+    var keyword = document.getElementById("skill-keyword").value.trim().toLowerCase();
+    var filtered = skillRows.filter(function (r) {
+      if (category && r.category !== category) return false;
+      if (status && (r.status || "") !== status) return false;
+      if (keyword) {
+        var haystack = [(r.name || ""), (r.description || "")].join(" ").toLowerCase();
+        if (haystack.indexOf(keyword) === -1) return false;
+      }
+      return true;
+    });
+    document.getElementById("skill-summary").textContent = "共 " + skillRows.length + " 筆，顯示 " + filtered.length + " 筆";
+    var list = document.getElementById("skill-list");
+    clearElement(list);
+    var table = document.createElement("table");
+    var head = table.createTHead().insertRow();
+    ["名稱", "類別", "等級", "狀態", "資料更新至", "地區", "說明", "來源"].forEach(function (label) {
+      var th = document.createElement("th"); th.textContent = label; head.appendChild(th);
+    });
+    var body = table.createTBody();
+    filtered.forEach(function (row) {
+      var tr = body.insertRow();
+      tr.insertCell().textContent = row.name || "";
+      tr.insertCell().textContent = row.category || "";
+      tr.insertCell().textContent = row.class || "";
+      tr.insertCell().textContent = row.status || "";
+      tr.insertCell().textContent = row.data_currency || "";
+      tr.insertCell().textContent = row.region || "";
+      var tdDesc = tr.insertCell();
+      tdDesc.textContent = truncate(row.description || "", 80);
+      tdDesc.title = row.description || "";
+      // source_url — openExternal
+      var tdUrl = tr.insertCell();
+      if (row.source_url) {
+        var a = document.createElement("span");
+        a.className = "ext-link";
+        a.title = "示範:有效的個案外部連結(對照:標案範例的官方連結不可用)";
+        a.textContent = "🔗 SKILL.md";
+        a.addEventListener("click", function (url) {
+          return function () { studio.openExternal(url); };
+        }(row.source_url));
+        tdUrl.appendChild(a);
+      }
+    });
+    list.appendChild(table);
+
+    // handle ?skill= deep link
+    var params = new URLSearchParams(location.search);
+    var skillName = params.get("skill");
+    if (skillName && !list._deepLinkHandled) {
+      list._deepLinkHandled = true;
+      var matched = skillRows.filter(function (r) { return r.name === skillName; })[0];
+      if (matched) {
+        // Switch to skills tab and highlight row
+        tabSkills.click();
+        document.getElementById("skill-keyword").value = skillName;
+        renderSkills();
+      } else {
+        var notice = document.getElementById("skill-notice");
+        notice.textContent = "找不到指定的技能: " + skillName;
+        notice.hidden = false;
+      }
+    }
+  }
+
+  studio.query(SKILL_BLOCK).then(function (data) {
+    skillRows = data.rows || [];
+    // build category and status dropdowns
+    var cats = Array.from(new Set(skillRows.map(function (r) { return r.category; }).filter(Boolean))).sort();
+    var catSel = document.getElementById("skill-category");
+    cats.forEach(function (c) {
+      var opt = document.createElement("option"); opt.value = c; opt.textContent = c; catSel.appendChild(opt);
+    });
+    var statuses = Array.from(new Set(skillRows.map(function (r) { return r.status || ""; }).filter(Boolean))).sort();
+    var stSel = document.getElementById("skill-status");
+    statuses.forEach(function (s) {
+      var opt = document.createElement("option"); opt.value = s; opt.textContent = s; stSel.appendChild(opt);
+    });
+    document.getElementById("skill-keyword").addEventListener("input", renderSkills);
+    catSel.addEventListener("change", renderSkills);
+    stSel.addEventListener("change", renderSkills);
+    renderSkills();
+  }).catch(function (err) {
+    var el = document.getElementById("skill-summary");
+    el.className = "summary error";
+    el.textContent = "技能資料載入失敗:" + (err && err.message ? err.message : String(err));
+  });
+
+})();
+</script>
+</body>
+</html>
