@@ -14,9 +14,9 @@
   .filter-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; align-items: center; }
   .filter-bar input, .filter-bar select { padding: 4px 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; }
   .filter-bar label { font-size: 12px; color: #555; }
-  .kb-root table { width: 100%; border-collapse: collapse; }
-  .kb-root th, .kb-root td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #e0e0e0; font-size: 14px; vertical-align: top; }
-  .kb-root th { background: #f8f8f8; font-weight: bold; }
+  .kb-root table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  .kb-root th, .kb-root td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #e0e0e0; font-size: 14px; vertical-align: top; overflow: hidden; }
+  .kb-root th { background: #f8f8f8; font-weight: bold; position: relative; white-space: nowrap; }
   .kb-root tr.active-row { background: #e3f2fd; }
   .desc-short { cursor: pointer; }
   .desc-short:hover { text-decoration: underline; }
@@ -24,9 +24,23 @@
   .ext-link:hover { text-decoration: underline; }
   .notice { color: #b00020; margin-bottom: 8px; font-size: 14px; }
   .error { color: #b00020; }
-  .summary { margin-bottom: 8px; color: #555; font-size: 13px; }
+  .summary { margin-bottom: 4px; color: #555; font-size: 13px; }
   .attribution { margin-top: 18px; padding: 10px; background: #f5f5f5; border-left: 3px solid #bbb; font-size: 12px; color: #666; line-height: 1.6; }
   .attribution a { color: #1565c0; }
+  /* pagination controls */
+  .pagination { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 6px 0; font-size: 13px; }
+  .pagination button { padding: 3px 9px; border: 1px solid #ccc; border-radius: 3px; background: #fff; cursor: pointer; font-size: 13px; }
+  .pagination button:disabled { opacity: 0.4; cursor: default; }
+  .pagination button:not(:disabled):hover { background: #e8eaf6; }
+  .pagination .page-info { color: #555; }
+  .pagination select { padding: 2px 6px; border: 1px solid #ccc; border-radius: 3px; font-size: 13px; }
+  /* col-resize handle */
+  .col-resize-handle {
+    position: absolute; right: 0; top: 0; bottom: 0;
+    width: 5px; cursor: col-resize;
+    user-select: none;
+  }
+  .col-resize-handle:hover, .col-resize-handle.dragging { background: #1565c0; opacity: 0.4; }
 </style>
 </head>
 <body>
@@ -49,7 +63,11 @@
     </div>
     <div id="mep-notice" class="notice" hidden></div>
     <div id="mep-summary" class="summary">載入中…</div>
+    <div class="cap-label">示範:站內分頁</div>
+    <div id="mep-pagination-top" class="pagination"></div>
     <div id="mep-list"></div>
+    <div class="cap-label" style="margin-top:6px">示範:欄位寬度可拖曳調整</div>
+    <div id="mep-pagination-bottom" class="pagination"></div>
   </div>
 
   <!-- Skills section -->
@@ -62,7 +80,11 @@
     </div>
     <div id="skill-notice" class="notice" hidden></div>
     <div id="skill-summary" class="summary">載入中…</div>
+    <div class="cap-label">示範:站內分頁</div>
+    <div id="skill-pagination-top" class="pagination"></div>
     <div id="skill-list"></div>
+    <div class="cap-label" style="margin-top:6px">示範:欄位寬度可拖曳調整</div>
+    <div id="skill-pagination-bottom" class="pagination"></div>
   </div>
 
   <!-- attribution footer -->
@@ -99,9 +121,142 @@
     return s.length > max ? s.slice(0, max) + "…" : s;
   }
 
+  // ---- pagination state ----
+  // NOTE(ceiling): page state is per-tab, per-session only; no URL persistence for current page number.
+  var mepPage = { current: 1, pageSize: 50 };
+  var skillPage = { current: 1, pageSize: 50 };
+
+  function buildPagination(state, totalFiltered, totalAll, renderFn, elTop, elBottom, elSummary) {
+    var ps = state.pageSize;
+    var totalPages = Math.max(1, Math.ceil(totalFiltered / ps));
+    if (state.current > totalPages) state.current = totalPages;
+    var start = (state.current - 1) * ps + 1;
+    var end = Math.min(state.current * ps, totalFiltered);
+    var displayStart = totalFiltered === 0 ? 0 : start;
+
+    elSummary.textContent = "共 " + totalAll + " 筆，符合篩選 " + totalFiltered + " 筆，本頁顯示第 " + displayStart + "–" + end + " 筆";
+
+    [elTop, elBottom].forEach(function (el) {
+      clearElement(el);
+
+      // first page
+      var btnFirst = document.createElement("button");
+      btnFirst.textContent = "«";
+      btnFirst.title = "第一頁";
+      btnFirst.disabled = state.current <= 1;
+      btnFirst.addEventListener("click", function () { state.current = 1; renderFn(); });
+      el.appendChild(btnFirst);
+
+      // prev
+      var btnPrev = document.createElement("button");
+      btnPrev.textContent = "上一頁";
+      btnPrev.disabled = state.current <= 1;
+      btnPrev.addEventListener("click", function () { state.current--; renderFn(); });
+      el.appendChild(btnPrev);
+
+      // page info
+      var info = document.createElement("span");
+      info.className = "page-info";
+      info.textContent = "第 " + state.current + " / " + totalPages + " 頁";
+      el.appendChild(info);
+
+      // next
+      var btnNext = document.createElement("button");
+      btnNext.textContent = "下一頁";
+      btnNext.disabled = state.current >= totalPages;
+      btnNext.addEventListener("click", function () { state.current++; renderFn(); });
+      el.appendChild(btnNext);
+
+      // last page
+      var btnLast = document.createElement("button");
+      btnLast.textContent = "»";
+      btnLast.title = "最後一頁";
+      btnLast.disabled = state.current >= totalPages;
+      btnLast.addEventListener("click", function () { state.current = totalPages; renderFn(); });
+      el.appendChild(btnLast);
+
+      // page size selector
+      var label = document.createElement("label");
+      label.style.fontSize = "12px";
+      label.style.color = "#555";
+      label.textContent = "每頁 ";
+      var sel = document.createElement("select");
+      [20, 50, 100].forEach(function (n) {
+        var opt = document.createElement("option");
+        opt.value = String(n);
+        opt.textContent = String(n);
+        if (n === state.pageSize) opt.selected = true;
+        sel.appendChild(opt);
+      });
+      sel.addEventListener("change", function () {
+        state.pageSize = parseInt(sel.value, 10);
+        state.current = 1;
+        renderFn();
+      });
+      label.appendChild(sel);
+      label.appendChild(document.createTextNode(" 筆"));
+      el.appendChild(label);
+    });
+
+    return { start: start - 1, end: end }; // 0-based slice indices
+  }
+
+  // ---- column resize state ----
+  // NOTE(ceiling): widths are per-session only (no localStorage persistence; studio.draft could persist later).
+  var mepColWidths = {};   // keyed by column index
+  var skillColWidths = {}; // keyed by column index
+
+  function makeColResizable(table, colWidths, headers) {
+    // Apply colgroup for fixed layout
+    var colgroup = document.createElement("colgroup");
+    headers.forEach(function (_, i) {
+      var col = document.createElement("col");
+      var w = colWidths[i];
+      if (w) col.style.width = w + "px";
+      colgroup.appendChild(col);
+    });
+    table.insertBefore(colgroup, table.firstChild);
+
+    // Add drag handles to each th
+    var ths = table.tHead.rows[0].cells;
+    for (var i = 0; i < ths.length; i++) {
+      (function (th, colIndex, cg) {
+        var handle = document.createElement("div");
+        handle.className = "col-resize-handle";
+
+        var startX, startW;
+        handle.addEventListener("mousedown", function (e) {
+          e.preventDefault();
+          handle.classList.add("dragging");
+          startX = e.clientX;
+          startW = cg.children[colIndex].offsetWidth || th.offsetWidth;
+          document.body.style.userSelect = "none";
+
+          function onMove(ev) {
+            var delta = ev.clientX - startX;
+            var newW = Math.max(60, startW + delta);
+            colWidths[colIndex] = newW;
+            cg.children[colIndex].style.width = newW + "px";
+          }
+          function onUp() {
+            handle.classList.remove("dragging");
+            document.body.style.userSelect = "";
+            document.removeEventListener("mousemove", onMove);
+            document.removeEventListener("mouseup", onUp);
+          }
+          document.addEventListener("mousemove", onMove);
+          document.addEventListener("mouseup", onUp);
+        });
+
+        th.appendChild(handle);
+      })(ths[i], i, colgroup);
+    }
+  }
+
   // ---- MEP section ----
   var mepRows = [];
   var mepExpanded = {};
+  var mepDeepLinkDone = false;
 
   function renderMep() {
     var keyword = document.getElementById("mep-keyword").value.trim().toLowerCase();
@@ -114,16 +269,23 @@
       }
       return true;
     });
-    document.getElementById("mep-summary").textContent = "共 " + mepRows.length + " 筆，顯示 " + filtered.length + " 筆";
+
+    var elTop = document.getElementById("mep-pagination-top");
+    var elBottom = document.getElementById("mep-pagination-bottom");
+    var elSummary = document.getElementById("mep-summary");
+    var slice = buildPagination(mepPage, filtered.length, mepRows.length, renderMep, elTop, elBottom, elSummary);
+    var pageRows = filtered.slice(slice.start, slice.end);
+
     var list = document.getElementById("mep-list");
     clearElement(list);
     var table = document.createElement("table");
+    var headers = ["編號", "名稱", "廠商", "說明", "資料來源", "登錄日期"];
     var head = table.createTHead().insertRow();
-    ["編號", "名稱", "廠商", "說明", "資料來源", "登錄日期"].forEach(function (label) {
+    headers.forEach(function (label) {
       var th = document.createElement("th"); th.textContent = label; head.appendChild(th);
     });
     var body = table.createTBody();
-    filtered.forEach(function (row) {
+    pageRows.forEach(function (row) {
       var expanded = !!mepExpanded[row.id];
       var tr = body.insertRow();
       if (expanded) tr.className = "active-row";
@@ -177,20 +339,30 @@
       tr.insertCell().textContent = row.registered_at || "";
     });
     list.appendChild(table);
+    makeColResizable(table, mepColWidths, headers);
 
-    // handle ?mep= deep link
-    var params = new URLSearchParams(location.search);
-    var mepId = params.get("mep");
-    if (mepId && !list._deepLinkHandled) {
-      list._deepLinkHandled = true;
-      var matched = mepRows.filter(function (r) { return String(r.id) === String(mepId); })[0];
-      if (matched) {
-        mepExpanded[matched.id] = true;
-        renderMep();
-      } else {
-        var notice = document.getElementById("mep-notice");
-        notice.textContent = "找不到指定的 MEP 品項 id=" + mepId;
-        notice.hidden = false;
+    // handle ?mep= deep link — jump to page containing matched row
+    if (!mepDeepLinkDone) {
+      var params = new URLSearchParams(location.search);
+      var mepId = params.get("mep");
+      if (mepId) {
+        mepDeepLinkDone = true;
+        var matchedIdx = filtered.findIndex(function (r) { return String(r.id) === String(mepId); });
+        if (matchedIdx !== -1) {
+          var targetPage = Math.floor(matchedIdx / mepPage.pageSize) + 1;
+          if (targetPage !== mepPage.current) {
+            mepPage.current = targetPage;
+            mepExpanded[filtered[matchedIdx].id] = true;
+            renderMep();
+          } else {
+            mepExpanded[filtered[matchedIdx].id] = true;
+            renderMep();
+          }
+        } else {
+          var notice = document.getElementById("mep-notice");
+          notice.textContent = "找不到指定的 MEP 品項 id=" + mepId;
+          notice.hidden = false;
+        }
       }
     }
   }
@@ -203,8 +375,8 @@
     vendors.forEach(function (v) {
       var opt = document.createElement("option"); opt.value = v; opt.textContent = v; sel.appendChild(opt);
     });
-    document.getElementById("mep-keyword").addEventListener("input", renderMep);
-    sel.addEventListener("change", renderMep);
+    document.getElementById("mep-keyword").addEventListener("input", function () { mepPage.current = 1; renderMep(); });
+    sel.addEventListener("change", function () { mepPage.current = 1; renderMep(); });
     renderMep();
   }).catch(function (err) {
     var el = document.getElementById("mep-summary");
@@ -214,6 +386,7 @@
 
   // ---- Skills section ----
   var skillRows = [];
+  var skillDeepLinkDone = false;
 
   function renderSkills() {
     var category = document.getElementById("skill-category").value;
@@ -228,16 +401,23 @@
       }
       return true;
     });
-    document.getElementById("skill-summary").textContent = "共 " + skillRows.length + " 筆，顯示 " + filtered.length + " 筆";
+
+    var elTop = document.getElementById("skill-pagination-top");
+    var elBottom = document.getElementById("skill-pagination-bottom");
+    var elSummary = document.getElementById("skill-summary");
+    var slice = buildPagination(skillPage, filtered.length, skillRows.length, renderSkills, elTop, elBottom, elSummary);
+    var pageRows = filtered.slice(slice.start, slice.end);
+
     var list = document.getElementById("skill-list");
     clearElement(list);
     var table = document.createElement("table");
+    var headers = ["名稱", "類別", "等級", "狀態", "資料更新至", "地區", "說明", "來源"];
     var head = table.createTHead().insertRow();
-    ["名稱", "類別", "等級", "狀態", "資料更新至", "地區", "說明", "來源"].forEach(function (label) {
+    headers.forEach(function (label) {
       var th = document.createElement("th"); th.textContent = label; head.appendChild(th);
     });
     var body = table.createTBody();
-    filtered.forEach(function (row) {
+    pageRows.forEach(function (row) {
       var tr = body.insertRow();
       tr.insertCell().textContent = row.name || "";
       tr.insertCell().textContent = row.category || "";
@@ -262,22 +442,34 @@
       }
     });
     list.appendChild(table);
+    makeColResizable(table, skillColWidths, headers);
 
-    // handle ?skill= deep link
-    var params = new URLSearchParams(location.search);
-    var skillName = params.get("skill");
-    if (skillName && !list._deepLinkHandled) {
-      list._deepLinkHandled = true;
-      var matched = skillRows.filter(function (r) { return r.name === skillName; })[0];
-      if (matched) {
-        // Switch to skills tab and highlight row
-        tabSkills.click();
-        document.getElementById("skill-keyword").value = skillName;
-        renderSkills();
-      } else {
-        var notice = document.getElementById("skill-notice");
-        notice.textContent = "找不到指定的技能: " + skillName;
-        notice.hidden = false;
+    // handle ?skill= deep link — jump to page containing matched row
+    if (!skillDeepLinkDone) {
+      var params = new URLSearchParams(location.search);
+      var skillName = params.get("skill");
+      if (skillName) {
+        skillDeepLinkDone = true;
+        var matchedIdx = filtered.findIndex(function (r) { return r.name === skillName; });
+        if (matchedIdx !== -1) {
+          // Switch to skills tab first
+          tabSkills.click();
+          document.getElementById("skill-keyword").value = skillName;
+          skillPage.current = 1;
+          renderSkills();
+        } else {
+          var allIdx = skillRows.findIndex(function (r) { return r.name === skillName; });
+          if (allIdx !== -1) {
+            tabSkills.click();
+            document.getElementById("skill-keyword").value = skillName;
+            skillPage.current = 1;
+            renderSkills();
+          } else {
+            var notice = document.getElementById("skill-notice");
+            notice.textContent = "找不到指定的技能: " + skillName;
+            notice.hidden = false;
+          }
+        }
       }
     }
   }
@@ -295,9 +487,9 @@
     statuses.forEach(function (s) {
       var opt = document.createElement("option"); opt.value = s; opt.textContent = s; stSel.appendChild(opt);
     });
-    document.getElementById("skill-keyword").addEventListener("input", renderSkills);
-    catSel.addEventListener("change", renderSkills);
-    stSel.addEventListener("change", renderSkills);
+    document.getElementById("skill-keyword").addEventListener("input", function () { skillPage.current = 1; renderSkills(); });
+    catSel.addEventListener("change", function () { skillPage.current = 1; renderSkills(); });
+    stSel.addEventListener("change", function () { skillPage.current = 1; renderSkills(); });
     renderSkills();
   }).catch(function (err) {
     var el = document.getElementById("skill-summary");

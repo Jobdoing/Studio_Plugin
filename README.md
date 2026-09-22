@@ -13,7 +13,7 @@ Studio5(vibe-coding 平台)的第一方**範例外掛**集合。每個外掛示�
 | 目錄 | 名稱 | 示範重點 | 資料來源 |
 |---|---|---|---|
 | [`tobid/`](tobid/) | 標案快訊(Sample) | studio.query 查詢、站內列表/明細、`?tender=` 深連結、openExternal、沙箱邊界、公共資料源管線(去重/schema_version) | 政府電子採購網 OpenData(現況限制照實陳述於外掛內文) |
-| [`architect-kb/`](architect-kb/) | 建築知識庫(Sample) | 一個資料源多個 data block、站內即時篩選、`?mep=`/`?skill=` 深連結、有效個案外部連結、CC BY-SA 授權合規 | HJPLUS 台灣 AEC 開源知識庫(CC BY-SA 4.0) |
+| [`architect-kb/`](architect-kb/) | 建築知識庫(Sample) | 一個資料源多個 data block、站內即時篩選、站內分頁(20/50/100 每頁)、欄寬拖曳調整、`?mep=`/`?skill=` 深連結、有效個案外部連結、CC BY-SA 授權合規 | HJPLUS 台灣 AEC 開源知識庫(CC BY-SA 4.0) |
 
 ## 授權
 
