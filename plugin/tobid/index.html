@@ -12,49 +12,131 @@
   .tobid-root th, .tobid-root td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #e0e0e0; font-size: 14px; }
   .tobid-root button { cursor: pointer; }
   .error { color: #b00020; }
+  .detail-grid { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; margin: 12px 0; font-size: 14px; }
+  .detail-grid dt { color: #555; }
+  .detail-grid dd { margin: 0; }
+  .detail-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .notice { color: #b00020; margin-bottom: 8px; font-size: 14px; }
 </style>
 </head>
 <body>
 <div class="tobid-root">
-  <div class="actions">
-    <button id="open-tobid" type="button">前往 tobid.tw 搜尋標案</button>
+  <div id="list-view">
+    <div class="actions">
+      <button id="open-tobid" type="button">前往 tobid.tw 搜尋標案</button>
+    </div>
+    <div id="notice" class="notice" hidden></div>
+    <div id="summary" class="summary">載入中…</div>
+    <div id="list"></div>
   </div>
-  <div id="summary" class="summary">載入中…</div>
-  <div id="list"></div>
+  <div id="detail-view" hidden>
+    <div class="detail-actions">
+      <button id="back-btn" type="button">← 返回列表</button>
+      <button id="external-btn" type="button">在政府電子採購網開啟</button>
+    </div>
+    <dl class="detail-grid" id="detail-grid"></dl>
+  </div>
 </div>
 <script src="/studio-plugin.js"></script>
 <script>
 (function () {
   var BLOCK_ID = "tender-recent-construction";
+
+  var listView = document.getElementById("list-view");
+  var detailView = document.getElementById("detail-view");
+  var detailGrid = document.getElementById("detail-grid");
+  var externalBtn = document.getElementById("external-btn");
+  var allRows = [];
+
   document.getElementById("open-tobid").addEventListener("click", function () {
     studio.openExternal("https://tobid.tw/");
   });
+
+  document.getElementById("back-btn").addEventListener("click", showList);
+
   function fmtBudget(value) { return value == null ? "—" : Number(value).toLocaleString("zh-Hant-TW"); }
+
+  function clearElement(el) {
+    while (el.firstChild) { el.removeChild(el.firstChild); }
+  }
+
+  function showList() {
+    detailView.hidden = true;
+    listView.hidden = false;
+  }
+
+  function showDetail(row) {
+    listView.hidden = true;
+    detailView.hidden = false;
+
+    var fields = [
+      ["案號", row.tender_case_no],
+      ["機關", row.org_name],
+      ["標案名稱", row.title],
+      ["類別", row.category],
+      ["公告日", row.publish_date],
+      ["截止日", row.deadline],
+      ["預算", fmtBudget(row.budget_amount)],
+    ];
+
+    clearElement(detailGrid);
+    fields.forEach(function (pair) {
+      var dt = document.createElement("dt");
+      dt.textContent = pair[0];
+      var dd = document.createElement("dd");
+      dd.textContent = pair[1] == null ? "" : String(pair[1]);
+      detailGrid.appendChild(dt);
+      detailGrid.appendChild(dd);
+    });
+
+    // Rebind external button to the current row's detail_url.
+    externalBtn.onclick = function () {
+      if (row.detail_url) { studio.openExternal(row.detail_url); }
+    };
+    externalBtn.disabled = !row.detail_url;
+  }
+
   studio.query(BLOCK_ID).then(function (data) {
-    var rows = data.rows || [];
-    var budgets = rows.map(function (row) { return row.budget_amount; }).filter(function (value) { return value != null; });
+    allRows = data.rows || [];
+    var budgets = allRows.map(function (r) { return r.budget_amount; }).filter(function (v) { return v != null; });
     var min = budgets.length ? Math.min.apply(null, budgets) : null;
     var max = budgets.length ? Math.max.apply(null, budgets) : null;
     document.getElementById("summary").textContent =
-      "近90天工程類招標 " + rows.length + " 件" +
+      "近90天工程類招標 " + allRows.length + " 件" +
       (budgets.length ? ",預算 " + fmtBudget(min) + " ~ " + fmtBudget(max) + " 元" : "");
+
+    // Build list table.
     var table = document.createElement("table");
     var head = table.createTHead().insertRow();
     ["機關", "標案名稱", "公告日", "截止日", "預算(元)"].forEach(function (label) {
       var th = document.createElement("th"); th.textContent = label; head.appendChild(th);
     });
     var body = table.createTBody();
-    rows.forEach(function (row) {
+    allRows.forEach(function (row) {
       var tr = body.insertRow();
       [row.org_name, row.title, row.publish_date, row.deadline, fmtBudget(row.budget_amount)].forEach(function (value) {
         tr.insertCell().textContent = value == null ? "" : String(value);
       });
-      if (row.detail_url) {
-        tr.style.cursor = "pointer";
-        tr.addEventListener("click", function () { studio.openExternal(row.detail_url); });
-      }
+      tr.style.cursor = "pointer";
+      // NOTE(ceiling): in-plugin clicks do not update the shell URL.
+      // Deep link is one-way in for now (would need an SDK param-reporting channel).
+      tr.addEventListener("click", function () { showDetail(row); });
     });
     document.getElementById("list").appendChild(table);
+
+    // Handle ?tender= deep link.
+    var params = new URLSearchParams(location.search);
+    var tenderCaseNo = params.get("tender");
+    if (tenderCaseNo) {
+      var matched = allRows.filter(function (r) { return r.tender_case_no === tenderCaseNo; })[0];
+      if (matched) {
+        showDetail(matched);
+      } else {
+        var notice = document.getElementById("notice");
+        notice.textContent = "找不到指定的標案";
+        notice.hidden = false;
+      }
+    }
   }).catch(function (err) {
     var summary = document.getElementById("summary");
     summary.className = "summary error";
