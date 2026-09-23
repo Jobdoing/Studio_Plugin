@@ -8,18 +8,12 @@
   .kb-root { padding: 12px; }
   .showcase-banner { background: #f5f5f5; border-left: 3px solid #bbb; padding: 6px 10px; margin-bottom: 10px; font-size: 12px; color: #666; }
   .cap-label { font-size: 11px; color: #999; margin-bottom: 4px; }
-  .tabs { display: flex; gap: 4px; margin-bottom: 12px; border-bottom: 2px solid #e0e0e0; }
-  .tabs button { background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -2px; padding: 8px 14px; font-size: 14px; cursor: pointer; color: #555; }
-  .tabs button.active { border-bottom-color: #1565c0; color: #1565c0; font-weight: bold; }
   .filter-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; align-items: center; }
   .filter-bar input, .filter-bar select { padding: 4px 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; }
   .filter-bar label { font-size: 12px; color: #555; }
   .kb-root table { width: 100%; border-collapse: collapse; table-layout: fixed; }
   .kb-root th, .kb-root td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #e0e0e0; font-size: 14px; vertical-align: top; overflow: hidden; }
   .kb-root th { background: #f8f8f8; font-weight: bold; position: relative; white-space: nowrap; }
-  .kb-root tr.active-row { background: #e3f2fd; }
-  .desc-short { cursor: pointer; }
-  .desc-short:hover { text-decoration: underline; }
   .ext-link { font-size: 12px; color: #1565c0; cursor: pointer; white-space: nowrap; }
   .ext-link:hover { text-decoration: underline; }
   .notice { color: #b00020; margin-bottom: 8px; font-size: 14px; }
@@ -46,32 +40,10 @@
 <body>
 <div class="kb-root">
   <!-- showcase banner -->
-  <div class="showcase-banner">Studio 外掛範例 — 示範:一個資料源、多個 data block</div>
-
-  <!-- tabs -->
-  <div class="tabs">
-    <button id="tab-mep" class="active" type="button">MEP 建材品項</button>
-    <button id="tab-skills" type="button">知識技能</button>
-  </div>
-
-  <!-- MEP section -->
-  <div id="section-mep">
-    <div class="cap-label">示範:站內即時篩選</div>
-    <div class="filter-bar">
-      <label>關鍵字 <input type="text" id="mep-keyword" placeholder="名稱/廠商/說明" style="width:160px"></label>
-      <label>廠商 <select id="mep-vendor"><option value="">全部</option></select></label>
-    </div>
-    <div id="mep-notice" class="notice" hidden></div>
-    <div id="mep-summary" class="summary">載入中…</div>
-    <div class="cap-label">示範:站內分頁</div>
-    <div id="mep-pagination-top" class="pagination"></div>
-    <div id="mep-list"></div>
-    <div class="cap-label" style="margin-top:6px">示範:欄位寬度可拖曳調整</div>
-    <div id="mep-pagination-bottom" class="pagination"></div>
-  </div>
+  <div class="showcase-banner">Studio 外掛範例 — 示範:公共資料源查詢、站內篩選/分頁、欄寬調整、深連結</div>
 
   <!-- Skills section -->
-  <div id="section-skills" hidden>
+  <div id="section-skills">
     <div class="cap-label">示範:站內即時篩選</div>
     <div class="filter-bar">
       <label>類別 <select id="skill-category"><option value="">全部</option></select></label>
@@ -95,23 +67,7 @@
 <script src="/studio-plugin.js"></script>
 <script>
 (function () {
-  var MEP_BLOCK = "kb-mep-materials";
   var SKILL_BLOCK = "kb-skills";
-
-  // ---- tab switching ----
-  var tabMep = document.getElementById("tab-mep");
-  var tabSkills = document.getElementById("tab-skills");
-  var secMep = document.getElementById("section-mep");
-  var secSkills = document.getElementById("section-skills");
-
-  tabMep.addEventListener("click", function () {
-    tabMep.className = "active"; tabSkills.className = "";
-    secMep.hidden = false; secSkills.hidden = true;
-  });
-  tabSkills.addEventListener("click", function () {
-    tabSkills.className = "active"; tabMep.className = "";
-    secSkills.hidden = false; secMep.hidden = true;
-  });
 
   // ---- utils ----
   function clearElement(el) { while (el.firstChild) el.removeChild(el.firstChild); }
@@ -122,8 +78,7 @@
   }
 
   // ---- pagination state ----
-  // NOTE(ceiling): page state is per-tab, per-session only; no URL persistence for current page number.
-  var mepPage = { current: 1, pageSize: 50 };
+  // NOTE(ceiling): page state is per-session only; no URL persistence for current page number.
   var skillPage = { current: 1, pageSize: 50 };
 
   function buildPagination(state, totalFiltered, totalAll, renderFn, elTop, elBottom, elSummary) {
@@ -203,7 +158,6 @@
 
   // ---- column resize state ----
   // NOTE(ceiling): widths are per-session only (no localStorage persistence; studio.draft could persist later).
-  var mepColWidths = {};   // keyed by column index
   var skillColWidths = {}; // keyed by column index
 
   function makeColResizable(table, colWidths, headers) {
@@ -252,137 +206,6 @@
       })(ths[i], i, colgroup);
     }
   }
-
-  // ---- MEP section ----
-  var mepRows = [];
-  var mepExpanded = {};
-  var mepDeepLinkDone = false;
-
-  function renderMep() {
-    var keyword = document.getElementById("mep-keyword").value.trim().toLowerCase();
-    var vendor = document.getElementById("mep-vendor").value;
-    var filtered = mepRows.filter(function (r) {
-      if (vendor && r.vendor !== vendor) return false;
-      if (keyword) {
-        var haystack = [(r.name || ""), (r.vendor || ""), (r.description || "")].join(" ").toLowerCase();
-        if (haystack.indexOf(keyword) === -1) return false;
-      }
-      return true;
-    });
-
-    var elTop = document.getElementById("mep-pagination-top");
-    var elBottom = document.getElementById("mep-pagination-bottom");
-    var elSummary = document.getElementById("mep-summary");
-    var slice = buildPagination(mepPage, filtered.length, mepRows.length, renderMep, elTop, elBottom, elSummary);
-    var pageRows = filtered.slice(slice.start, slice.end);
-
-    var list = document.getElementById("mep-list");
-    clearElement(list);
-    var table = document.createElement("table");
-    var headers = ["編號", "名稱", "廠商", "說明", "資料來源", "登錄日期"];
-    var head = table.createTHead().insertRow();
-    headers.forEach(function (label) {
-      var th = document.createElement("th"); th.textContent = label; head.appendChild(th);
-    });
-    var body = table.createTBody();
-    pageRows.forEach(function (row) {
-      var expanded = !!mepExpanded[row.id];
-      var tr = body.insertRow();
-      if (expanded) tr.className = "active-row";
-
-      // id
-      tr.insertCell().textContent = row.id == null ? "" : String(row.id);
-
-      // name
-      var tdName = tr.insertCell();
-      tdName.textContent = row.name || "";
-
-      // vendor
-      tr.insertCell().textContent = row.vendor || "";
-
-      // description — inline with expand
-      var tdDesc = tr.insertCell();
-      var descText = row.description || "";
-      if (!expanded) {
-        var span = document.createElement("span");
-        span.className = "desc-short";
-        span.title = "點擊展開全文";
-        span.textContent = truncate(descText, 60);
-        span.addEventListener("click", function () { mepExpanded[row.id] = true; renderMep(); });
-        tdDesc.appendChild(span);
-      } else {
-        tdDesc.textContent = descText;
-        tdDesc.style.whiteSpace = "pre-wrap";
-        var collapse = document.createElement("span");
-        collapse.className = "desc-short";
-        collapse.textContent = " [收起]";
-        collapse.style.color = "#999";
-        collapse.addEventListener("click", function () { delete mepExpanded[row.id]; renderMep(); });
-        tdDesc.appendChild(collapse);
-      }
-
-      // source_url with openExternal
-      var tdUrl = tr.insertCell();
-      if (row.source_url) {
-        var a = document.createElement("span");
-        a.className = "ext-link";
-        // NOTE: label documents that MEP source_url = vendor website, links work
-        a.title = "示範:有效的個案外部連結(對照:標案範例的官方連結不可用)";
-        a.textContent = "🔗 開啟";
-        a.addEventListener("click", function (url) {
-          return function () { studio.openExternal(url); };
-        }(row.source_url));
-        tdUrl.appendChild(a);
-      }
-
-      // registered_at
-      tr.insertCell().textContent = row.registered_at || "";
-    });
-    list.appendChild(table);
-    makeColResizable(table, mepColWidths, headers);
-
-    // handle ?mep= deep link — jump to page containing matched row
-    if (!mepDeepLinkDone) {
-      var params = new URLSearchParams(location.search);
-      var mepId = params.get("mep");
-      if (mepId) {
-        mepDeepLinkDone = true;
-        var matchedIdx = filtered.findIndex(function (r) { return String(r.id) === String(mepId); });
-        if (matchedIdx !== -1) {
-          var targetPage = Math.floor(matchedIdx / mepPage.pageSize) + 1;
-          if (targetPage !== mepPage.current) {
-            mepPage.current = targetPage;
-            mepExpanded[filtered[matchedIdx].id] = true;
-            renderMep();
-          } else {
-            mepExpanded[filtered[matchedIdx].id] = true;
-            renderMep();
-          }
-        } else {
-          var notice = document.getElementById("mep-notice");
-          notice.textContent = "找不到指定的 MEP 品項 id=" + mepId;
-          notice.hidden = false;
-        }
-      }
-    }
-  }
-
-  studio.query(MEP_BLOCK).then(function (data) {
-    mepRows = data.rows || [];
-    // build vendor dropdown
-    var vendors = Array.from(new Set(mepRows.map(function (r) { return r.vendor; }).filter(Boolean))).sort();
-    var sel = document.getElementById("mep-vendor");
-    vendors.forEach(function (v) {
-      var opt = document.createElement("option"); opt.value = v; opt.textContent = v; sel.appendChild(opt);
-    });
-    document.getElementById("mep-keyword").addEventListener("input", function () { mepPage.current = 1; renderMep(); });
-    sel.addEventListener("change", function () { mepPage.current = 1; renderMep(); });
-    renderMep();
-  }).catch(function (err) {
-    var el = document.getElementById("mep-summary");
-    el.className = "summary error";
-    el.textContent = "MEP 資料載入失敗:" + (err && err.message ? err.message : String(err));
-  });
 
   // ---- Skills section ----
   var skillRows = [];
@@ -452,15 +275,12 @@
         skillDeepLinkDone = true;
         var matchedIdx = filtered.findIndex(function (r) { return r.name === skillName; });
         if (matchedIdx !== -1) {
-          // Switch to skills tab first
-          tabSkills.click();
           document.getElementById("skill-keyword").value = skillName;
           skillPage.current = 1;
           renderSkills();
         } else {
           var allIdx = skillRows.findIndex(function (r) { return r.name === skillName; });
           if (allIdx !== -1) {
-            tabSkills.click();
             document.getElementById("skill-keyword").value = skillName;
             skillPage.current = 1;
             renderSkills();

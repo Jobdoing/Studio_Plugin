@@ -2,7 +2,7 @@
 // Build the architect-kb DuckDB artifact from normalized JSONL files.
 // Ops-side tool: runs centrally, never on customer boxes.
 //
-// Usage: node build-artifact.mjs <mep.jsonl> <skills.jsonl> <out.duckdb>
+// Usage: node build-artifact.mjs <skills.jsonl> <out.duckdb>
 //
 // NOTE: do NOT name the output file "architect_kb.duckdb" —
 //   DuckDB CLI interprets the file stem as a catalog name, which conflicts
@@ -11,22 +11,12 @@
 import { spawnSync } from "node:child_process";
 import { rmSync } from "node:fs";
 
-export const ARCHITECT_KB_SCHEMA_VERSION = "1";
+export const ARCHITECT_KB_SCHEMA_VERSION = "2";
 
-export function buildArtifact({ mepPath, skillsPath, outPath }) {
+export function buildArtifact({ skillsPath, outPath }) {
   rmSync(outPath, { force: true });
   const sql = `
 CREATE SCHEMA architect_kb;
-CREATE TABLE architect_kb.mep_materials(
-  id BIGINT, name VARCHAR, vendor VARCHAR, description VARCHAR,
-  source_url VARCHAR, sourced_at DATE, registered_at DATE);
-INSERT INTO architect_kb.mep_materials
-  SELECT
-    CAST(id AS BIGINT),
-    name, vendor, description, source_url,
-    TRY_CAST(sourced_at AS DATE),
-    TRY_CAST(registered_at AS DATE)
-  FROM read_json_auto('${mepPath.replaceAll("'", "''")}', format='newline_delimited');
 CREATE TABLE architect_kb.kb_skills(
   name VARCHAR, category VARCHAR, class VARCHAR, status VARCHAR,
   data_currency VARCHAR, region VARCHAR, description VARCHAR, source_url VARCHAR);
@@ -42,10 +32,10 @@ INSERT INTO architect_kb._meta VALUES ('${ARCHITECT_KB_SCHEMA_VERSION}');
 }
 
 if (process.argv[1] && import.meta.url.endsWith(process.argv[1].split("/").at(-1))) {
-  const [mepPath, skillsPath, outPath] = process.argv.slice(2);
-  if (!mepPath || !skillsPath || !outPath) {
-    console.error("usage: build-artifact.mjs <mep.jsonl> <skills.jsonl> <out.duckdb>");
+  const [skillsPath, outPath] = process.argv.slice(2);
+  if (!skillsPath || !outPath) {
+    console.error("usage: build-artifact.mjs <skills.jsonl> <out.duckdb>");
     process.exit(1);
   }
-  console.log(buildArtifact({ mepPath, skillsPath, outPath }));
+  console.log(buildArtifact({ skillsPath, outPath }));
 }

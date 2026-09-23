@@ -1,1 +1,0 @@
-{"title":"建材品項(MEP)","sql":"SELECT id, name, vendor, description, source_url, sourced_at, registered_at FROM architect_kb.mep_materials ORDER BY id","source":"architect_kb"}

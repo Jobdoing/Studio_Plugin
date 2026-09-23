@@ -95,16 +95,6 @@ description: "no closing delimiter"
 
 // ---- Builder + verifySource tests ----
 
-const FIXTURE_MEP = [
-  { id: 1, name: "CNS 6445_blk_15A", vendor: "高興昌", description: "Test pipe A",
-    source_url: "http://www.khc.com.tw", sourced_at: "2026-03-17", registered_at: "2026-07-23" },
-  { id: 2, name: "CNS 6445_blk_20A", vendor: "高興昌", description: "Test pipe B",
-    source_url: "http://www.khc.com.tw", sourced_at: "2026-03-17", registered_at: "2026-07-23" },
-  // row with null dates — must be tolerated
-  { id: 3, name: "Unnamed Item", vendor: null, description: null,
-    source_url: null, sourced_at: null, registered_at: null },
-];
-
 const FIXTURE_SKILLS = [
   { name: "architect-foundations", category: "建築設計與規劃", class: "A", status: null,
     data_currency: null, region: null,
@@ -118,9 +108,8 @@ const FIXTURE_SKILLS = [
 
 const EXPECTED_ENTRY = {
   name: "architect_kb",
-  sourceSchemaVersion: "1",
+  sourceSchemaVersion: "2",
   tables: {
-    "architect_kb.mep_materials": ["id", "name", "vendor", "description", "source_url", "sourced_at", "registered_at"],
     "architect_kb.kb_skills": ["name", "category", "class", "status", "data_currency", "region", "description", "source_url"],
   },
 };
@@ -128,15 +117,13 @@ const EXPECTED_ENTRY = {
 const tmpDir = mkdtempSync(join(tmpdir(), "architect-kb-test-"));
 process.on("exit", () => { try { rmSync(tmpDir, { recursive: true, force: true }); } catch {} });
 
-const mepPath = join(tmpDir, "mep.jsonl");
 const skillsPath = join(tmpDir, "skills.jsonl");
 const outPath = join(tmpDir, "artifact.duckdb"); // NOT "architect_kb.duckdb"
 
-writeFileSync(mepPath, FIXTURE_MEP.map((r) => JSON.stringify(r)).join("\n") + "\n");
 writeFileSync(skillsPath, FIXTURE_SKILLS.map((r) => JSON.stringify(r)).join("\n") + "\n");
 
 test("buildArtifact creates a valid DuckDB artifact from fixture JSONL", () => {
-  const result = buildArtifact({ mepPath, skillsPath, outPath });
+  const result = buildArtifact({ skillsPath, outPath });
   assert.equal(result, outPath);
 });
 
@@ -144,16 +131,6 @@ test("verifySource returns ok:true on the built artifact", () => {
   const entry = { ...EXPECTED_ENTRY, file: outPath };
   const verdict = verifySource(entry);
   assert.deepEqual(verdict, { ok: true });
-});
-
-test("artifact has correct mep_materials row count and data", () => {
-  const rows = query(outPath, "SELECT id, name, vendor FROM architect_kb.mep_materials ORDER BY id");
-  assert.equal(rows.length, 3);
-  assert.equal(rows[0].id, 1);
-  assert.equal(rows[0].name, "CNS 6445_blk_15A");
-  assert.equal(rows[0].vendor, "高興昌");
-  // last row has null vendor
-  assert.equal(rows[2].vendor, null);
 });
 
 test("artifact has correct kb_skills row count and data", () => {
@@ -166,16 +143,16 @@ test("artifact has correct kb_skills row count and data", () => {
   assert.equal(urban.status, "draft");
 });
 
-test("null date values in mep_materials are stored as NULL (not crash)", () => {
-  const rows = query(outPath, "SELECT id, sourced_at, registered_at FROM architect_kb.mep_materials WHERE id = 3");
-  assert.equal(rows.length, 1);
-  assert.equal(rows[0].sourced_at, null);
-  assert.equal(rows[0].registered_at, null);
+test("artifact does NOT contain mep_materials table (schema_version 2 contract)", () => {
+  // verifySource already checks table presence, but we explicitly confirm absence here.
+  const rows = query(outPath,
+    "SELECT table_name FROM information_schema.tables WHERE table_schema = 'architect_kb' AND table_name = 'mep_materials'");
+  assert.equal(rows.length, 0, "mep_materials table must not exist in schema_version 2 artifact");
 });
 
 test("_meta schema_version matches expected constant", () => {
   const rows = query(outPath, "SELECT schema_version FROM architect_kb._meta");
   assert.equal(rows.length, 1);
   assert.equal(rows[0].schema_version, ARCHITECT_KB_SCHEMA_VERSION);
-  assert.equal(ARCHITECT_KB_SCHEMA_VERSION, "1");
+  assert.equal(ARCHITECT_KB_SCHEMA_VERSION, "2");
 });

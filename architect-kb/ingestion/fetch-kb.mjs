@@ -3,7 +3,6 @@
 // Ops-side tool: run manually to refresh the artifact.
 //
 // Data sources:
-//   mep.jsonl  <- raw/專業複委託/**/MEP品項百科.json  (expected ~1,180 rows)
 //   skills.jsonl <- all raw/**/SKILL.md frontmatter    (expected ~90 files)
 //
 // Usage:
@@ -13,7 +12,7 @@
 // into a temp directory then reads from there.
 
 import { mkdirSync, writeFileSync, readFileSync, readdirSync, statSync } from "node:fs";
-import { join, relative, basename } from "node:path";
+import { join, relative } from "node:path";
 import { tmpdir } from "node:os";
 import { spawnSync } from "node:child_process";
 
@@ -49,8 +48,10 @@ if (fromIdx !== -1) {
 
 mkdirSync(outDir, { recursive: true });
 
-// --- MEP extraction ---
-// Reads every MEP品項百科.json found under raw/專業複委託/ and emits rows.
+// --- Skills extraction ---
+// Reads all SKILL.md files under raw/, extracts YAML frontmatter.
+// Frontmatter fields live at top-level or under a `metadata:` sub-block.
+// Uses a simple key:value line parser — no yaml lib.
 
 function findFiles(dir, namePredicate) {
   const results = [];
@@ -70,37 +71,6 @@ function findFiles(dir, namePredicate) {
 }
 
 const rawDir = join(srcRoot, "raw");
-const mepJsonFiles = findFiles(join(rawDir, "專業複委託"), (name) => name === "MEP品項百科.json");
-process.stderr.write(`found ${mepJsonFiles.length} MEP品項百科.json file(s)\n`);
-
-const mepRows = [];
-for (const filePath of mepJsonFiles) {
-  let entries;
-  try { entries = JSON.parse(readFileSync(filePath, "utf8")); }
-  catch (err) { process.stderr.write(`SKIP MEP file ${filePath}: ${err.message}\n`); continue; }
-  if (!Array.isArray(entries)) { process.stderr.write(`SKIP MEP file (not an array): ${filePath}\n`); continue; }
-  for (const e of entries) {
-    mepRows.push({
-      id: e["編號"] ?? null,
-      name: e["名稱"] ?? null,
-      vendor: e["廠商"] ?? null,
-      description: e["說明"] ?? null,
-      source_url: e["資料來源"] ?? null,
-      sourced_at: e["資料取得日期"] ?? null,
-      registered_at: e["登錄日期"] ?? null,
-    });
-  }
-}
-process.stderr.write(`mep rows: ${mepRows.length}\n`);
-writeFileSync(join(outDir, "mep.jsonl"), mepRows.map((r) => JSON.stringify(r)).join("\n") + "\n", "utf8");
-
-// --- Skills extraction ---
-// Reads all SKILL.md files under raw/, extracts YAML frontmatter.
-// Frontmatter fields live at top-level or under a `metadata:` sub-block.
-// Uses a simple key:value line parser — no yaml lib.
-
-const skillFiles = findFiles(rawDir, (name) => name === "SKILL.md");
-process.stderr.write(`found ${skillFiles.length} SKILL.md files\n`);
 
 // Simple flat YAML parser for --- delimited frontmatter.
 // Handles top-level keys and one level of nested block (e.g. `metadata:` section).
@@ -149,6 +119,9 @@ function getCategory(filePath) {
   return rel.split("/")[0] ?? null;
 }
 
+const skillFiles = findFiles(rawDir, (name) => name === "SKILL.md");
+process.stderr.write(`found ${skillFiles.length} SKILL.md files\n`);
+
 const skillRows = [];
 for (const filePath of skillFiles) {
   let text;
@@ -172,4 +145,4 @@ for (const filePath of skillFiles) {
 process.stderr.write(`skill rows: ${skillRows.length}\n`);
 writeFileSync(join(outDir, "skills.jsonl"), skillRows.map((r) => JSON.stringify(r)).join("\n") + "\n", "utf8");
 
-process.stderr.write(`done: mep=${mepRows.length} skills=${skillRows.length} -> ${outDir}\n`);
+process.stderr.write(`done: skills=${skillRows.length} -> ${outDir}\n`);
