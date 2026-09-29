@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="zh-TW">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>工地百寶箱</title>
+  <link rel="stylesheet" href="/studio-kit.css">
+  <style>
+    .jobsite-toolbox { max-width: 72rem; margin-inline: auto; padding: 1rem; color: var(--ink); }
+    .jobsite-toolbox .toolbox-header { margin-bottom: 1rem; }
+    .jobsite-toolbox .toolbox-header p, .jobsite-toolbox .tool-note { color: var(--muted); }
+    .jobsite-toolbox .tool-back { margin-bottom: 1rem; }
+    /* One accent colour, one line weight: abstract line icons on the launcher tiles (decorative only). */
+    .jobsite-toolbox .tool-icon { width: 2rem; height: 2rem; fill: none; stroke: var(--brand); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    /* Phone-width frames hide tools whose input is prepared at a desk, not entered on site. */
+    .jobsite-toolbox .web-only-note { display: none; }
+    @media (max-width: 40rem) { .jobsite-toolbox .web-only { display: none; } .jobsite-toolbox .web-only-note { display: block; } }
+    .jobsite-toolbox .tool-panel h2 { margin-top: 0; }
+    .jobsite-toolbox .tool-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: .75rem; }
+    .jobsite-toolbox .tool-grid > * { min-width: 0; }
+    .jobsite-toolbox .tool-output { margin-top: 1rem; }
+    .jobsite-toolbox .tool-copy { margin-top: .75rem; }
+    .jobsite-toolbox .tool-formula { margin-top: 1rem; overflow-wrap: anywhere; }
+    .jobsite-toolbox .tool-note { margin-bottom: 0; font-size: var(--text-sm); }
+    .jobsite-toolbox .tile-diagram svg { display: block; width: 100%; height: auto; max-height: 20rem; margin-top: 1rem; }
+    .jobsite-toolbox .tile-full, .jobsite-toolbox .tile-cut { vector-effect: non-scaling-stroke; }
+    .jobsite-toolbox .tile-full { fill: var(--brand-soft); stroke: var(--line-control); }
+    .jobsite-toolbox .tile-cut { fill: var(--paper); stroke: var(--ink); stroke-dasharray: 4 3; }
+    .jobsite-toolbox .tile-cutlist, .jobsite-toolbox .cell-list { margin-top: 1rem; }
+    .jobsite-toolbox .tool-subhead { margin: 0 0 .5rem; }
+    .jobsite-toolbox .cable-rows { grid-column: 1 / -1; }
+    .jobsite-toolbox .row-add { margin-top: .5rem; }
+    .jobsite-toolbox .example-note { margin-bottom: 1rem; }
+    @media (max-width: 375px) { .jobsite-toolbox { padding: .75rem; } }
+  </style>
+</head>
+<body>
+<main class="jobsite-toolbox">
+  <header class="toolbox-header">
+    <h1>工地百寶箱</h1>
+    <p>輸入現場尺寸與已確認的材料參數，即時計算。結果可選取複製，請依實際產品與施工條件核對。</p>
+  </header>
+  <nav class="tool-home" aria-labelledby="home-title">
+    <h2 id="home-title" class="tool-subhead">全部工具</h2>
+    <p class="tool-note">點方塊開啟工具。調整順序：電腦用滑鼠直接拖曳；手機長按方塊約半秒、手指不放開拖曳；鍵盤用 Alt＋上下方向鍵。順序存在你的帳號，換裝置也相同。</p>
+    <div class="kit-launcher" id="tool-tiles">
+      <button type="button" class="kit-launcher-tile" data-id="slab"><svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 12l7-4 11 4-7 4z"/><path d="M3 12v3l11 4 7-4v-3"/><path d="M14 16v3"/></svg>混凝土板方量與袋數</button>
+      <button type="button" class="kit-launcher-tile" data-id="hole"><svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M2 7h4M18 7h4"/><ellipse cx="12" cy="7" rx="5" ry="1.8"/><path d="M7 7v11a5 1.8 0 0 0 10 0V7"/></svg>圓柱孔混凝土</button>
+      <button type="button" class="kit-launcher-tile" data-id="mortar"><svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="14" rx="0.5"/><path d="M3 9.7h18M3 14.3h18M9 5v4.7M15 5v4.7M6 9.7v4.6M12 9.7v4.6M18 9.7v4.6M9 14.3V19M15 14.3V19"/></svg>砌磚／砌塊砂漿袋數</button>
+      <button type="button" class="kit-launcher-tile" data-id="aggregate"><svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 16h18M3 20h18"/><circle cx="6.5" cy="12.5" r="1.8"/><circle cx="12" cy="12" r="2.2"/><circle cx="17.5" cy="12.5" r="1.8"/><circle cx="9.3" cy="8.3" r="1.6"/><circle cx="14.8" cy="8.3" r="1.6"/></svg>砂石層體積</button>
+      <button type="button" class="kit-launcher-tile" data-id="asphalt"><svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 3L4 21M15 3l5 18"/><path d="M12 4v2.5M12 10v3M12 16.5V20"/></svg>瀝青層理論噸數</button>
+      <button type="button" class="kit-launcher-tile" data-id="pedestals"><svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 8h18v3H3z"/><path d="M6 11v7M12 11v7M18 11v7M4.5 18h3M10.5 18h3M16.5 18h3"/><path d="M3 21h18" stroke-dasharray="1.5 2"/></svg>架高鋪面支座點數</button>
+      <button type="button" class="kit-launcher-tile" data-id="sealant"><svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="8" width="10" height="8" rx="1"/><path d="M14 10.5l6 1.5-6 1.5M4 12H1.5M8 8v8"/><path d="M17 17c1 1.5 3 1.5 4 0"/></svg>接縫填料</button>
+      <button type="button" class="kit-launcher-tile" data-id="tile"><svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="4" width="16" height="16" rx="1"/><path d="M12 4v16M4 12h16"/></svg>磁磚片數與箱數</button>
+      <button type="button" class="kit-launcher-tile web-only" data-id="tileLayout"><svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M9 4v16M15 4v16M3 12h18"/><path d="M18 5.5v13" stroke-dasharray="1.5 2"/></svg>磁磚起排與切料清單</button>
+      <button type="button" class="kit-launcher-tile web-only" data-id="ceilingGrid"><svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 5h18v14H3z"/><path d="M5 5v14M19 5v14M3 8h18M3 16h18" stroke-dasharray="1.5 1.5"/><path d="M10 5v14M14 5v14M3 12h18"/></svg>格柵天花排版</button>
+      <button type="button" class="kit-launcher-tile web-only" data-id="adhesive"><svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 13h13v3H3z"/><path d="M4 16v2.5M7 16v2.5M10 16v2.5M13 16v2.5M16 16v2.5"/><path d="M9.5 13V9l6-5 2 2"/></svg>磁磚膠用量與整包數</button>
+      <button type="button" class="kit-launcher-tile web-only" data-id="coverage"><svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6.5 8h11l-1.5 12h-8z"/><path d="M8.5 8l1-3.5h5l1 3.5"/><path d="M9.5 13h5M10 16h4"/></svg>灰泥、抹灰、自流平袋數</button>
+      <button type="button" class="kit-launcher-tile web-only" data-id="grout"><svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="7.5" height="7.5" rx="1"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1"/><path d="M12 5v14M5 12h14" stroke-dasharray="0.5 2"/></svg>填縫劑用量</button>
+      <button type="button" class="kit-launcher-tile web-only" data-id="membrane"><svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="7" cy="8" r="3"/><circle cx="7" cy="8" r="0.8"/><path d="M7 11h13v8H7a3 3 0 0 1-3-3V8"/><path d="M10 11v8M14 11v8" stroke-dasharray="1.5 2"/></svg>防水膜卷數</button>
+      <button type="button" class="kit-launcher-tile" data-id="trimProfile"><svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 20V7h3v10h13v3z"/><path d="M7 13h13M7 10h13"/></svg>磁磚收邊型材支數</button>
+      <button type="button" class="kit-launcher-tile web-only" data-id="gypsum"><svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="3" width="7.5" height="18" rx="0.5"/><rect x="13" y="3" width="7.5" height="18" rx="0.5"/><path d="M7.2 6h.1M7.2 12h.1M7.2 18h.1M16.7 6h.1M16.7 12h.1M16.7 18h.1"/></svg>石膏板與接縫材料</button>
+      <button type="button" class="kit-launcher-tile" data-id="rebar"><svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 17L17 3M7 21L21 7M5 19L19 5"/><path d="M8.5 13.5l1 1M11.5 10.5l1 1M14.5 7.5l1 1"/></svg>鋼筋理論重量</button>
+      <button type="button" class="kit-launcher-tile" data-id="rebarDevelopment"><svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 10h12M9 14h12"/><path d="M9 10v4M15 10v4" stroke-dasharray="1.5 1.5"/><path d="M5 9v2M7 9v2M11 13v2M13 13v2M17 13v2M19 13v2"/></svg>鋼筋伸展與搭接長度</button>
+      <button type="button" class="kit-launcher-tile" data-id="plate"><svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 10l9-4 9 4-9 4z"/><path d="M3 10v2.5l9 4 9-4V10"/><path d="M3 17.5l9 4 9-4" stroke-dasharray="1.5 2"/></svg>矩形鋼板重量</button>
+      <button type="button" class="kit-launcher-tile web-only" data-id="voltageDrop"><svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M11 2L4 13h6l-1 9 7-11h-6l1-9z"/><path d="M20 8v9M17.5 14.5L20 17l2.5-2.5"/></svg>導線電壓降</button>
+      <button type="button" class="kit-launcher-tile" data-id="conduitFill"><svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><circle cx="9" cy="10" r="2.6"/><circle cx="15" cy="10" r="2.6"/><circle cx="12" cy="15.2" r="2.6"/></svg>線管截面填充率</button>
+      <button type="button" class="kit-launcher-tile" data-id="sidewallPressure"><svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 21v-8a9 9 0 0 1 9-9h8"/><path d="M8.5 21v-8a4.5 4.5 0 0 1 4.5-4.5h8"/><path d="M17 17l-3.5-3.5M13.5 16.5v-3h3"/></svg>彎管側壓</button>
+      <button type="button" class="kit-launcher-tile" data-id="benderOffset"><svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M2 17h6l4-8h10"/><path d="M8 20v-2M12 12V6"/><path d="M8 14v1M12 5V4" stroke-dasharray="0.5 2"/></svg>彎管 offset 標記</button>
+      <button type="button" class="kit-launcher-tile web-only" data-id="pipePressureLoss"><svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M2 14h20M2 19h20"/><circle cx="12" cy="7" r="4"/><path d="M12 11v3M12 7l2.2-2.2"/></svg>給水配管壓損</button>
+      <button type="button" class="kit-launcher-tile" data-id="slope"><svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 19h18L3 8z"/><path d="M15.5 19a4 4 0 0 0-.6-2.3"/></svg>坡度與距離互算</button>
+      <button type="button" class="kit-launcher-tile" data-id="roof"><svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M2 12.5L12 5l10 7.5"/><path d="M5 10.5V19h14v-8.5"/><path d="M12 5v14" stroke-dasharray="1.5 2"/></svg>雙坡屋頂幾何</button>
+      <button type="button" class="kit-launcher-tile web-only" data-id="cutFill"><svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 10c3-4 6 2 9 0s6-3 9 1"/><path d="M3 14h18" stroke-dasharray="1.5 2"/><path d="M3 19h18"/></svg>規則格網挖填</button>
+      <button type="button" class="kit-launcher-tile" data-id="staking"><svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 18h18" stroke-dasharray="2 2"/><path d="M3 14c4-3 8 2 12-1s4-2 6-2"/><path d="M12 4v16"/><path d="M10 6l2-2 2 2"/></svg>放樣挖填高差</button>
+      <button type="button" class="kit-launcher-tile web-only" data-id="formworkPressure"><svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 3v18M19 3v18"/><path d="M5 21h14"/><path d="M8 8h5M8 12h7M8 16h9"/><path d="M11 7l2 1-2 1M13 11l2 1-2 1M15 15l2 1-2 1"/></svg>模板側壓</button>
+      <button type="button" class="kit-launcher-tile" data-id="stair"><svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 20h4.5v-4h4.5v-4h4.5V8H21"/><path d="M3 20h18" stroke-dasharray="1.5 2"/></svg>直跑樓梯幾何</button>
+      <button type="button" class="kit-launcher-tile" data-id="cylinder"><svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><ellipse cx="12" cy="6" rx="6" ry="2.5"/><path d="M6 6v12a6 2.5 0 0 0 12 0V6"/></svg>圓柱幾何</button>
+      <button type="button" class="kit-launcher-tile" data-id="outrigger"><svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3v11M9 6l3-3 3 3"/><path d="M6 14h12v3H6z"/><path d="M7 21v-2M12 21v-2M17 21v-2"/></svg>吊車支腿平均接地壓力</button>
+    </div>
+    <p class="tool-note web-only-note">需在辦公室整理資料的工具只在電腦版顯示。</p>
+    <p class="tool-note" id="order-status" role="status"></p>
+  </nav>
+  <button type="button" class="kit-button kit-button--link tool-back" hidden>← 全部工具</button>
+
+  <section class="kit-card tool-panel" data-tool="slab" hidden>
+    <h2>混凝土板方量與袋數</h2>
+    <form class="kit-form tool-grid" novalidate>
+      <div class="kit-field"><label for="slab-length">長（m）</label><input autocomplete="off" id="slab-length" name="length" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="slab-width">寬（m）</label><input autocomplete="off" id="slab-width" name="width" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="slab-thickness">厚（mm）</label><input autocomplete="off" id="slab-thickness" name="thickness" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="slab-yieldPerBag">產品每袋產率（m³／袋）</label><input autocomplete="off" id="slab-yieldPerBag" name="yieldPerBag" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+    </form>
+    <div class="tool-output" hidden><dl class="kit-stats"><div class="kit-stat"><dt>體積</dt><dd><span data-result="volume"></span><span class="kit-stat-unit">m³</span></dd></div><div class="kit-stat"><dt>進位前袋數</dt><dd><span data-result="rawBags"></span><span class="kit-stat-unit">袋</span></dd></div><div class="kit-stat"><dt>採購整袋數</dt><dd><span data-result="bags"></span><span class="kit-stat-unit">袋</span></dd></div></dl><button type="button" class="kit-button kit-button--secondary tool-copy">複製結果</button></div>
+    <p class="tool-error kit-field-error" hidden>請輸入所有必填欄位的正數。</p>
+    <p class="tool-formula">體積＝長 × 寬 × 厚 ÷ 1000；袋數＝體積 ÷ 每袋產率，向上取整。</p>
+    <p class="tool-note">只算矩形板；不計損耗、鋼筋或不平整底面。產率須依所選產品確認。</p>
+  </section>
+
+  <section class="kit-card tool-panel" data-tool="hole" hidden>
+    <h2>圓柱孔混凝土</h2>
+    <form class="kit-form tool-grid" novalidate>
+      <div class="kit-field"><label for="hole-diameter">孔徑（m）</label><input autocomplete="off" id="hole-diameter" name="diameter" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="hole-depth">孔深（m）</label><input autocomplete="off" id="hole-depth" name="depth" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="hole-count">孔數（正整數）</label><input autocomplete="off" id="hole-count" name="count" type="number" inputmode="numeric" min="1" step="1" required></div>
+      <div class="kit-field"><label for="hole-yieldPerBag">產品每袋產率（m³／袋，選填）</label><input autocomplete="off" id="hole-yieldPerBag" name="yieldPerBag" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)"></div>
+    </form>
+    <div class="tool-output" hidden><dl class="kit-stats"><div class="kit-stat"><dt>單孔體積</dt><dd><span data-result="perHole"></span><span class="kit-stat-unit">m³</span></dd></div><div class="kit-stat"><dt>合計體積</dt><dd><span data-result="volume"></span><span class="kit-stat-unit">m³</span></dd></div><div class="kit-stat" data-optional="rawBags"><dt>進位前袋數</dt><dd><span data-result="rawBags"></span><span class="kit-stat-unit">袋</span></dd></div><div class="kit-stat" data-optional="bags"><dt>採購整袋數</dt><dd><span data-result="bags"></span><span class="kit-stat-unit">袋</span></dd></div></dl><button type="button" class="kit-button kit-button--secondary tool-copy">複製結果</button></div>
+    <p class="tool-error kit-field-error" hidden>請輸入必填正數、正整數孔數；產率若填也須為正數。</p>
+    <p class="tool-formula">單孔體積＝π ×（孔徑 ÷ 2）² × 孔深；合計＝單孔 × 孔數；袋數＝合計 ÷ 每袋產率，向上取整。</p>
+    <p class="tool-note">只算規則圓柱整孔體積，不扣柱體，不估超挖。</p>
+  </section>
+
+  <section class="kit-card tool-panel" data-tool="sealant" hidden>
+    <h2>接縫填料</h2>
+    <form class="kit-form tool-grid" novalidate>
+      <div class="kit-field"><label for="sealant-length">縫長（m）</label><input autocomplete="off" id="sealant-length" name="length" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="sealant-width">縫寬（mm）</label><input autocomplete="off" id="sealant-width" name="width" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="sealant-depth">縫深（mm）</label><input autocomplete="off" id="sealant-depth" name="depth" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="sealant-capacity">單支容量（mL）</label><input autocomplete="off" id="sealant-capacity" name="capacity" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="sealant-loss">損耗率（%，可為 0）</label><input autocomplete="off" id="sealant-loss" name="loss" data-allow-zero type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" max="99.999" required></div>
+    </form>
+    <div class="tool-output" hidden><dl class="kit-stats"><div class="kit-stat"><dt>淨量</dt><dd><span data-result="net"></span><span class="kit-stat-unit">mL</span></dd></div><div class="kit-stat"><dt>每支有效容量</dt><dd><span data-result="effective"></span><span class="kit-stat-unit">mL</span></dd></div><div class="kit-stat"><dt>進位前支數</dt><dd><span data-result="rawCartridges"></span><span class="kit-stat-unit">支</span></dd></div><div class="kit-stat"><dt>採購整支數</dt><dd><span data-result="cartridges"></span><span class="kit-stat-unit">支</span></dd></div></dl><button type="button" class="kit-button kit-button--secondary tool-copy">複製結果</button></div>
+    <p class="tool-error kit-field-error" hidden>請填正數；損耗率須介於 0%（含）與 100%（不含）。</p>
+    <p class="tool-formula">淨量 mL＝縫長 m × 縫寬 mm × 縫深 mm；有效容量＝單支容量 ×（1－損耗率）；整支數＝淨量 ÷ 有效容量，向上取整。</p>
+    <p class="tool-note">矩形接縫估算；損耗採有效容量減少，不含背襯材與產品適用性判斷。</p>
+  </section>
+
+  <section class="kit-card tool-panel" data-tool="aggregate" hidden>
+    <h2>砂石層體積</h2>
+    <form class="kit-form tool-grid" novalidate>
+      <div class="kit-field"><label for="aggregate-length">長（m）</label><input autocomplete="off" id="aggregate-length" name="length" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="aggregate-width">寬（m）</label><input autocomplete="off" id="aggregate-width" name="width" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="aggregate-thickness">厚（mm）</label><input autocomplete="off" id="aggregate-thickness" name="thickness" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="aggregate-density">材料密度（kg/m³，選填）</label><input autocomplete="off" id="aggregate-density" name="density" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)"></div>
+    </form>
+    <div class="tool-output" hidden><dl class="kit-stats"><div class="kit-stat"><dt>幾何體積</dt><dd><span data-result="volume"></span><span class="kit-stat-unit">m³</span></dd></div><div class="kit-stat" data-optional="mass"><dt>理論質量</dt><dd><span data-result="mass"></span><span class="kit-stat-unit">kg</span></dd></div></dl><button type="button" class="kit-button kit-button--secondary tool-copy">複製結果</button></div>
+    <p class="tool-error kit-field-error" hidden>請輸入必填正數；密度若填也須為正數。</p>
+    <p class="tool-formula">體積＝長 × 寬 × 厚 ÷ 1000；質量＝體積 × 已填密度。</p>
+    <p class="tool-note">矩形鋪設層；不計壓實、鬆實方或袋數。未填密度時不顯示質量。</p>
+  </section>
+
+  <section class="kit-card tool-panel" data-tool="rebar" hidden>
+    <h2>鋼筋理論重量</h2>
+    <form class="kit-form tool-grid" novalidate>
+      <div class="kit-field"><label for="rebar-unitWeight">已確認單位重（kg/m）</label><input autocomplete="off" id="rebar-unitWeight" name="unitWeight" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="rebar-length">單支長（m）</label><input autocomplete="off" id="rebar-length" name="length" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="rebar-count">支數（正整數）</label><input autocomplete="off" id="rebar-count" name="count" type="number" inputmode="numeric" min="1" step="1" required></div>
+    </form>
+    <div class="tool-output" hidden><dl class="kit-stats"><div class="kit-stat"><dt>總長</dt><dd><span data-result="totalLength"></span><span class="kit-stat-unit">m</span></dd></div><div class="kit-stat"><dt>理論總重量</dt><dd><span data-result="mass"></span><span class="kit-stat-unit">kg</span></dd></div></dl><button type="button" class="kit-button kit-button--secondary tool-copy">複製結果</button></div>
+    <p class="tool-error kit-field-error" hidden>請輸入正數及正整數支數。</p>
+    <p class="tool-formula">總長＝單支長 × 支數；理論重量＝單位重 × 總長。</p>
+    <p class="tool-note">單位重由使用者依材料資料確認；不含搭接、彎鉤或下料耗損。</p>
+  </section>
+
+  <section class="kit-card tool-panel" data-tool="rebarDevelopment" hidden>
+    <h2>鋼筋伸展、彎鉤與搭接長度</h2>
+    <form class="kit-form tool-grid" novalidate>
+      <div class="kit-field"><label for="rebarDevelopment-barSize">鋼筋號數（CNS 560 標稱直徑）</label><select id="rebarDevelopment-barSize" name="barSize"><option value="D10">D10（db 9.53 mm）</option><option value="D13">D13（db 12.7 mm）</option><option value="D16">D16（db 15.9 mm）</option><option value="D19">D19（db 19.1 mm）</option><option value="D22" selected>D22（db 22.2 mm）</option><option value="D25">D25（db 25.4 mm）</option><option value="D29">D29（db 28.7 mm）</option><option value="D32">D32（db 32.2 mm）</option><option value="D36">D36（db 35.8 mm）</option><option value="D39">D39（db 39.4 mm，大於 D36 不得搭接）</option><option value="D43">D43（db 43.0 mm，大於 D36 不得搭接）</option><option value="D57">D57（db 57.3 mm，大於 D36 不得搭接）</option></select></div>
+      <div class="kit-field"><label for="rebarDevelopment-fc">混凝土強度 fc′（kgf/cm²）</label><input autocomplete="off" id="rebarDevelopment-fc" name="fc" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="rebarDevelopment-fy">鋼筋降伏強度 fy（kgf/cm²）</label><select id="rebarDevelopment-fy" name="fy"><option value="4200">4200（ψg 1.0）</option><option value="5000">5000（ψg 1.08）</option><option value="5600">5600（ψg 1.15）</option><option value="7000">7000（ψg 1.30）</option></select></div>
+      <div class="kit-field"><label for="rebarDevelopment-lambda">混凝土種類</label><select id="rebarDevelopment-lambda" name="lambda"><option value="normal">常重混凝土（λ 1.0）</option><option value="light">輕質混凝土（λ 0.75）</option></select></div>
+      <div class="kit-field"><label for="rebarDevelopment-topBar">水平鋼筋下方一次澆置的混凝土厚度</label><select id="rebarDevelopment-topBar" name="topBar"><option value="no">30 cm 以下（ψt 1.0）</option><option value="yes">超過 30 cm（ψt 1.3）</option></select></div>
+      <div class="kit-field"><label for="rebarDevelopment-coating">塗布</label><select id="rebarDevelopment-coating" name="coating"><option value="none">未塗布或鍍鋅（ψe 1.0）</option><option value="epoxyThin">環氧樹脂，且淨保護層 &lt; 3db 或淨間距 &lt; 6db（ψe 1.5）</option><option value="epoxy">其他環氧樹脂塗布（ψe 1.2）</option></select></div>
+      <div class="kit-field"><label for="rebarDevelopment-cover">cb（cm，鋼筋中心到最近混凝土面距離，與鋼筋中心距的一半，取小者）</label><input autocomplete="off" id="rebarDevelopment-cover" name="cover" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="rebarDevelopment-ktr">Ktr（cm，＝40Atr ÷（s × n），選填，可填 0）</label><input autocomplete="off" id="rebarDevelopment-ktr" name="ktr" data-allow-zero type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)"></div>
+      <div class="kit-field"><label for="rebarDevelopment-member">構件</label><select id="rebarDevelopment-member" name="member"><option value="general">梁、牆、版等（非柱縱向鋼筋）</option><option value="column">柱縱向鋼筋（10.7.1.3）</option></select></div>
+      <div class="kit-field"><label for="rebarDevelopment-spacing">鋼筋中心距（cm，fy 5600 以上必填；25.4.2.2）</label><input autocomplete="off" id="rebarDevelopment-spacing" name="spacing" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)"></div>
+      <div class="kit-field"><label for="rebarDevelopment-confined">受壓段圍束（25.4.9.3）</label><select id="rebarDevelopment-confined" name="confined"><option value="no">一般（ψr 1.0）</option><option value="yes">螺箍筋、圓形連續箍筋或中心距 ≤ 10 cm 的規定箍筋（ψr 0.75）</option></select></div>
+      <div class="kit-field"><label for="rebarDevelopment-hookRestraint">彎鉤圍束（表 25.4.3.2 ψr，限 D36 以下）</label><select id="rebarDevelopment-hookRestraint" name="hookRestraint"><option value="no">其他（ψr 1.6）</option><option value="yes">圍束箍筋 Ath ≥ 0.4Ahs，或彎鉤最小中心距 ≥ 6db（ψr 1.0）</option></select></div>
+      <div class="kit-field"><label for="rebarDevelopment-hookPosition">彎鉤位置（表 25.4.3.2 ψo，限 D36 以下）</label><select id="rebarDevelopment-hookPosition" name="hookPosition"><option value="no">其他（ψo 1.25）</option><option value="yes">在柱核心內終止且垂直彎鉤平面側向保護層 ≥ 6.5 cm，或側向保護層 ≥ 6db（ψo 1.0）</option></select></div>
+      <div class="kit-field"><label for="rebarDevelopment-oldCover">舊式彎鉤：保護層（表 25.4.3.8）</label><select id="rebarDevelopment-oldCover" name="oldCover"><option value="no">不符合</option><option value="yes">D36 以下，側面保護層 ≥ 6.5 cm，且 90° 彎鉤延伸段保護層 ≥ 5 cm（× 0.7）</option></select></div>
+      <div class="kit-field"><label for="rebarDevelopment-oldTies">舊式彎鉤：箍筋或肋筋（表 25.4.3.8）</label><select id="rebarDevelopment-oldTies" name="oldTies"><option value="no">不符合</option><option value="yes">D36 以下，全部 ℓdh 由間距 ≤ 3db 的箍筋或肋筋圍束，第一支距彎鉤外側 ≤ 2db（× 0.8；屬第 25.4.3.4 節情形，即構材不連續端且彎鉤兩側面及頂面或底面保護層 &lt; 6.5 cm 時不適用）</option></select></div>
+    </form>
+    <div class="tool-output" hidden><dl class="kit-stats"><div class="kit-stat"><dt>採用的鋼筋直徑 db</dt><dd><span data-result="diameter"></span><span class="kit-stat-unit">mm</span></dd></div><div class="kit-stat"><dt>受拉伸展長度 ℓd</dt><dd><span data-result="tension"></span><span class="kit-stat-unit">cm</span></dd></div><div class="kit-stat" data-optional="lapA"><dt>受拉搭接 甲級</dt><dd><span data-result="lapA"></span><span class="kit-stat-unit">cm</span></dd></div><div class="kit-stat" data-optional="lapB"><dt>受拉搭接 乙級</dt><dd><span data-result="lapB"></span><span class="kit-stat-unit">cm</span></dd></div><div class="kit-stat"><dt>受壓伸展長度 ℓdc</dt><dd><span data-result="compression"></span><span class="kit-stat-unit">cm</span></dd></div><div class="kit-stat" data-optional="compressionLap"><dt>受壓搭接（fy ≤ 5600，D36 以下）</dt><dd><span data-result="compressionLap"></span><span class="kit-stat-unit">cm</span></dd></div><div class="kit-stat"><dt>標準彎鉤 ℓdh（25.4.3.1）</dt><dd><span data-result="hook"></span><span class="kit-stat-unit">cm</span></dd></div><div class="kit-stat" data-optional="oldHook"><dt>標準彎鉤 ℓdh，舊式替代算法（25.4.3.5–8）</dt><dd><span data-result="oldHook"></span><span class="kit-stat-unit">cm</span></dd></div><div class="kit-stat"><dt>ℓd 約為</dt><dd><span data-result="tensionInDiameters"></span><span class="kit-stat-unit">倍 db</span></dd></div><div class="kit-stat"><dt>採用的（cb＋Ktr）÷ db（上限 2.5）</dt><dd><span data-result="confinement"></span><span class="kit-stat-unit">無因次</span></dd></div><div class="kit-stat"><dt>ψg（只乘在搭接）</dt><dd><span data-result="psiG"></span><span class="kit-stat-unit">無因次</span></dd></div></dl><p class="kit-callout" data-status="warning">依「建築物混凝土結構設計規範」112 年版第 25 章（kgf 制）的公式計算，不是結構設計，也不判定合格；請由結構設計者確認。</p><button type="button" class="kit-button kit-button--secondary tool-copy">複製結果</button></div>
+    <p class="tool-error kit-field-error" hidden>請輸入正數的 fc′ 與 cb，Ktr 可為 0。fy 5600 以上須填鋼筋中心距；中心距 &lt; 15 cm（25.4.2.2），或柱縱向鋼筋不論中心距（10.7.1.3），Ktr 須 ≥ 0.5db，請先依規範配置橫向鋼筋，否則不計算。</p>
+    <p class="tool-formula">ℓd＝fy ÷（3.5λ√fc′）× ψtψeψs ÷［（cb＋Ktr）÷ db］× db，√fc′ ≤ 26.5、（cb＋Ktr）÷ db ≤ 2.5、ψtψe ≤ 1.7，且 ≥ 30 cm。搭接甲級＝1.0ψg × ℓd、乙級＝1.3ψg × ℓd（用未套 30 cm 下限的 ℓd），且 ≥ 30 cm。ℓdc＝max（0.075fyψr ÷（λ√fc′）× db，0.0044fyψr × db，20 cm）。彎鉤 ℓdh＝fyψeψrψoψc ÷（23λ√fc′）× db^1.5（db 用 cm），ψc＝fc′ ÷ 1050＋0.6（fc′ ＜ 420），且 ≥ 8db、≥ 15 cm；舊式＝0.075fyψe ÷ √fc′ × db（輕質 × 1.3，可再 × 0.7、× 0.8），且 ≥ 8db、≥ 15 cm，只在 D25 以下 fc′ ≤ 700、D29 ≤ 490、D32 ≤ 420、D36 ≤ 350 時顯示。受壓搭接：fy ≤ 4200 為 0.0073fy × db，4200＜fy ≤ 5600 為（0.013fy − 24）× db，且 ≥ 30 cm；fc′ ＜ 210 時加長 1/3。</p>
+    <p class="tool-note">依公式驗算，無台灣含 Ktr 的公開完整算例（規範解說 28db、47db、72db 可重算）。不含擴頭、機械式錨定、超量鋼筋折減、不同直徑互搭與 fy 7000 的受壓搭接；構材不連續端且彎鉤保護層 ＜ 6.5 cm 時須依 25.4.3.4 配置箍筋；大於 D36 的鋼筋不得搭接（25.5.1.1），所以選 D39 以上時不顯示搭接長度；D43、D57 與 D36 以下鋼筋的受壓搭接例外（25.5.5.3–4）要看另一支鋼筋，本工具不算；fy ≥ 5600 時：中心距 &lt; 15 cm 的鋼筋（25.4.2.2）與柱縱向鋼筋（10.7.1.3，不論中心距）Ktr 須 ≥ 0.5db，不符時工具不計算。</p>
+  </section>
+
+  <section class="kit-card tool-panel" data-tool="plate" hidden>
+    <h2>矩形鋼板重量</h2>
+    <form class="kit-form tool-grid" novalidate>
+      <div class="kit-field"><label for="plate-length">長（m）</label><input autocomplete="off" id="plate-length" name="length" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="plate-width">寬（m）</label><input autocomplete="off" id="plate-width" name="width" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="plate-thickness">厚（mm）</label><input autocomplete="off" id="plate-thickness" name="thickness" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="plate-density">材料密度（kg/m³）</label><input autocomplete="off" id="plate-density" name="density" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="plate-count">件數（正整數）</label><input autocomplete="off" id="plate-count" name="count" type="number" inputmode="numeric" min="1" step="1" required></div>
+    </form>
+    <div class="tool-output" hidden><dl class="kit-stats"><div class="kit-stat"><dt>單件理論重量</dt><dd><span data-result="perPiece"></span><span class="kit-stat-unit">kg</span></dd></div><div class="kit-stat"><dt>總理論重量</dt><dd><span data-result="mass"></span><span class="kit-stat-unit">kg</span></dd></div></dl><button type="button" class="kit-button kit-button--secondary tool-copy">複製結果</button></div>
+    <p class="tool-error kit-field-error" hidden>請輸入正數及正整數件數。</p>
+    <p class="tool-formula">單件重量＝長 × 寬 × 厚 ÷ 1000 × 密度；總重量＝單件 × 件數。</p>
+    <p class="tool-note">只算矩形板材；密度須依材料確認，不含型鋼或異形截面。</p>
+  </section>
+
+  <section class="kit-card tool-panel" data-tool="tile" hidden>
+    <h2>磁磚片數與箱數</h2>
+    <form class="kit-form tool-grid" novalidate>
+      <div class="kit-field"><label for="tile-length">地面長（m）</label><input autocomplete="off" id="tile-length" name="length" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="tile-width">地面寬（m）</label><input autocomplete="off" id="tile-width" name="width" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="tile-tileLength">磁磚長（mm）</label><input autocomplete="off" id="tile-tileLength" name="tileLength" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="tile-tileWidth">磁磚寬（mm）</label><input autocomplete="off" id="tile-tileWidth" name="tileWidth" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="tile-perBox">每箱片數（正整數）</label><input autocomplete="off" id="tile-perBox" name="perBox" type="number" inputmode="numeric" min="1" step="1" required></div>
+    </form>
+    <div class="tool-output" hidden><dl class="kit-stats"><div class="kit-stat"><dt>地面面積</dt><dd><span data-result="area"></span><span class="kit-stat-unit">m²</span></dd></div><div class="kit-stat"><dt>單片面積</dt><dd><span data-result="tileArea"></span><span class="kit-stat-unit">m²</span></dd></div><div class="kit-stat"><dt>進位前片數</dt><dd><span data-result="rawTiles"></span><span class="kit-stat-unit">片</span></dd></div><div class="kit-stat"><dt>估算整片數</dt><dd><span data-result="tiles"></span><span class="kit-stat-unit">片</span></dd></div><div class="kit-stat"><dt>進位前箱數</dt><dd><span data-result="rawBoxes"></span><span class="kit-stat-unit">箱</span></dd></div><div class="kit-stat"><dt>採購整箱數</dt><dd><span data-result="boxes"></span><span class="kit-stat-unit">箱</span></dd></div></dl><button type="button" class="kit-button kit-button--secondary tool-copy">複製結果</button></div>
+    <p class="tool-error kit-field-error" hidden>請輸入正數及正整數每箱片數。</p>
+    <p class="tool-formula">進位前片數＝地面面積 ÷ 單片面積；整片數＝向上取整；進位前箱數＝整片數 ÷ 每箱片數；整箱數＝向上取整。</p>
+    <p class="tool-note">只依總面積估算，不計縫、切割、排版或損耗；整箱數以整片數換算。</p>
+  </section>
+
+  <section class="kit-card tool-panel" data-tool="tileLayout" hidden>
+    <h2>矩形磁磚起排與切料清單</h2>
+    <form class="kit-form tool-grid" novalidate>
+      <div class="kit-field"><label for="tileLayout-width">面寬（mm）</label><input autocomplete="off" id="tileLayout-width" name="width" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="tileLayout-height">面高（mm）</label><input autocomplete="off" id="tileLayout-height" name="height" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="tileLayout-tileWidth">磚沿面寬尺寸（mm）</label><input autocomplete="off" id="tileLayout-tileWidth" name="tileWidth" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="tileLayout-tileHeight">磚沿面高尺寸（mm）</label><input autocomplete="off" id="tileLayout-tileHeight" name="tileHeight" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="tileLayout-joint">縫寬（mm，可為 0）</label><input autocomplete="off" id="tileLayout-joint" name="joint" data-allow-zero type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="tileLayout-mode">起排方式</label><select id="tileLayout-mode" name="mode"><option value="edge">由左／下邊整磚起排</option><option value="center-joint">中心線為縫（兩側對稱）</option><option value="center-tile">中心為整磚（兩側對稱）</option></select></div>
+    </form>
+    <div class="tool-output" hidden>
+      <dl class="kit-stats"><div class="kit-stat"><dt>面寬方向模數</dt><dd><span data-result="moduleX"></span><span class="kit-stat-unit">mm</span></dd></div><div class="kit-stat"><dt>面高方向模數</dt><dd><span data-result="moduleY"></span><span class="kit-stat-unit">mm</span></dd></div><div class="kit-stat"><dt>整磚</dt><dd><span data-result="fullTiles"></span><span class="kit-stat-unit">片</span></dd></div><div class="kit-stat"><dt>切磚</dt><dd><span data-result="cutPieces"></span><span class="kit-stat-unit">片</span></dd></div><div class="kit-stat"><dt>合計用磚</dt><dd><span data-result="totalPieces"></span><span class="kit-stat-unit">片</span></dd></div></dl>
+      <div class="tile-diagram"></div>
+      <div class="tile-cutlist"></div>
+    <button type="button" class="kit-button kit-button--secondary tool-copy">複製結果</button></div>
+    <p class="tool-error kit-field-error" hidden>請輸入正數尺寸；縫寬可為 0。中心線為縫時，面寬與面高都須大於縫寬。總片數超過 10 萬片時不計算，請確認尺寸是否輸入完整。</p>
+    <p class="tool-formula">模數＝磚尺寸＋縫寬；依起排點向外先排整磚，每片之間一條縫，末端剩餘扣一條縫後為切片。剩餘不足一條縫加一片磚時，列為未排磚的邊緣空隙。兩個方向分別計算後交叉成切料清單。</p>
+    <p class="tool-note">只適用矩形面、直線平鋪、兩方向同一起排方式；縫只在磚與磚之間，牆邊不留縫；每片切磚各用一片整磚，不重複利用餘料。不含門洞、異形、人字貼、損耗或最佳化，不判施工規範。</p>
+  </section>
+
+  <section class="kit-card tool-panel" data-tool="ceilingGrid" hidden>
+    <h2>格柵天花排版（列數與邊條）</h2>
+    <form class="kit-form tool-grid" novalidate>
+      <div class="kit-field"><label for="ceilingGrid-length">房間長（m）</label><input autocomplete="off" id="ceilingGrid-length" name="length" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="ceilingGrid-width">房間寬（m）</label><input autocomplete="off" id="ceilingGrid-width" name="width" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="ceilingGrid-moduleLength">格柵模數，沿房間長方向（mm，依所選系統）</label><input autocomplete="off" id="ceilingGrid-moduleLength" name="moduleLength" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="ceilingGrid-moduleWidth">格柵模數，沿房間寬方向（mm）</label><input autocomplete="off" id="ceilingGrid-moduleWidth" name="moduleWidth" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="ceilingGrid-mode">置中方式</label><select id="ceilingGrid-mode" name="mode"><option value="center-joint">房間中心線為格柵線</option><option value="center-tile">房間中心為整格中心</option></select></div>
+    </form>
+    <div class="tool-output" hidden><dl class="kit-stats"><div class="kit-stat"><dt>長向整格數</dt><dd><span data-result="fullAlongLength"></span><span class="kit-stat-unit">格</span></dd></div><div class="kit-stat" data-optional="borderLength"><dt>長向兩端邊條寬（各一）</dt><dd><span data-result="borderLength"></span><span class="kit-stat-unit">mm</span></dd></div><div class="kit-stat" data-optional="singleLength"><dt>長向只有一片切片，寬</dt><dd><span data-result="singleLength"></span><span class="kit-stat-unit">mm</span></dd></div><div class="kit-stat"><dt>寬向整格數</dt><dd><span data-result="fullAlongWidth"></span><span class="kit-stat-unit">格</span></dd></div><div class="kit-stat" data-optional="borderWidth"><dt>寬向兩端邊條寬（各一）</dt><dd><span data-result="borderWidth"></span><span class="kit-stat-unit">mm</span></dd></div><div class="kit-stat" data-optional="singleWidth"><dt>寬向只有一片切片，寬</dt><dd><span data-result="singleWidth"></span><span class="kit-stat-unit">mm</span></dd></div><div class="kit-stat"><dt>整片數</dt><dd><span data-result="fullPanels"></span><span class="kit-stat-unit">片</span></dd></div><div class="kit-stat"><dt>切片數</dt><dd><span data-result="cutPanels"></span><span class="kit-stat-unit">片</span></dd></div></dl><p class="kit-callout" data-status="info">計算假設：格柵線寬視為 0；兩端邊條對稱；邊條寬 0 表示剛好整格。驗算例取 USG 天花安裝手冊房間例（12.5 × 18.5 ft，原文為 12 × 12 in 板片：置中格線 12 × 18 格、3 in 邊條；中心移 6 in 後 11 × 17 格、9 in 邊條）。該例是釘在木條上的舌榫天花板，只驗證置中與邊條的算法，不是懸吊格柵系統的產品驗證。假設或結果與實際不符時，請回報給工具維護者。</p><button type="button" class="kit-button kit-button--secondary tool-copy">複製結果</button></div>
+    <p class="tool-error kit-field-error" hidden>請輸入正數的房間長寬與格柵模數。總片數超過 10 萬片時不計算，請確認尺寸是否輸入完整。</p>
+    <p class="tool-formula">與「矩形磁磚起排」同一算法，縫寬取 0：由房間中心向兩側排整格，剩下的寬度就是兩端邊條。</p>
+    <p class="tool-note">只算矩形房間的格數與邊條；不算主龍骨、副龍骨、周邊角料、吊桿或燈具風口，也不判定邊條是否太窄。</p>
+  </section>
+
+  <section class="kit-card tool-panel" data-tool="adhesive" hidden>
+    <h2>磁磚膠用量與整包數</h2>
+    <form class="kit-form tool-grid" novalidate>
+      <div class="kit-field"><label for="adhesive-area">鋪貼淨面積（m²）</label><input autocomplete="off" id="adhesive-area" name="area" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="adhesive-product">產品名稱／型號</label><input autocomplete="off" id="adhesive-product" name="product" type="text" required></div>
+      <div class="kit-field"><label for="adhesive-source">施工條件與耗量來源（鏝刀、床厚、型錄或試鋪）</label><input autocomplete="off" id="adhesive-source" name="source" type="text" required></div>
+      <div class="kit-field"><label for="adhesive-rate">該條件耗量（kg/m²，不是 kg/m²/mm）</label><input autocomplete="off" id="adhesive-rate" name="rate" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="adhesive-bagWeight">每包淨重（kg/包）</label><input autocomplete="off" id="adhesive-bagWeight" name="bagWeight" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="adhesive-allowance">備料率（%，可為 0）</label><input autocomplete="off" id="adhesive-allowance" name="allowance" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" max="99.999" data-allow-zero required></div>
+    </form>
+    <div class="tool-output" hidden><dl class="kit-stats"><div class="kit-stat"><dt>理論重量</dt><dd><span data-result="mass"></span><span class="kit-stat-unit">kg</span></dd></div><div class="kit-stat"><dt>含備料重量</dt><dd><span data-result="massWithAllowance"></span><span class="kit-stat-unit">kg</span></dd></div><div class="kit-stat"><dt>進位前包數</dt><dd><span data-result="rawBags"></span><span class="kit-stat-unit">包</span></dd></div><div class="kit-stat"><dt>按輸入參數換算的整包數</dt><dd><span data-result="bags"></span><span class="kit-stat-unit">包</span></dd></div></dl><p class="tool-source">產品：<span data-result="product"></span></p><p class="tool-source">耗量來源：<span data-result="source"></span></p><button type="button" class="kit-button kit-button--secondary tool-copy">複製結果</button></div>
+    <p class="tool-error kit-field-error" hidden>請輸入正數的面積、耗量與每包重量，填寫產品與來源；備料率須介於 0%（含）與 100%（不含）。</p>
+    <p class="tool-formula">理論重量＝面積 × 耗量；含備料重量＝理論重量 ×（1＋備料率）；整包數＝含備料重量 ÷ 每包淨重，向上取整。</p>
+    <p class="tool-note">只依使用者確認的產品耗量換算；不從磁磚尺寸或鏝刀推耗量，整包數不是採購保證量。</p>
+  </section>
+
+  <section class="kit-card tool-panel" data-tool="coverage" hidden>
+    <h2>灰泥、抹灰、自流平袋數（依每袋覆蓋面積）</h2>
+    <form class="kit-form tool-grid" novalidate>
+      <div class="kit-field"><label for="coverage-area">施工總面積（m²，各施工面加總）</label><input autocomplete="off" id="coverage-area" name="area" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="coverage-openings">開口面積（m²，選填，可為 0）</label><input autocomplete="off" id="coverage-openings" name="openings" data-allow-zero type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)"></div>
+      <div class="kit-field"><label for="coverage-perBag">每袋覆蓋面積（m²/袋，該產品在你採用的厚度下）</label><input autocomplete="off" id="coverage-perBag" name="perBag" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="coverage-source">產品、厚度與覆蓋面積來源（技術表、版次）</label><input autocomplete="off" id="coverage-source" name="source" type="text" required></div>
+    </form>
+    <div class="tool-output" hidden><dl class="kit-stats"><div class="kit-stat"><dt>按輸入覆蓋面積換算的整袋數</dt><dd><span data-result="bags"></span><span class="kit-stat-unit">袋</span></dd></div><div class="kit-stat"><dt>淨面積（扣開口）</dt><dd><span data-result="netArea"></span><span class="kit-stat-unit">m²</span></dd></div><div class="kit-stat"><dt>進位前袋數</dt><dd><span data-result="rawBags"></span><span class="kit-stat-unit">袋</span></dd></div></dl><p class="tool-source">資料來源：<span data-result="source"></span></p><button type="button" class="kit-button kit-button--secondary tool-copy">複製結果</button></div>
+    <p class="tool-error kit-field-error" hidden>請輸入正數的總面積與每袋覆蓋面積，開口面積須小於總面積，並填寫來源。</p>
+    <p class="tool-formula">淨面積＝施工總面積 − 開口面積；整袋數＝淨面積 ÷ 每袋覆蓋面積，向上取整（整除不多一袋）。</p>
+    <p class="tool-note">原廠算例驗證（USG 自流平估算器實測）。覆蓋面積由你依產品與厚度填入，不同產品或厚度不可互套；多層施工請逐層計算。不算勾縫、水泥背板、用水量或損耗，整袋數不是採購保證量。</p>
+  </section>
+
+  <section class="kit-card tool-panel" data-tool="grout" hidden>
+    <h2>填縫劑用量</h2>
+    <form class="kit-form tool-grid" novalidate>
+      <div class="kit-field"><label for="grout-area">面積（m²）</label><input autocomplete="off" id="grout-area" name="area" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="grout-tileLength">磁磚長（mm）</label><input autocomplete="off" id="grout-tileLength" name="tileLength" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="grout-tileWidth">磁磚寬（mm）</label><input autocomplete="off" id="grout-tileWidth" name="tileWidth" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="grout-depth">縫深（mm，一般為磚厚）</label><input autocomplete="off" id="grout-depth" name="depth" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="grout-joint">縫寬（mm）</label><input autocomplete="off" id="grout-joint" name="joint" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="grout-density">已確認產品密度（kg/L，產品表的 K 值）</label><input autocomplete="off" id="grout-density" name="density" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="grout-allowance">備料率（%，可為 0）</label><input autocomplete="off" id="grout-allowance" name="allowance" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" max="99.999" required data-allow-zero></div>
+      <div class="kit-field"><label for="grout-bagWeight">每包重量（kg）</label><input autocomplete="off" id="grout-bagWeight" name="bagWeight" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+    </form>
+    <div class="tool-output" hidden><dl class="kit-stats"><div class="kit-stat"><dt>每 m² 縫體積</dt><dd><span data-result="litresPerSquareMetre"></span><span class="kit-stat-unit">L/m²</span></dd></div><div class="kit-stat"><dt>總縫體積</dt><dd><span data-result="volume"></span><span class="kit-stat-unit">L</span></dd></div><div class="kit-stat"><dt>理論重量</dt><dd><span data-result="mass"></span><span class="kit-stat-unit">kg</span></dd></div><div class="kit-stat"><dt>含備料重量</dt><dd><span data-result="massWithAllowance"></span><span class="kit-stat-unit">kg</span></dd></div><div class="kit-stat"><dt>進位前包數</dt><dd><span data-result="rawBags"></span><span class="kit-stat-unit">包</span></dd></div><div class="kit-stat"><dt>採購整包數</dt><dd><span data-result="bags"></span><span class="kit-stat-unit">包</span></dd></div></dl><button type="button" class="kit-button kit-button--secondary tool-copy">複製結果</button></div>
+    <p class="tool-error kit-field-error" hidden>請填正數；密度與每包重量須依產品資料填寫；備料率須介於 0%（含）與 100%（不含）。</p>
+    <p class="tool-formula">每 m² 縫體積 L＝（磚長＋磚寬）÷（磚長 × 磚寬）× 縫深 × 縫寬（皆為 mm）；總體積＝每 m² 體積 × 面積；理論重量＝總體積 × 密度；含備料重量＝理論重量 ×（1＋備料率）；包數＝含備料重量 ÷ 每包重量，向上取整。</p>
+    <p class="tool-note">矩形磁磚、縫寬縫深均一的理論估算；密度由使用者依產品資料確認，不含表面粗糙、殘料或縫深不均。</p>
+  </section>
+
+  <section class="kit-card tool-panel" data-tool="gypsum" hidden>
+    <h2>石膏板與接縫材料</h2>
+    <form class="kit-form tool-grid" novalidate>
+      <div class="kit-field"><label for="gypsum-area">牆面／天花面積（m²）</label><input autocomplete="off" id="gypsum-area" name="area" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="gypsum-boardLength">板長（mm）</label><input autocomplete="off" id="gypsum-boardLength" name="boardLength" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="gypsum-boardWidth">板寬（mm）</label><input autocomplete="off" id="gypsum-boardWidth" name="boardWidth" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="gypsum-tapeRate">接縫帶用量（m／m²，選填）</label><input autocomplete="off" id="gypsum-tapeRate" name="tapeRate" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)"></div>
+      <div class="kit-field"><label for="gypsum-screwRate">螺絲用量（支／m²，選填）</label><input autocomplete="off" id="gypsum-screwRate" name="screwRate" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)"></div>
+    </form>
+    <div class="tool-output" hidden><dl class="kit-stats"><div class="kit-stat"><dt>單片面積</dt><dd><span data-result="boardArea"></span><span class="kit-stat-unit">m²</span></dd></div><div class="kit-stat"><dt>進位前片數</dt><dd><span data-result="rawBoards"></span><span class="kit-stat-unit">片</span></dd></div><div class="kit-stat"><dt>估算整片數</dt><dd><span data-result="boards"></span><span class="kit-stat-unit">片</span></dd></div><div class="kit-stat" data-optional="tape"><dt>接縫帶長度</dt><dd><span data-result="tape"></span><span class="kit-stat-unit">m</span></dd></div><div class="kit-stat" data-optional="rawScrews"><dt>進位前螺絲數</dt><dd><span data-result="rawScrews"></span><span class="kit-stat-unit">支</span></dd></div><div class="kit-stat" data-optional="screws"><dt>估算螺絲數</dt><dd><span data-result="screws"></span><span class="kit-stat-unit">支</span></dd></div></dl><button type="button" class="kit-button kit-button--secondary tool-copy">複製結果</button></div>
+    <p class="tool-error kit-field-error" hidden>請輸入必填正數；用量若填也須為正數。</p>
+    <p class="tool-formula">單片面積＝板長 × 板寬 ÷ 1,000,000；板數＝面積 ÷ 單片面積，向上取整；接縫帶＝面積 × 用量；螺絲＝面積 × 用量，向上取整。</p>
+    <p class="tool-note">只依總面積估算，不扣開口、不排板、不計損耗；用量須依所選產品或安裝手冊確認，未填不顯示。</p>
+  </section>
+
+  <section class="kit-card tool-panel" data-tool="conduitFill" hidden>
+    <h2>線管截面填充率</h2>
+    <form class="kit-form tool-grid" novalidate>
+      <div class="kit-field"><label for="conduitFill-diameter">線管實際內徑（mm，非公稱管徑）</label><input autocomplete="off" id="conduitFill-diameter" name="diameter" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="conduitFill-source">管材、電纜型號與尺寸來源</label><input autocomplete="off" id="conduitFill-source" name="source" type="text" required></div>
+      <div class="cable-rows"><p class="tool-subhead">電纜（每列一種外徑）</p><div class="row-list-inputs">
+        <fieldset class="kit-field kit-field--group cable-row"><legend>第 1 條</legend><label class="kit-sr-only" for="conduitFill-cableDiameter-1">第 1 條電纜外徑（mm）</label><div class="kit-affix"><input autocomplete="off" id="conduitFill-cableDiameter-1" name="cableDiameter" data-list type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required><span class="kit-affix-unit">mm</span></div><label class="kit-sr-only" for="conduitFill-cableCount-1">第 1 條電纜條數</label><div class="kit-affix"><input autocomplete="off" id="conduitFill-cableCount-1" name="cableCount" data-list type="number" inputmode="numeric" min="1" step="1" required><span class="kit-affix-unit">條</span></div><button type="button" class="kit-button kit-button--link row-remove">刪除</button></fieldset>
+      </div><button type="button" class="kit-button kit-button--secondary row-add">新增一列</button></div>
+    </form>
+    <div class="tool-output" hidden><dl class="kit-stats"><div class="kit-stat"><dt>總填充率</dt><dd><span data-result="fill"></span><span class="kit-stat-unit">%</span></dd></div><div class="kit-stat"><dt>電纜占用面積</dt><dd><span data-result="cableArea"></span><span class="kit-stat-unit">mm²</span></dd></div><div class="kit-stat"><dt>管內截面積</dt><dd><span data-result="conduitArea"></span><span class="kit-stat-unit">mm²</span></dd></div></dl><p class="kit-callout" data-status="danger" data-optional="overfull">電纜截面總和已超過管內截面（幾何計算，不是規範判定）。</p><div class="row-list"></div><p class="tool-source">尺寸來源：<span data-result="source"></span></p><button type="button" class="kit-button kit-button--secondary tool-copy">複製結果</button></div>
+    <p class="tool-error kit-field-error" hidden>請輸入正數的管內徑、電纜外徑與正整數條數，並填寫尺寸來源；每條電纜外徑須小於管內徑。</p>
+    <p class="tool-formula">管截面＝π × 內徑² ÷ 4；各列占用＝條數 × π × 外徑² ÷ 4；填充率＝100 × 各列占用合計 ÷ 管截面。</p>
+    <p class="tool-note">只算截面占用；不含卡線機率、拉線張力、彎管或法規合格判定，不內建電纜外徑表。</p>
+  </section>
+
+  <section class="kit-card tool-panel" data-tool="slope" hidden>
+    <h2>坡度與距離互算</h2>
+    <form class="kit-form tool-grid" novalidate>
+      <div class="kit-field"><label for="slope-mode">已知量組合</label><select id="slope-mode" name="mode"><option value="rise-run">高差＋水平距離</option><option value="rise-grade">高差＋坡度</option><option value="run-grade">水平距離＋坡度</option></select></div>
+      <div class="kit-field" data-mode="rise-run rise-grade"><label for="slope-rise">高差（m）</label><input autocomplete="off" id="slope-rise" name="rise" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field" data-mode="rise-run run-grade"><label for="slope-run">水平距離（m）</label><input autocomplete="off" id="slope-run" name="run" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field" data-mode="rise-grade run-grade"><label for="slope-grade">坡度（%，高差 ÷ 水平距離 × 100）</label><input autocomplete="off" id="slope-grade" name="grade" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+    </form>
+    <div class="tool-output" hidden><dl class="kit-stats"><div class="kit-stat"><dt>高差</dt><dd><span data-result="rise"></span><span class="kit-stat-unit">m</span></dd></div><div class="kit-stat"><dt>水平距離</dt><dd><span data-result="run"></span><span class="kit-stat-unit">m</span></dd></div><div class="kit-stat"><dt>坡度</dt><dd><span data-result="grade"></span><span class="kit-stat-unit">%</span></dd></div><div class="kit-stat"><dt>斜長</dt><dd><span data-result="diagonal"></span><span class="kit-stat-unit">m</span></dd></div></dl><button type="button" class="kit-button kit-button--secondary tool-copy">複製結果</button></div>
+    <p class="tool-error kit-field-error" hidden>請輸入所選的兩個已知正數。</p>
+    <p class="tool-formula">坡度＝高差 ÷ 水平距離 × 100%；斜長＝√（高差²＋水平距離²）。</p>
+    <p class="tool-note">只算單一直角坡面；不判排水規範，不使用坡比或角度。</p>
+  </section>
+
+  <section class="kit-card tool-panel" data-tool="roof" hidden>
+    <h2>雙坡屋頂幾何</h2>
+    <form class="kit-form tool-grid" novalidate>
+      <div class="kit-field"><label for="roof-span">水平跨度（m，兩側起坡線距離）</label><input autocomplete="off" id="roof-span" name="span" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="roof-grade">坡度（%，升高 ÷ 水平投影 × 100）</label><input autocomplete="off" id="roof-grade" name="grade" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="roof-ridgeLength">沿屋脊長度（m）</label><input autocomplete="off" id="roof-ridgeLength" name="ridgeLength" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="roof-boardLength">板材長（m，選填）</label><input autocomplete="off" id="roof-boardLength" name="boardLength" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)"></div>
+      <div class="kit-field"><label for="roof-boardWidth">板材寬（m，選填）</label><input autocomplete="off" id="roof-boardWidth" name="boardWidth" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)"></div>
+    </form>
+    <div class="tool-output" hidden><dl class="kit-stats"><div class="kit-stat"><dt>單側理論椽斜長</dt><dd><span data-result="rafter"></span><span class="kit-stat-unit">m</span></dd></div><div class="kit-stat"><dt>雙側屋面面積</dt><dd><span data-result="area"></span><span class="kit-stat-unit">m²</span></dd></div><div class="kit-stat"><dt>屋脊高差</dt><dd><span data-result="rise"></span><span class="kit-stat-unit">m</span></dd></div><div class="kit-stat"><dt>半跨</dt><dd><span data-result="halfSpan"></span><span class="kit-stat-unit">m</span></dd></div><div class="kit-stat" data-optional="boardEquivalent"><dt>理論面積等值（非採購張數）</dt><dd><span data-result="boardEquivalent"></span><span class="kit-stat-unit">張</span></dd></div></dl><button type="button" class="kit-button kit-button--secondary tool-copy">複製結果</button></div>
+    <p class="tool-error kit-field-error" hidden>請輸入正數的跨度、坡度與屋脊長度；板材長、寬須同時填寫或同時留空。</p>
+    <p class="tool-formula">半跨＝跨度 ÷ 2；屋脊高差＝半跨 × 坡度 ÷ 100；椽斜長＝√（半跨²＋高差²）；屋面面積＝2 × 椽斜長 × 屋脊長；等值張數＝面積 ÷（板長 × 板寬），不取整。</p>
+    <p class="tool-note">只算對稱雙坡、直屋脊；不含出簷、屋脊修正、開口、排板、搭接或損耗。含出簷時請自行併入跨度與屋脊長。等值張數不是採購張數。</p>
+  </section>
+
+  <section class="kit-card tool-panel" data-tool="mortar" hidden>
+    <h2>砌磚／砌塊砂漿袋數</h2>
+    <form class="kit-form tool-grid" novalidate>
+      <div class="kit-field"><label for="mortar-units">磚／砌塊數量（塊）</label><input autocomplete="off" id="mortar-units" name="units" type="number" inputmode="numeric" min="1" step="1" required></div>
+      <div class="kit-field"><label for="mortar-unitsPerBag">每袋可砌塊數（塊／袋；型錄明列，或由指定產品的塊數／袋數表自行反推）</label><input autocomplete="off" id="mortar-unitsPerBag" name="unitsPerBag" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="mortar-source">產品、袋重、砌體、灰縫與產率來源</label><input autocomplete="off" id="mortar-source" name="source" type="text" required></div>
+    </form>
+    <div class="tool-output" hidden><dl class="kit-stats"><div class="kit-stat"><dt>進位前袋數</dt><dd><span data-result="rawBags"></span><span class="kit-stat-unit">袋</span></dd></div><div class="kit-stat"><dt>按輸入產率換算的整袋數</dt><dd><span data-result="bags"></span><span class="kit-stat-unit">袋</span></dd></div></dl><p class="tool-source">產率來源：<span data-result="source"></span></p><button type="button" class="kit-button kit-button--secondary tool-copy">複製結果</button></div>
+    <p class="tool-error kit-field-error" hidden>請輸入正整數的塊數、正數的每袋可砌塊數，並填寫產率來源。</p>
+    <p class="tool-formula">進位前袋數＝塊數 ÷ 每袋可砌塊數；整袋數＝向上取整。</p>
+    <p class="tool-note">只用使用者確認的袋標產率換算；不內建產品表、不從磚尺寸或灰縫推砂漿體積。袋標產率若已含損耗，本工具不再另加。</p>
+  </section>
+
+  <section class="kit-card tool-panel" data-tool="membrane" hidden>
+    <h2>防水膜卷數</h2>
+    <form class="kit-form tool-grid" novalidate>
+      <div class="kit-field"><label for="membrane-area">防水面積（m²，已扣開口）</label><input autocomplete="off" id="membrane-area" name="area" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="membrane-product">膜材產品名稱／型號</label><input autocomplete="off" id="membrane-product" name="product" type="text" required></div>
+      <div class="kit-field"><label for="membrane-source">每卷覆蓋面積來源（型錄、卷材標示）</label><input autocomplete="off" id="membrane-source" name="source" type="text" required></div>
+      <div class="kit-field"><label for="membrane-coverage">每卷覆蓋面積（m²/卷）</label><input autocomplete="off" id="membrane-coverage" name="coverage" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="membrane-allowance">搭接與備料率（%，可為 0）</label><input autocomplete="off" id="membrane-allowance" name="allowance" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" max="99.999" data-allow-zero required></div>
+    </form>
+    <div class="tool-output" hidden><dl class="kit-stats"><div class="kit-stat"><dt>含搭接與備料面積</dt><dd><span data-result="areaWithAllowance"></span><span class="kit-stat-unit">m²</span></dd></div><div class="kit-stat"><dt>進位前卷數</dt><dd><span data-result="rawRolls"></span><span class="kit-stat-unit">卷</span></dd></div><div class="kit-stat"><dt>按輸入參數換算的整卷數</dt><dd><span data-result="rolls"></span><span class="kit-stat-unit">卷</span></dd></div></dl><p class="tool-source">產品：<span data-result="product"></span></p><p class="tool-source">覆蓋面積來源：<span data-result="source"></span></p><button type="button" class="kit-button kit-button--secondary tool-copy">複製結果</button></div>
+    <p class="tool-error kit-field-error" hidden>請輸入正數的面積與每卷覆蓋面積，填寫產品與來源；搭接與備料率須介於 0%（含）與 100%（不含）。</p>
+    <p class="tool-formula">含搭接與備料面積＝防水面積 ×（1＋搭接與備料率）；進位前卷數＝含搭接與備料面積 ÷ 每卷覆蓋面積；整卷數＝向上取整。</p>
+    <p class="tool-note">只算片狀防水膜卷數；不算接縫帶、轉角片、管根與排水口配件，也不依牆形排卷裁切。搭接與備料率請依產品施工說明自行確認。</p>
+  </section>
+
+  <section class="kit-card tool-panel" data-tool="trimProfile" hidden>
+    <h2>磁磚收邊型材支數</h2>
+    <form class="kit-form tool-grid" novalidate>
+      <div class="kit-field"><label for="trimProfile-length">收邊長度（m，單段）</label><input autocomplete="off" id="trimProfile-length" name="length" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="trimProfile-stickLength">每支型材長度（m，依產品確認）</label><input autocomplete="off" id="trimProfile-stickLength" name="stickLength" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="trimProfile-outsideCorners">外角件（個，選填，人工計數）</label><input autocomplete="off" id="trimProfile-outsideCorners" name="outsideCorners" type="number" inputmode="numeric" min="1" step="1"></div>
+      <div class="kit-field"><label for="trimProfile-insideCorners">內角件（個，選填，人工計數）</label><input autocomplete="off" id="trimProfile-insideCorners" name="insideCorners" type="number" inputmode="numeric" min="1" step="1"></div>
+      <div class="kit-field"><label for="trimProfile-source">型材型號、支長與來源</label><input autocomplete="off" id="trimProfile-source" name="source" type="text" required></div>
+    </form>
+    <div class="tool-output" hidden><dl class="kit-stats"><div class="kit-stat"><dt>進位前支數</dt><dd><span data-result="rawSticks"></span><span class="kit-stat-unit">支</span></dd></div><div class="kit-stat"><dt>整支數</dt><dd><span data-result="sticks"></span><span class="kit-stat-unit">支</span></dd></div><div class="kit-stat" data-optional="outsideCorners"><dt>外角件（照填）</dt><dd><span data-result="outsideCorners"></span><span class="kit-stat-unit">個</span></dd></div><div class="kit-stat" data-optional="insideCorners"><dt>內角件（照填）</dt><dd><span data-result="insideCorners"></span><span class="kit-stat-unit">個</span></dd></div></dl><p class="tool-source">型材來源：<span data-result="source"></span></p><button type="button" class="kit-button kit-button--secondary tool-copy">複製結果</button></div>
+    <p class="tool-error kit-field-error" hidden>請輸入正數的收邊長度與每支長度，並填寫型材來源；角件若填須為正整數。</p>
+    <p class="tool-formula">進位前支數＝收邊長度 ÷ 每支長度；整支數＝向上取整。角件數照使用者填寫，不由長度推算。</p>
+    <p class="tool-note">只算單段收邊；多段請逐段計算再相加（把各段長度相加後再除，等於假設剩料可全部接用）。不排接頭、不計斜切或損耗，不判型材與磚厚是否相配。</p>
+  </section>
+
+  <section class="kit-card tool-panel" data-tool="pedestals" hidden>
+    <h2>架高鋪面支座點數</h2>
+    <form class="kit-form tool-grid" novalidate>
+      <div class="kit-field"><label for="pedestals-length">鋪面長（m）</label><input autocomplete="off" id="pedestals-length" name="length" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="pedestals-width">鋪面寬（m）</label><input autocomplete="off" id="pedestals-width" name="width" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="pedestals-paverLength">鋪板沿鋪面長方向尺寸（mm）</label><input autocomplete="off" id="pedestals-paverLength" name="paverLength" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="pedestals-paverWidth">鋪板沿鋪面寬方向尺寸（mm）</label><input autocomplete="off" id="pedestals-paverWidth" name="paverWidth" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="pedestals-perPack">每包支座數（選填，照包裝標示；各高度共用同一數字）</label><input autocomplete="off" id="pedestals-perPack" name="perPack" type="number" inputmode="numeric" min="1" step="1"></div>
+      <div class="kit-field"><label for="pedestals-source">支座產品與包裝來源（選填）</label><input autocomplete="off" id="pedestals-source" name="source" type="text"></div>
+    </form>
+    <div class="tool-output" hidden><dl class="kit-stats"><div class="kit-stat"><dt>支撐點數</dt><dd><span data-result="points"></span><span class="kit-stat-unit">點</span></dd></div><div class="kit-stat" data-optional="packs"><dt>支座包數（按你填的每包支座數）</dt><dd><span data-result="packs"></span><span class="kit-stat-unit">包</span></dd></div><div class="kit-stat" data-optional="perPack"><dt>你填的每包支座數</dt><dd><span data-result="perPack"></span><span class="kit-stat-unit">支／包</span></dd></div><div class="kit-stat"><dt>長向鋪板列數（含切割）</dt><dd><span data-result="alongLength"></span><span class="kit-stat-unit">列</span></dd></div><div class="kit-stat"><dt>寬向鋪板列數（含切割）</dt><dd><span data-result="alongWidth"></span><span class="kit-stat-unit">列</span></dd></div><div class="kit-stat"><dt>長向最後一列寬（由一角起鋪）</dt><dd><span data-result="lastLength"></span><span class="kit-stat-unit">mm</span></dd></div><div class="kit-stat"><dt>寬向最後一列寬（由一角起鋪）</dt><dd><span data-result="lastWidth"></span><span class="kit-stat-unit">mm</span></dd></div></dl><p class="tool-source" data-optional="source">包裝來源：<span data-result="source"></span></p><button type="button" class="kit-button kit-button--secondary tool-copy">複製結果</button></div>
+    <p class="tool-error kit-field-error" hidden>請輸入正數的鋪面長寬與鋪板尺寸；每包支座數若有填，須為正整數。</p>
+    <p class="tool-formula">長向列數＝鋪面長 ÷ 鋪板長，向上取整；寬向列數同理；支撐點數＝（長向列數＋1）×（寬向列數＋1），即每塊鋪板四角各一點、相鄰鋪板共用。有填每包支座數時，包數＝支撐點數 ÷ 每包支座數，向上取整。</p>
+    <p class="tool-note">只算矩形鋪面、規則格狀（通縫）鋪法的支撐點數；不算調平片、墊片、高度、坡度、排水口或周邊加點，也不判定載重。最後一列只剩幾 mm 時，原廠估算器曾出現未另增該列的結果，但規則與門檻未公開，請自行判斷。</p>
+  </section>
+
+  <section class="kit-card tool-panel" data-tool="sidewallPressure" hidden>
+    <h2>彎管側壓（單一彎頭）</h2>
+    <form class="kit-form tool-grid" novalidate>
+      <div class="kit-field"><label for="sidewallPressure-mode">電纜排列（手冊圖 7-13、7-14）</label><select id="sidewallPressure-mode" name="mode"><option value="cradled">三條單芯 cradled（管內徑 ÷ 電纜外徑 ≥ 2.5）</option><option value="triangular">三條單芯 triangular（管內徑 ÷ 電纜外徑 &lt; 2.5）</option><option value="single">單條電纜，或多芯共用外被</option></select></div>
+      <div class="kit-field"><label for="sidewallPressure-tension">彎頭出口拉線張力 T（kN，電纜離開此彎頭處）</label><input autocomplete="off" id="sidewallPressure-tension" name="tension" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="sidewallPressure-radius">彎頭內側半徑 R（m；依產品資料確認，不直接用標稱中心線半徑）</label><input autocomplete="off" id="sidewallPressure-radius" name="radius" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field" data-mode="cradled triangular"><label for="sidewallPressure-weightFactor">重量修正係數 w（無單位，≥ 1；cradled 用手冊式 7-18、triangular 用式 7-17）</label><input autocomplete="off" id="sidewallPressure-weightFactor" name="weightFactor" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="sidewallPressure-source">張力、半徑與 w 的來源（計算書、管材與電纜型號）</label><input autocomplete="off" id="sidewallPressure-source" name="source" type="text" required></div>
+    </form>
+    <div class="tool-output" hidden><dl class="kit-stats"><div class="kit-stat"><dt>彎頭側壓 SP</dt><dd><span data-result="pressure"></span><span class="kit-stat-unit">kN/m</span></dd></div></dl><p class="kit-callout" data-status="warning">只算這一個彎頭的側壓；未和電纜容許側壓比較，不是能否施工的判定。</p><p class="tool-source">資料來源：<span data-result="source"></span></p><button type="button" class="kit-button kit-button--secondary tool-copy">複製結果</button></div>
+    <p class="tool-error kit-field-error" hidden>請輸入正數的張力與半徑、不小於 1 的 w（單條電纜不用填），並填寫資料來源。</p>
+    <p class="tool-formula">單條：SP＝T ÷ R（Southwire 式 7-20）；cradled：SP＝（3w－2）× T ÷（3R）（式 7-21）；triangular：SP＝w × T ÷（2R）（式 7-22）。w：cradled＝1＋4/3 ×（d ÷（D－d））²（式 7-18），triangular＝1 ÷ √（1－（d ÷（D－d））²）（式 7-17），D 為管內徑、d 為單條電纜外徑。T 用 kN、R 用 m，得 kN/m。手冊原單位為 lb 與 ft：1 lb/ft ≈ 14.594 N/m，手冊例 1,026 lb/ft ≈ 14.98 kN/m。</p>
+    <p class="tool-note">cradled 為原廠算例驗證（手冊 7-27 頁案例）；單條與 triangular 為依公式驗算，無原廠算例。排列由你依管內徑與電纜外徑判斷，工具不檢查。不算沿路徑的拉線張力，不內建摩擦係數或容許值。</p>
+  </section>
+
+  <section class="kit-card tool-panel" data-tool="benderOffset" hidden>
+    <h2>彎管 offset 標記（Greenlee 884/885）</h2>
+    <form class="kit-form tool-grid" novalidate>
+      <div class="kit-field"><label for="benderOffset-offset">offset 抬高量（mm）</label><input autocomplete="off" id="benderOffset-offset" name="offset" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="benderOffset-angle">彎曲角度（手冊表列角度）</label><select id="benderOffset-angle" name="angle"><option value="10">10°</option><option value="15">15°</option><option value="22.5">22½°</option><option value="30">30°</option><option value="45">45°</option><option value="60">60°</option></select></div>
+      <div class="kit-field"><label for="benderOffset-obstacle">管起點到障礙物的距離（mm，選填）</label><input autocomplete="off" id="benderOffset-obstacle" name="obstacle" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)"></div>
+    </form>
+    <div class="tool-output" hidden><dl class="kit-stats"><div class="kit-stat"><dt>兩個彎曲標記間距</dt><dd><span data-result="spacing"></span><span class="kit-stat-unit">mm</span></dd></div><div class="kit-stat"><dt>shrink（管縮短量）</dt><dd><span data-result="shrink"></span><span class="kit-stat-unit">mm</span></dd></div><div class="kit-stat" data-optional="secondMark"><dt>第二標記（距管起點）</dt><dd><span data-result="secondMark"></span><span class="kit-stat-unit">mm</span></dd></div><div class="kit-stat" data-optional="firstMark"><dt>第一標記（距管起點）</dt><dd><span data-result="firstMark"></span><span class="kit-stat-unit">mm</span></dd></div><div class="kit-stat" data-optional="maxConduit"><dt>手冊表列可用最大管徑（依表中 <span data-result="maxConduitColumn"></span> in 抬高欄）</dt><dd><span data-result="maxConduit"></span><span class="kit-stat-unit">in 管</span></dd></div><div class="kit-stat"><dt>倍率（1 ÷ sin 角度）</dt><dd><span data-result="multiplier"></span><span class="kit-stat-unit">倍</span></dd></div><div class="kit-stat"><dt>每 1 mm 抬高的 shrink</dt><dd><span data-result="shrinkRate"></span><span class="kit-stat-unit">mm</span></dd></div></dl><p class="kit-callout" data-status="warning">僅依 Greenlee 884/885 手冊的 offset 表；換用其他彎管器或鞋具不適用，正式加工前須先試彎核對。</p><button type="button" class="kit-button kit-button--secondary tool-copy">複製結果</button></div>
+    <p class="tool-error kit-field-error" hidden>請輸入正數的抬高量；若填障礙距離，第一標記不能落在管起點之前。</p>
+    <p class="tool-formula">標記間距＝抬高量 × 倍率，倍率取精確值 1 ÷ sin（角度），與手冊第 8 頁 Offset Table 相同（手冊倍率表印的 6.0、3.86、2.6、2、1.4、1.2 是取整值，45° 時差約 1%）；shrink＝抬高量 × 手冊第 9 頁每單位抬高的 shrink（10° 1/16、15° 1/8、22½° 3/16、30° 1/4、45° 3/8、60° 1/2）。第二標記＝障礙距離＋shrink；第一標記＝第二標記－標記間距。表值為比例，英寸換成 mm 不變。</p>
+    <p class="tool-note">只算朝障礙物方向放樣的兩彎 offset；不含其他角度、三彎或 90° 彎、回彈補償及法規判定。最大管徑只查手冊第 8 頁表（15°、30°、45°，抬高 2–22 in），取不大於你的抬高量的最近一欄；其他角度或抬高量小於表列最小值時不顯示，僅供參考、不擋計算。</p>
+  </section>
+
+  <section class="kit-card tool-panel" data-tool="voltageDrop" hidden>
+    <h2>導線電壓降</h2>
+    <form class="kit-form tool-grid" novalidate>
+      <div class="kit-field"><label for="voltageDrop-system">系統</label><select id="voltageDrop-system" name="system"><option value="three">三相（三線，平衡負載）</option><option value="single">單相二線</option></select></div>
+      <div class="kit-field"><label for="voltageDrop-voltage">電源端電壓 Es（V，三相填線間電壓）</label><input autocomplete="off" id="voltageDrop-voltage" name="voltage" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="voltageDrop-nominalVoltage">標稱電壓 En（V，選填；三相填線間標稱電壓，不等於 Es 時請分開填）</label><input autocomplete="off" id="voltageDrop-nominalVoltage" name="nominalVoltage" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)"></div>
+      <div class="kit-field"><label for="voltageDrop-dropLimit">容許壓降上限（%，選填；自行填採用的設計或規範值，以標稱電壓 En 為基準，須同時填 En）</label><input autocomplete="off" id="voltageDrop-dropLimit" name="dropLimit" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)"></div>
+      <div class="kit-field"><label for="voltageDrop-current">負載電流 I（A，線電流）</label><input autocomplete="off" id="voltageDrop-current" name="current" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="voltageDrop-length">單程線長 ℓ（m，電源到負載，不是來回長）</label><input autocomplete="off" id="voltageDrop-length" name="length" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="voltageDrop-resistance">導體交流電阻 R（Ω/km，運轉溫度下、每條導體）</label><input autocomplete="off" id="voltageDrop-resistance" name="resistance" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="voltageDrop-reactance">電抗 X（Ω/km，每條導體；可填 0）</label><input autocomplete="off" id="voltageDrop-reactance" name="reactance" data-allow-zero type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="voltageDrop-powerFactor">負載功率因數 pf（0–1，落後）</label><input autocomplete="off" id="voltageDrop-powerFactor" name="powerFactor" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" max="1" required></div>
+      <div class="kit-field"><label for="voltageDrop-source">電纜型號、R／X 與容許上限的來源（型錄、版次、溫度、採用規範）</label><input autocomplete="off" id="voltageDrop-source" name="source" type="text" required></div>
+    </form>
+    <div class="tool-output" hidden><dl class="kit-stats"><div class="kit-stat"><dt>電壓降 Vd（單相為迴路、三相為線間）</dt><dd><span data-result="drop"></span><span class="kit-stat-unit">V</span></dd></div><div class="kit-stat" data-optional="neutralDrop"><dt>對中性點電壓降 VN（三相）</dt><dd><span data-result="neutralDrop"></span><span class="kit-stat-unit">V</span></dd></div><div class="kit-stat"><dt>負載端電壓 EL＝Es − Vd</dt><dd><span data-result="loadVoltage"></span><span class="kit-stat-unit">V</span></dd></div><div class="kit-stat"><dt>電壓調整率 Vr（對負載端電壓）</dt><dd><span data-result="regulation"></span><span class="kit-stat-unit">%</span></dd></div><div class="kit-stat" data-optional="dropOfNominal"><dt>電壓降占標稱電壓（100 × Vd ÷ En）</dt><dd><span data-result="dropOfNominal"></span><span class="kit-stat-unit">%</span></dd></div><div class="kit-stat" data-optional="limitUsage"><dt>電壓降占你填的上限（上限由你填入，非工具判定）</dt><dd><span data-result="limitUsage"></span><span class="kit-stat-unit">%</span></dd></div><div class="kit-stat" data-optional="dropLimit"><dt>你填的容許壓降上限（占 En）</dt><dd><span data-result="dropLimit"></span><span class="kit-stat-unit">%</span></dd></div></dl><p class="tool-source">資料來源：<span data-result="source"></span></p><button type="button" class="kit-button kit-button--secondary tool-copy">複製結果</button></div>
+    <p class="tool-error kit-field-error" hidden>請輸入正數的電壓、電流、線長、電阻與 0 到 1 之間的功率因數（電抗可為 0），並填寫資料來源；電壓降須小於電源端電壓；填容許壓降上限時須同時填標稱電壓。</p>
+    <p class="tool-formula">sinθ＝√（1 − pf²）；每條導體壓降＝I ×（R × pf＋X × sinθ）× ℓ ÷ 1000。單相二線：Vd＝2 × 每條導體壓降；三相：VN＝每條導體壓降，Vd＝√3 × VN。電壓調整率＝100 × Vd ÷（Es − Vd）。占上限比＝100 ×（100 × Vd ÷ En）÷ 你填的上限。</p>
+    <p class="tool-note">Southwire 手冊近似式，忽略並聯電容；只算已知 R／X 的電壓降。不建議線徑，不含載流量、短路、溫度修正，也不判是否符合容許壓降或任何規範。「占你填的上限」是單純比值，依公式驗算，無原廠算例。</p>
+  </section>
+
+  <section class="kit-card tool-panel" data-tool="pipePressureLoss" hidden>
+    <h2>給水配管壓損</h2>
+    <form class="kit-form tool-grid" novalidate>
+      <div class="kit-field"><label for="pipePressureLoss-mode">摩擦係數 f 的取得方式</label><select id="pipePressureLoss-mode" name="mode"><option value="manual">手填已確認的 f</option><option value="computed">由粗糙度與黏度代算 f</option></select></div>
+      <div class="kit-field"><label for="pipePressureLoss-diameter">管實際內徑 D（mm，非公稱管徑）</label><input autocomplete="off" id="pipePressureLoss-diameter" name="diameter" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="pipePressureLoss-flow">流量 Q（L/s）</label><input autocomplete="off" id="pipePressureLoss-flow" name="flow" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="pipePressureLoss-length">計算管長 L（m，同一內徑直管；配件等值長度須自行併入）</label><input autocomplete="off" id="pipePressureLoss-length" name="length" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field" data-mode="manual"><label for="pipePressureLoss-frictionFactor">Darcy 摩擦係數 f（無單位，依此流量確認）</label><input autocomplete="off" id="pipePressureLoss-frictionFactor" name="frictionFactor" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field" data-mode="computed"><label for="pipePressureLoss-roughness">管內絕對粗糙度 ε（mm，依管材資料）</label><input autocomplete="off" id="pipePressureLoss-roughness" name="roughness" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field" data-mode="computed"><label for="pipePressureLoss-viscosity">水的動力黏度 μ（mPa·s，依水溫確認）</label><input autocomplete="off" id="pipePressureLoss-viscosity" name="viscosity" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="pipePressureLoss-density">水的密度 ρ（kg/m³，依水溫確認）</label><input autocomplete="off" id="pipePressureLoss-density" name="density" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="pipePressureLoss-source">管材型號、內徑與 f 來源</label><input autocomplete="off" id="pipePressureLoss-source" name="source" type="text" required></div>
+    </form>
+    <div class="tool-output" hidden><dl class="kit-stats"><div class="kit-stat"><dt>管內平均流速 V</dt><dd><span data-result="velocity"></span><span class="kit-stat-unit">m/s</span></dd></div><div class="kit-stat"><dt>沿程水頭損失 hf</dt><dd><span data-result="headLoss"></span><span class="kit-stat-unit">m</span></dd></div><div class="kit-stat"><dt>沿程壓力損失 Δp</dt><dd><span data-result="pressureLoss"></span><span class="kit-stat-unit">kPa</span></dd></div><div class="kit-stat"><dt>採用的 Darcy 摩擦係數 f</dt><dd><span data-result="frictionFactor"></span><span class="kit-stat-unit">無因次</span></dd></div><div class="kit-stat" data-optional="reynolds"><dt>Reynolds number Re</dt><dd><span data-result="reynolds"></span><span class="kit-stat-unit">無因次</span></dd></div><div class="kit-stat" data-optional="relativeRoughness"><dt>相對粗糙度 ε/D</dt><dd><span data-result="relativeRoughness"></span><span class="kit-stat-unit">無因次</span></dd></div></dl><p class="tool-source">摩擦係數：<span data-result="frictionMethod"></span></p><p class="tool-source">資料來源：<span data-result="source"></span></p><button type="button" class="kit-button kit-button--secondary tool-copy">複製結果</button></div>
+    <p class="tool-error kit-field-error" hidden>請輸入正數的內徑、流量、管長、密度，以及手填的 f 或代算用的粗糙度與黏度，並填寫資料來源。代算只適用 Re ≥ 5235 且 ε/D ≤ 0.05，其他情況請改用經確認的手填 f。</p>
+    <p class="tool-formula">V＝Q ÷ 1000 ÷（π × D² ÷ 4），D 以 m 計；hf＝f ×（L ÷ D）× V² ÷（2 × 9.80665）；Δp＝ρ × 9.80665 × hf ÷ 1000。代算 f：Re＝ρVD ÷ μ；1 ÷ √f＝−2 log₁₀（ε/(3.7D)＋95 ÷ Re^0.983 − 96.82 ÷ Re）（Manadilli）。</p>
+    <p class="tool-note">只算單一內徑、滿管流的直管摩擦損失。不計高差、配件、水表或設備損失，不從器具單位推流量，不建議管徑，也不判流速或壓力是否符合規範。</p>
+  </section>
+
+  <section class="kit-card tool-panel" data-tool="stair" hidden>
+    <h2>直跑樓梯幾何</h2>
+    <form class="kit-form tool-grid" novalidate>
+      <div class="kit-field"><label for="stair-height">樓層高（mm）</label><input autocomplete="off" id="stair-height" name="height" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="stair-run">可用水平長（mm）</label><input autocomplete="off" id="stair-run" name="run" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="stair-maxRise">指定最大級高（mm）</label><input autocomplete="off" id="stair-maxRise" name="maxRise" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+    </form>
+    <div class="tool-output" hidden><dl class="kit-stats"><div class="kit-stat"><dt>級高數</dt><dd><span data-result="risers"></span><span class="kit-stat-unit">級</span></dd></div><div class="kit-stat"><dt>踏面數</dt><dd><span data-result="treads"></span><span class="kit-stat-unit">面</span></dd></div><div class="kit-stat"><dt>平均級高</dt><dd><span data-result="actualRise"></span><span class="kit-stat-unit">mm</span></dd></div><div class="kit-stat"><dt>平均踏深</dt><dd><span data-result="treadDepth"></span><span class="kit-stat-unit">mm</span></dd></div></dl><button type="button" class="kit-button kit-button--secondary tool-copy">複製結果</button></div>
+    <p class="tool-error kit-field-error" hidden>請輸入正數，並使樓高至少需要兩個級高。</p>
+    <p class="tool-formula">級高數＝⌈樓高 ÷ 最大級高⌉；踏面數＝級高數－1；平均級高＝樓高 ÷ 級高數；平均踏深＝水平長 ÷ 踏面數。</p>
+    <p class="tool-note">只提供直跑幾何候選；不判法規、淨空或完成面。</p>
+  </section>
+
+  <section class="kit-card tool-panel" data-tool="cylinder" hidden>
+    <h2>圓柱幾何</h2>
+    <form class="kit-form tool-grid" novalidate>
+      <div class="kit-field"><label for="cylinder-diameter">直徑（m）</label><input autocomplete="off" id="cylinder-diameter" name="diameter" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="cylinder-height">高（m）</label><input autocomplete="off" id="cylinder-height" name="height" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+    </form>
+    <div class="tool-output" hidden><dl class="kit-stats"><div class="kit-stat"><dt>圓面積</dt><dd><span data-result="area"></span><span class="kit-stat-unit">m²</span></dd></div><div class="kit-stat"><dt>周長</dt><dd><span data-result="circumference"></span><span class="kit-stat-unit">m</span></dd></div><div class="kit-stat"><dt>圓柱體積</dt><dd><span data-result="volume"></span><span class="kit-stat-unit">m³</span></dd></div></dl><button type="button" class="kit-button kit-button--secondary tool-copy">複製結果</button></div>
+    <p class="tool-error kit-field-error" hidden>請輸入正數。</p>
+    <p class="tool-formula">圓面積＝π ×（直徑 ÷ 2）²；周長＝π × 直徑；體積＝圓面積 × 高。</p>
+    <p class="tool-note">理想正圓柱幾何，不含超挖或材料損耗。</p>
+  </section>
+
+  <section class="kit-card tool-panel" data-tool="asphalt" hidden>
+    <h2>瀝青層理論噸數</h2>
+    <form class="kit-form tool-grid" novalidate>
+      <div class="kit-field"><label for="asphalt-length">長（m）</label><input autocomplete="off" id="asphalt-length" name="length" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="asphalt-width">寬（m）</label><input autocomplete="off" id="asphalt-width" name="width" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="asphalt-thickness">壓實厚度（mm）</label><input autocomplete="off" id="asphalt-thickness" name="thickness" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="asphalt-density">已確認壓實密度（kg/m³）</label><input autocomplete="off" id="asphalt-density" name="density" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+    </form>
+    <div class="tool-output" hidden><dl class="kit-stats"><div class="kit-stat"><dt>壓實體積</dt><dd><span data-result="volume"></span><span class="kit-stat-unit">m³</span></dd></div><div class="kit-stat"><dt>理論重量</dt><dd><span data-result="tonnes"></span><span class="kit-stat-unit">t</span></dd></div></dl><button type="button" class="kit-button kit-button--secondary tool-copy">複製結果</button></div>
+    <p class="tool-error kit-field-error" hidden>請輸入所有必填欄位的正數。</p>
+    <p class="tool-formula">壓實體積＝長 × 寬 × 壓實厚度 ÷ 1000；理論重量＝體積 × 壓實密度 ÷ 1000。</p>
+    <p class="tool-note">密度由使用者確認；不估鬆方、運料、壓實率或採購保證量。</p>
+  </section>
+
+  <section class="kit-card tool-panel" data-tool="outrigger" hidden>
+    <h2>吊車支腿平均接地壓力</h2>
+    <form class="kit-form tool-grid" novalidate>
+      <div class="kit-field"><label for="outrigger-force">最大單支腿反力（kN，單一支腿，非吊車總重）</label><input autocomplete="off" id="outrigger-force" name="force" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="outrigger-area">墊板有效接地面積（m²，經確認的有效接觸面積）</label><input autocomplete="off" id="outrigger-area" name="area" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="outrigger-source">反力來源與配置（報告／圖面、機型、工況）</label><input autocomplete="off" id="outrigger-source" name="source" type="text" required></div>
+    </form>
+    <div class="tool-output" hidden><dl class="kit-stats"><div class="kit-stat"><dt>平均接地壓力</dt><dd><span data-result="pressure"></span><span class="kit-stat-unit">kPa</span></dd></div><div class="kit-stat"><dt>最大單支腿反力 F</dt><dd><span data-result="force"></span><span class="kit-stat-unit">kN</span></dd></div><div class="kit-stat"><dt>有效接地面積 A</dt><dd><span data-result="area"></span><span class="kit-stat-unit">m²</span></dd></div></dl><p class="kit-callout" data-status="warning">僅平均壓力；地盤承載、墊板與局部峰值另由專業人員審查，本結果不是安全判定。</p><p class="tool-source">反力來源：<span data-result="source"></span></p><button type="button" class="kit-button kit-button--secondary tool-copy">複製結果</button></div>
+    <p class="tool-error kit-field-error" hidden>請輸入正數的反力與有效面積，並填寫反力來源與配置。</p>
+    <p class="tool-formula">平均接地壓力 p＝最大單支腿反力 F（kN）÷ 有效接地面積 A（m²）；1 kN/m²＝1 kPa。</p>
+    <p class="tool-note">只換算已知反力與面積；不從吊重、半徑或機型推算反力，不判地盤、墊板或吊裝配置是否合格。</p>
+  </section>
+
+  <section class="kit-card tool-panel" data-tool="formworkPressure" hidden>
+    <h2>新拌混凝土模板側壓</h2>
+    <form class="kit-form tool-grid" novalidate>
+      <div class="kit-field"><label for="formworkPressure-mode">採用規範</label><select id="formworkPressure-mode" name="mode"><option value="aci">美制 ACI 347R-14</option><option value="jass5">日制建築 JASS 5（2022 版，全液壓）</option><option value="jsce">日制土木 JSCE 示方書 2017（限柱）</option></select></div>
+      <div class="kit-field"><label for="formworkPressure-height">澆置高度 H（m，澆置頂面到最低點的新拌混凝土深度）</label><input autocomplete="off" id="formworkPressure-height" name="height" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field" data-mode="aci"><label for="formworkPressure-member">構件（ACI 定義）</label><select id="formworkPressure-member" name="member"><option value="wall">牆：平面至少一邊超過 2 m</option><option value="column">柱：平面任一邊不超過 2 m</option></select></div>
+      <div class="kit-field" data-mode="aci"><label for="formworkPressure-consolidation">坍度與振動條件</label><select id="formworkPressure-consolidation" name="consolidation"><option value="standard">坍度 ≤ 175 mm 且內部振動深度 ≤ 1.2 m</option><option value="liquid">坍度 &gt; 175 mm、振動深度 &gt; 1.2 m、自充填混凝土或新型摻料未經量測</option></select></div>
+      <div class="kit-field" data-mode="aci"><label for="formworkPressure-chemistry">水泥與摻料（ACI 表 4.2.2.1a(b)，緩凝劑含高性能減水劑）</label><select id="formworkPressure-chemistry" name="chemistry"><option value="1.0">I、II、III 型水泥，無爐石、飛灰、緩凝劑（Cc 1.0）</option><option value="1.2a">I、II、III 型水泥，無爐石、飛灰，有緩凝劑（Cc 1.2）</option><option value="1.2b">爐石 &lt; 70%、飛灰 &lt; 40%，無緩凝劑（Cc 1.2）</option><option value="1.4a">爐石 &lt; 70%、飛灰 &lt; 40%，有緩凝劑（Cc 1.4）</option><option value="1.4b">爐石 ≥ 70% 或飛灰 ≥ 40%，無緩凝劑（Cc 1.4）</option><option value="1.5">爐石 ≥ 70% 或飛灰 ≥ 40%，有緩凝劑（Cc 1.5）</option></select></div>
+      <div class="kit-field" data-mode="aci"><label for="formworkPressure-density">混凝土密度 ρ（kg/m³）</label><input autocomplete="off" id="formworkPressure-density" name="density" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field" data-mode="jass5 jsce"><label for="formworkPressure-unitWeight">單位體積重量 W0／Wc（kN/m³，一般鋼筋混凝土約 24）</label><input autocomplete="off" id="formworkPressure-unitWeight" name="unitWeight" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field" data-mode="aci jsce"><label for="formworkPressure-rate">打設速度 R（m/h，混凝土面上升速度）</label><input autocomplete="off" id="formworkPressure-rate" name="rate" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field" data-mode="aci jsce"><label for="formworkPressure-temperature">澆置時混凝土溫度 T（°C）</label><input autocomplete="off" id="formworkPressure-temperature" name="temperature" data-allow-zero type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+    </form>
+    <div class="tool-output" hidden><dl class="kit-stats"><div class="kit-stat"><dt>最大側壓</dt><dd><span data-result="pressure"></span><span class="kit-stat-unit">kN/m²</span></dd></div><div class="kit-stat" data-optional="cw"><dt>單位重係數 Cw</dt><dd><span data-result="cw"></span><span class="kit-stat-unit">無因次</span></dd></div><div class="kit-stat" data-optional="cc"><dt>化學係數 Cc</dt><dd><span data-result="cc"></span><span class="kit-stat-unit">無因次</span></dd></div></dl><p class="tool-source">採用：<span data-result="governs"></span></p><p class="kit-callout" data-status="warning">只算新拌混凝土對模板的最大側壓，不是模板或支撐的設計，也不判定合格；請由模板設計者確認。</p><button type="button" class="kit-button kit-button--secondary tool-copy">複製結果</button></div>
+    <p class="tool-error kit-field-error" hidden>請輸入正數的高度、密度或單位重與打設速度，溫度可為 0。</p>
+    <p class="tool-formula">ACI 347R-14：柱用 Cc·Cw·[7.2＋785R ÷（T＋17.8）]；牆依打設速度與牆高用上式或 Cc·Cw·[7.2＋1156 ÷（T＋17.8）＋244R ÷（T＋17.8）]，牆超過 4.5 m/h 用液壓；下限 30Cw、上限液壓 ρgh（g＝9.81）。JASS 5 2022：W0 × H。JSCE 2017（柱）：Wc ÷ 3 ×［1＋100R ÷（T＋20）］，不超過 150 kN/m²。</p>
+    <p class="tool-note">ACI 公式讀自 ACI 官方節錄原文，驗證用的是英制已發表算例換算，差 0.1% 內；JASS 5 2022 與 JSCE 2017 原文要付費未讀，公式取自二手資料（JSCE 的「不超過 Wc × H」為推論）。台灣規範沒有自己的側壓公式，施工規範指向 ACI 347，臺北市另允許 JASS 5。不含由底部泵送（ACI 要求液壓再加至少 25%）、外部振動、膨脹水泥、JSCE 的牆與 JASS 5 2018 舊表。</p>
+  </section>
+
+  <section class="kit-card tool-panel" data-tool="staking" hidden>
+    <h2>放樣挖填高差（單點）</h2>
+    <form class="kit-form tool-grid" novalidate>
+      <div class="kit-field"><label for="staking-design">設計高程（可為負值，用 ± 切換）</label><div class="kit-affix"><input autocomplete="off" id="staking-design" name="design" data-allow-negative type="text" inputmode="decimal" pattern="-?(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required><span class="kit-affix-unit">m</span></div></div>
+      <div class="kit-field"><label for="staking-measured">該點地面實測高程（已換算成地面點，可為負值，用 ± 切換）</label><div class="kit-affix"><input autocomplete="off" id="staking-measured" name="measured" data-allow-negative type="text" inputmode="decimal" pattern="-?(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required><span class="kit-affix-unit">m</span></div></div>
+    </form>
+    <div class="tool-output" hidden><dl class="kit-stats"><div class="kit-stat" data-optional="cut"><dt>挖（實測高於設計）</dt><dd><span data-result="cut"></span><span class="kit-stat-unit">mm</span></dd></div><div class="kit-stat" data-optional="fill"><dt>填（實測低於設計）</dt><dd><span data-result="fill"></span><span class="kit-stat-unit">mm</span></dd></div><div class="kit-stat" data-optional="onGrade"><dt>已達設計高程，差值</dt><dd><span data-result="onGrade"></span><span class="kit-stat-unit">mm</span></dd></div><div class="kit-stat"><dt>差值（實測 − 設計）</dt><dd><span data-result="difference"></span><span class="kit-stat-unit">mm</span></dd></div></dl><p class="kit-callout" data-status="info">計算假設：差值＝實測 − 設計；正值為挖、負值為填。實測高程須已是地面點高程（已扣儀器高、稜鏡或標尺高），工具不再加減。假設與你現場慣例不符時，請回報給工具維護者。</p><button type="button" class="kit-button kit-button--secondary tool-copy">複製結果</button></div>
+    <p class="tool-error kit-field-error" hidden>請輸入兩個高程（m，可為負值，例：-3.25）。</p>
+    <p class="tool-formula">差值（mm）＝（地面實測高程 − 設計高程）× 1000；大於 0 為挖，小於 0 為填。</p>
+    <p class="tool-note">依公式驗算，無原廠算例。只比較單點高程，不含垂直於設計面的量測、容許誤差或合格判定，也不讀測量儀器檔案。</p>
+  </section>
+
+  <section class="kit-card tool-panel" data-tool="cutFill" hidden>
+    <h2>規則格網挖填</h2>
+    <form class="kit-form tool-grid" novalidate>
+      <div class="kit-field"><label for="cutFill-spacingX">格網間距 X（m）</label><input autocomplete="off" id="cutFill-spacingX" name="spacingX" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="cutFill-spacingY">格網間距 Y（m）</label><input autocomplete="off" id="cutFill-spacingY" name="spacingY" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" required></div>
+      <div class="kit-field"><label for="cutFill-existing">既有地面高程（m，每行一列，空白／逗號／Tab 分隔）</label><textarea autocomplete="off" id="cutFill-existing" name="existing" rows="4" required placeholder="102.0 102.1&#10;101.9 102.0"></textarea></div>
+      <div class="kit-field"><label for="cutFill-design">設計高程（m，與既有地面同位置、同列數與行數）</label><textarea autocomplete="off" id="cutFill-design" name="design" rows="4" required placeholder="101.5 101.5&#10;101.5 101.5"></textarea></div>
+    </form>
+    <div class="tool-output" hidden>
+      <dl class="kit-stats"><div class="kit-stat"><dt>挖方</dt><dd><span data-result="cut"></span><span class="kit-stat-unit">m³</span></dd></div><div class="kit-stat"><dt>填方</dt><dd><span data-result="fill"></span><span class="kit-stat-unit">m³</span></dd></div><div class="kit-stat"><dt>淨差（挖－填）</dt><dd><span data-result="net"></span><span class="kit-stat-unit">m³</span></dd></div><div class="kit-stat"><dt>挖填總量</dt><dd><span data-result="total"></span><span class="kit-stat-unit">m³</span></dd></div><div class="kit-stat"><dt>需細分網格（未計入）</dt><dd><span data-result="mixedCount"></span><span class="kit-stat-unit">格</span></dd></div></dl>
+      <div class="cell-list"></div>
+    <button type="button" class="kit-button kit-button--secondary tool-copy">複製結果</button></div>
+    <p class="tool-error kit-field-error" hidden>請輸入正數間距；兩張高程網格須為數字、至少 2×2 點、每列點數相同且兩張形狀一致。</p>
+    <p class="tool-formula">每角差值＝既有地面－設計高程；四角差值同號（可含 0）時，挖方或填方＝四角平均差 × X × Y；淨差＝挖方－填方（正值為餘土，負值為缺土）。</p>
+    <p class="tool-note">規則矩形網格的四角平均幾何估算；同格有挖有填時標示需細分網格並不計入。不含鬆方／壓實因子、超挖或土方平衡，不可直接作計價或運輸量。</p>
+  </section>
+</main>
+<script src="/studio-plugin.js"></script>
+<script src="./calculations.js"></script>
+<script src="./examples.js"></script>
+<script src="./app.js"></script>
+</body>
+</html>
