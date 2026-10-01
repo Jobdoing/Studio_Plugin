@@ -85,5 +85,5 @@ node --test architect-kb/ingestion/*.test.mjs
 ## 授權
 
 原始資料：CC BY-SA 4.0 © HJPLUS_Taiwan_Architect_KB 貢獻者  
-本外掛程式碼：MIT © 2026 jobdone.cc  
+本外掛程式碼：Apache License 2.0 © 2026 jobdone.cc  
 資料 artifact 依 CC BY-SA 4.0 再散布，標示出處如 index.html 底部 attribution 區塊。

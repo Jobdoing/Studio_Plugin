@@ -72,6 +72,6 @@ node ingestion/build-artifact.mjs rows.jsonl tender-<YYYYMMDD>.duckdb
 
 ## 授權
 
-MIT — Copyright (c) 2026 jobdone.cc
+Apache License 2.0 — Copyright (c) 2026 jobdone.cc
 
 後續範例方向：將以民間開放資料嘗試不同性質的範例外掛（不以真實產品功能為目標）。
