@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>實價登錄(sample)</title>
+  <link rel="stylesheet" href="/studio-kit.css">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<main class="real-estate">
+  <header class="intro">
+    <p class="eyebrow" data-copy="eyebrow"></p>
+    <div class="heading"><h1 data-copy="title"></h1><span class="sample" data-copy="sample"></span></div>
+    <p data-copy="intro"></p>
+  </header>
+  <form id="search-form" class="kit-card" aria-busy="true">
+    <div class="filters">
+      <div class="kit-field"><label for="county" data-copy="county"></label><select id="county" name="county" required disabled></select></div>
+      <div class="kit-field"><label for="town" data-copy="town"></label><input id="town" name="town" type="text" maxlength="20" autocomplete="off" disabled></div>
+      <div class="kit-field"><label for="address" data-copy="address"></label><input id="address" name="address" type="search" maxlength="120" autocomplete="off" disabled></div>
+      <div class="search-action"><button id="search" type="submit" class="kit-button" data-copy="search" disabled></button></div>
+    </div>
+  </form>
+  <p id="status" class="kit-status-line" role="status" aria-live="polite"></p>
+  <div id="error" class="kit-callout" data-status="danger" role="alert" hidden><p id="error-message"></p><button id="retry" type="button" class="kit-button kit-button--secondary" data-copy="retry"></button></div>
+  <section id="results" aria-busy="false" aria-labelledby="results-heading" hidden>
+    <div class="results-heading"><h2 id="results-heading" data-copy="results"></h2><span id="range"></span></div>
+    <div id="list" class="transaction-list"></div>
+    <nav class="pagination" aria-label="Pagination">
+      <button id="previous" type="button" class="kit-button kit-button--secondary" data-copy="previous" disabled></button>
+      <p data-copy="pageNote"></p>
+      <button id="next" type="button" class="kit-button kit-button--secondary" data-copy="next" disabled></button>
+    </nav>
+  </section>
+  <footer class="notes">
+    <h2 data-copy="sourceTitle"></h2>
+    <p data-copy="source"></p><p id="attribution" hidden></p>
+    <p data-copy="unitsNote"></p><p data-copy="delayNote"></p><p data-copy="networkNote"></p>
+    <button id="source-link" type="button" class="kit-button kit-button--link" data-copy="sourceLink" disabled></button>
+  </footer>
+</main>
+<script src="/studio-plugin.js"></script>
+<script type="module" src="./app.mjs"></script>
+</body>
+</html>
