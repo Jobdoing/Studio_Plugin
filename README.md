@@ -15,6 +15,7 @@ Studio5(vibe-coding 平台)的第一方外掛集合。名稱標「(Sample)」的
 | [`tobid/`](tobid/) | 標案快訊(Sample) | studio.query 查詢、站內列表/明細、`?tender=` 深連結、openExternal、沙箱邊界、公共資料源管線(去重/schema_version) | 政府電子採購網 OpenData(現況限制照實陳述於外掛內文) |
 | [`architect-kb/`](architect-kb/) | 建築知識庫(Sample) | 公共資料源查詢、站內即時篩選、站內分頁(20/50/100 每頁)、欄寬拖曳調整、`?skill=` 深連結、有效個案外部連結、CC BY-SA 授權合規 | HJPLUS 台灣 AEC 開源知識庫(CC BY-SA 4.0) |
 | [`real-estate/`](real-estate/) | 實價登錄(sample) | 免 key 公開 HTTP 查詢、條件查詢、成交卡片、伺服器分頁、單筆開啟 Google Maps | ToEstate 整理自內政部實價登錄 |
+| [`site-diorama/`](site-diorama/) | 立體工地 | 可修改的 3D 工地、動畫控制、案場摘要與明細；日誌固定 2026/06/01 | 客戶 Studio 的改善單、日誌與查驗 curated tables；不附客戶資料 |
 | [`jobsite-toolbox/`](jobsite-toolbox/) | 工地百寶箱 | 32 項公制工地計算工具（手機 21 項），方塊首頁與個人排序 | 公開原廠手冊、原廠計算器實測、《建築物混凝土結構設計規範》112 年版與幾何公式；來源標在各工具畫面 |
 
 ## 授權

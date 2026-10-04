@@ -1,0 +1,7 @@
+{
+  "id": "site-diorama-inspection-detail",
+  "title": "inspection-detail",
+  "kind": "table",
+  "scope": "project",
+  "sql": "SELECT item_name AS title, result_label AS status_label, CAST(created_at AT TIME ZONE 'Asia/Taipei' AS DATE) AS record_date, description AS note FROM fact_inspection_record WHERE is_business_record AND NOT inspection_is_deleted AND is_failed ORDER BY created_at DESC NULLS LAST, record_id ASC LIMIT 20"
+}

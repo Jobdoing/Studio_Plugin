@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Studio</title>
+  <link rel="stylesheet" href="/studio-kit.css">
+  <link rel="stylesheet" href="./style.css">
+  <script type="importmap">{"imports":{"three":"/vendor/three/0.186/three.module.min.js","three/addons/":"/vendor/three/0.186/addons/"}}</script>
+</head>
+<body>
+  <main class="site-diorama">
+    <header class="header">
+      <div><p id="subtitle" class="eyebrow"></p><h1 id="heading"></h1></div>
+      <button id="refresh" type="button" class="kit-button kit-button--secondary" disabled></button>
+    </header>
+    <p id="guard" class="kit-status-line" role="status"></p>
+    <p id="startup-error" class="kit-error" hidden role="alert">外掛載入失敗，請重新整理頁面再試。</p>
+    <section class="stage-shell" aria-labelledby="heading">
+      <p id="model-note" class="model-note"></p>
+      <div id="stage" class="stage">
+        <button id="marker-corrective" data-module="corrective" type="button" class="kit-button kit-button--secondary marker" disabled><span class="marker-icon" aria-hidden="true">!</span><span><span class="marker-title"></span><strong class="marker-value">—</strong><span class="marker-metric"></span></span></button>
+        <button id="marker-diary" data-module="diary" type="button" class="kit-button kit-button--secondary marker" disabled><span class="marker-icon" aria-hidden="true">▤</span><span><span class="marker-title"></span><strong class="marker-value">—</strong><span class="marker-metric"></span></span></button>
+        <button id="marker-inspection" data-module="inspection" type="button" class="kit-button kit-button--secondary marker" disabled><span class="marker-icon" aria-hidden="true">✓</span><span><span class="marker-title"></span><strong class="marker-value">—</strong><span class="marker-metric"></span></span></button>
+        <p id="scene-error" class="kit-error scene-error" hidden role="status"></p>
+      </div>
+      <div class="scene-toolbar">
+        <span id="gesture"></span>
+        <div class="controls">
+          <button id="left" class="kit-button kit-button--secondary" type="button">↶</button>
+          <button id="right" class="kit-button kit-button--secondary" type="button">↷</button>
+          <button id="reset" class="kit-button kit-button--secondary" type="button"></button>
+          <div class="kit-field motion-field"><label for="motion" id="motion-label"></label><input id="motion" type="checkbox" role="switch"></div>
+        </div>
+      </div>
+    </section>
+    <div id="modules" class="modules"></div>
+    <section id="details" class="kit-card details" aria-busy="false">
+      <header class="detail-header"><div><p id="detail-caption" class="eyebrow"></p><h2 id="detail-heading" tabindex="-1"></h2></div><span id="detail-count" class="kit-chip"></span></header>
+      <p id="population" class="population"></p>
+      <p id="detail-status" role="status"></p>
+      <ol id="detail-list" class="detail-list"></ol>
+      <p id="detail-limit" class="population" hidden></p>
+    </section>
+    <footer><p id="freshness"></p><p id="snapshot"></p></footer>
+  </main>
+  <script src="/studio-plugin.js"></script>
+  <script type="module" src="./app.mjs"></script>
+</body>
+</html>

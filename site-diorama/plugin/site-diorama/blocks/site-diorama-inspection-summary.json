@@ -1,0 +1,7 @@
+{
+  "id": "site-diorama-inspection-summary",
+  "title": "inspection-summary",
+  "kind": "table",
+  "scope": "project",
+  "sql": "SELECT count(*) AS total_count, count(*) FILTER (WHERE is_failed) AS failed_count FROM fact_inspection_record WHERE is_business_record AND NOT inspection_is_deleted"
+}

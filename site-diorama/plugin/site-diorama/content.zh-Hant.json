@@ -1,0 +1,56 @@
+{
+  "heading": "工地現況",
+  "subtitle": "從立體小物，查看案場紀錄",
+  "model": "固定示意模型・非真實建物或缺失位置",
+  "choose": "請在 Studio 左側選擇一個案場，查看對應紀錄。",
+  "all": "請選擇單一案場；此工地場景不合併不同案場。",
+  "loading": "讀取案場資料中…",
+  "unknown": "未提供",
+  "failed": "資料讀取失敗，請重新整理資料再試。",
+  "invalid": "資料格式不符，無法顯示；請聯絡盒主確認資料源。",
+  "refresh": "重新整理資料",
+  "animation": "場景動畫",
+  "motionReduced": "依裝置設定停止動畫",
+  "reset": "重設視角",
+  "rotateLeft": "向左轉",
+  "rotateRight": "向右轉",
+  "gesture": "拖曳旋轉工地・點選標記看明細",
+  "fallback": "此裝置無法顯示 3D。仍可使用下方按鈕查看資料。",
+  "detail": "紀錄明細",
+  "pick": "點選警示錐、日誌或查驗夾，開啟對應紀錄。",
+  "empty": "此案場沒有符合條件的紀錄。",
+  "limit": "僅顯示排序後前 20 筆；摘要依全部符合條件的紀錄計算。",
+  "freshnessFailed": "資料源更新時間無法取得。",
+  "freshnessEmpty": "平台未提供資料源更新時間。",
+  "updated": "資料源更新",
+  "source": "資料源",
+  "snapshot": "數據來自平台資料快照，非即時工地監控。",
+  "units": "筆",
+  "corrective": {
+    "title": "缺失改善",
+    "metric": "未完成改善單",
+    "secondary": "逾期",
+    "population": "有效且未撤銷的改善單；明細依期限排序。",
+    "object": "警示錐"
+  },
+  "diary": {
+    "title": "施工日誌",
+    "metric": "2026/06/01 日誌筆數",
+    "secondary": "指定紀錄日",
+    "population": "目前案場在 2026/06/01 的有效且未刪除日誌，含公共工程、一般建築及監造。",
+    "object": "工務所日誌",
+    "empty": "此案場在 2026/06/01 無日誌。"
+  },
+  "inspection": {
+    "title": "查驗紀錄",
+    "metric": "不合格紀錄",
+    "secondary": "查驗紀錄總筆數",
+    "population": "有效且查驗未刪除的紀錄；不同於改善單，不加總為缺失總數。明細只列不合格紀錄。",
+    "object": "查驗夾"
+  },
+  "variants": {
+    "construction": "公共工程日誌",
+    "normal": "一般建築日誌",
+    "supervisor": "監造日誌"
+  }
+}

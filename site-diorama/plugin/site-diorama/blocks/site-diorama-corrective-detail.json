@@ -1,0 +1,7 @@
+{
+  "id": "site-diorama-corrective-detail",
+  "title": "corrective-detail",
+  "kind": "table",
+  "scope": "project",
+  "sql": "SELECT subject AS title, severity_label AS status_label, CAST(deadline_at AT TIME ZONE 'Asia/Taipei' AS DATE) AS record_date, responsible_subcontractor_name AS note FROM fact_corrective_sheet WHERE is_business_sheet AND NOT is_revoked AND NOT is_completed ORDER BY deadline_at ASC NULLS LAST, sheet_id ASC LIMIT 20"
+}

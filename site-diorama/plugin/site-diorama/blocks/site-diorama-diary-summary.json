@@ -1,0 +1,7 @@
+{
+  "id": "site-diorama-diary-summary",
+  "title": "diary-summary",
+  "kind": "table",
+  "scope": "project",
+  "sql": "SELECT count(*) AS total_count, CAST(max(record_date AT TIME ZONE 'Asia/Taipei') AS DATE) AS latest_date FROM fact_daily_log WHERE is_business_log AND NOT is_deleted AND CAST(record_date AT TIME ZONE 'Asia/Taipei' AS DATE) = DATE '2026-06-01'"
+}

@@ -1,0 +1,7 @@
+{
+  "id": "site-diorama-corrective-summary",
+  "title": "corrective-summary",
+  "kind": "table",
+  "scope": "project",
+  "sql": "SELECT count(*) AS total_count, count(*) FILTER (WHERE NOT is_completed) AS open_count, count(*) FILTER (WHERE NOT is_completed AND deadline_at IS NOT NULL AND CAST(deadline_at AT TIME ZONE 'Asia/Taipei' AS DATE) < CAST(current_timestamp AT TIME ZONE 'Asia/Taipei' AS DATE)) AS overdue_count FROM fact_corrective_sheet WHERE is_business_sheet AND NOT is_revoked"
+}

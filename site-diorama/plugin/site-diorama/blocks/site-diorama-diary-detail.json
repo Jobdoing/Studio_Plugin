@@ -1,0 +1,7 @@
+{
+  "id": "site-diorama-diary-detail",
+  "title": "diary-detail",
+  "kind": "table",
+  "scope": "project",
+  "sql": "SELECT serial_number AS title, status_label, CAST(record_date AT TIME ZONE 'Asia/Taipei' AS DATE) AS record_date, source_variant AS variant FROM fact_daily_log WHERE is_business_log AND NOT is_deleted AND CAST(record_date AT TIME ZONE 'Asia/Taipei' AS DATE) = DATE '2026-06-01' ORDER BY record_date DESC NULLS LAST, daily_log_id ASC, source_variant ASC LIMIT 20"
+}
