@@ -1,6 +1,6 @@
 # 立體工地
 
-獨立 Studio5 外掛，版本 `0.1.0`，id `site-diorama`。不修改原 dashboard。
+獨立 Studio5 外掛，版本 `0.1.1`，id `site-diorama`。不修改原 dashboard。
 
 固定的立體工地有建物、吊車、工務所、材料棧板及工人小物。警示錐、日誌、查驗夾對應選定案場的改善單、施工日誌、查驗紀錄，點擊物件或摘要按鈕查看明細。可拖曳旋轉、使用旋轉按鈕與重設視角；可關閉動畫。外掛隱藏、裝置要求減少動態時停止動畫。WebGL 不可用時保留資料按鈕。
 
@@ -18,10 +18,10 @@
 
 ## 套件與安裝
 
-安裝目錄：`plugin/site-diorama/`。ZIP：[releases/site-diorama-0.1.0.zip](releases/site-diorama-0.1.0.zip)，根目錄包含 `plugin.json`。
+安裝目錄：`plugin/site-diorama/`。ZIP：[releases/site-diorama-0.1.1.zip](releases/site-diorama-0.1.1.zip)，根目錄包含 `plugin.json`。
 
 ```sh
-node scripts/plugin.mjs install /path/to/site-diorama-0.1.0.zip --strict
+node scripts/plugin.mjs install /path/to/site-diorama-0.1.1.zip --strict
 ```
 
 需要 Studio Component Kit、上述 SDK 能力、內建 `/vendor/three/0.186/three.module.min.js` 與 OrbitControls，以及三類 curated tables。無新 npm dependency、API key、AI 呼叫、第三方網路請求或自建後端。模型使用平台內建 Three.js 0.186.1（MIT）；外掛原始碼依 Apache 2.0。SDK 及 vendor 檔案不複製進 ZIP。
@@ -33,6 +33,7 @@ node scripts/plugin.mjs install /path/to/site-diorama-0.1.0.zip --strict
 ```sh
 node site-diorama/checks/data.mjs
 node site-diorama/checks/mutations.mjs
+STUDIO5_ROOT=/Volumes/AI-Model/Studio5 node site-diorama/checks/fallback-layout.mjs
 TMPDIR=/Volumes/Vibe-Temp/studio5-plugins/site-diorama/tmp node /Volumes/AI-Model/Studio5/scripts/plugin.mjs lint /Volumes/AI-Model/studio5-plugins/site-diorama/plugin/site-diorama --strict
 TMPDIR=/Volumes/Vibe-Temp/studio5-plugins/site-diorama/tmp node /Volumes/AI-Model/Studio5/scripts/plugin.mjs check /Volumes/AI-Model/studio5-plugins/site-diorama/plugin/site-diorama
 ```

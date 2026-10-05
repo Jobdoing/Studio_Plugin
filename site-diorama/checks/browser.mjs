@@ -9,11 +9,18 @@ const shellCopy = JSON.parse(readFileSync(`${process.env.STUDIO5_ROOT}/src/copy.
 const manifest = JSON.parse(readFileSync(new URL('../plugin/site-diorama/plugin.json', import.meta.url)));
 const browser = await puppeteer.launch({ executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', headless: true });
 const page = await browser.newPage();
-const errors = [], calls = [];
+const errors = [], calls = [], expectedHostDenials = [];
+const base = `http://127.0.0.1:${process.env.STUDIO5_TEST_PORT || '5224'}`;
+const authoringUrl = `${base}/api/authoring/site-diorama`;
+page.on('response', response => { if (response.url() === authoringUrl && response.status() === 403) expectedHostDenials.push(response.url()); });
 let mode = 'normal', release, delayed;
 const summary = module => ({ corrective: { total_count: 10, open_count: 4, overdue_count: 2 }, diary: { total_count: 3, latest_date: '2026-06-01' }, inspection: { total_count: 20, failed_count: 5 } })[module];
 page.on('pageerror', error => errors.push(error.message));
-page.on('console', message => { if (message.type() === 'error' && !message.text().includes('503')) errors.push(message.text()); });
+page.on('console', message => {
+  if (message.type() !== 'error' || message.text().includes('503')) return;
+  if (message.location().url === authoringUrl && message.text().includes('status of 403 (Forbidden)')) return;
+  errors.push(`${message.text()} @ ${message.location().url}`);
+});
 await page.setRequestInterception(true);
 page.on('request', async request => {
   const url = new URL(request.url());
@@ -32,14 +39,23 @@ page.on('request', async request => {
   await request.respond({ status: 200, contentType: 'application/json', body: JSON.stringify({ fields: [], rows }) });
 });
 const frameOf = async () => (await page.$('iframe')).contentFrame();
-const settle = frame => frame.waitForFunction(() => [...document.querySelectorAll('.module')].every(el => el.getAttribute('aria-busy') !== 'true'));
+const settle = frame => frame.waitForFunction(() => { const modules = [...document.querySelectorAll('.module')]; return modules.length === 3 && modules.every(el => el.getAttribute('aria-busy') !== 'true'); });
+async function selectProject(value) {
+  const previous = await page.$eval('iframe', el => el.dataset.studioFrameId);
+  await page.select('#sidebar-project-select', value);
+  await page.waitForFunction(previous => { const el = document.querySelector('iframe'); return el?.dataset.studioFrameId && el.dataset.studioFrameId !== previous; }, {}, previous);
+  const frame = await frameOf();
+  await frame.waitForSelector('canvas');
+  await settle(frame);
+  return frame;
+}
 async function screenshot(frame) { return Buffer.from(await (await frame.$('canvas')).screenshot()); }
 async function clickNav(label) {
   for (const button of await page.$$('.nav-item')) if ((await button.evaluate(el => el.textContent)).trim() === label) return button.click();
   throw new Error('Navigation item missing');
 }
 try {
-  await page.goto('http://127.0.0.1:5224/api/auth/dev-login?user=dev&id=site-diorama');
+  await page.goto(`${base}/api/auth/dev-login?user=dev&id=site-diorama`);
   await page.waitForSelector('iframe');
   let frame = await frameOf();
   await frame.waitForSelector('canvas');
@@ -49,7 +65,7 @@ try {
   assert.equal(calls.length, 0, 'All-project scope must never query data');
   const options = await page.$$eval('#sidebar-project-select option', els => els.map(el => ({ value: el.value, label: el.textContent })));
   const p1 = options.find(o => o.label === 'Dev Project 1').value, p2 = options.find(o => o.label === 'Dev Project 2').value;
-  await page.select('#sidebar-project-select', p1); await settle(frame);
+  frame = await selectProject(p1);
   assert.ok(calls.every(call => call.project === p1), 'Every SDK query explicitly carries the selected handle');
   assert.equal(await frame.$eval('#summary-corrective .metric-value', el => el.textContent), '4');
   assert.equal(await frame.$eval('#summary-diary .module-secondary', el => el.textContent), `${copy.diary.secondary} 2026/06/01`);
@@ -103,11 +119,12 @@ try {
   mode = 'delay';
   const started = new Promise(resolve => { delayed = resolve; });
   await frame.click('#refresh'); await started;
-  mode = 'normal'; await page.select('#sidebar-project-select', p2); await settle(frame);
+  mode = 'normal'; frame = await selectProject(p2);
   assert.equal(await frame.$eval('#detail-list', el => el.children.length), 0, 'Project changes must clear previous details');
   release(); await new Promise(resolve => setTimeout(resolve, 150));
   assert.equal(await frame.$eval('#summary-corrective .metric-value', el => el.textContent), '4', 'Old project response must never overwrite the new scope');
   assert.ok((await frame.$eval('#heading', el => el.textContent)).startsWith('Dev Project 2'));
   assert.deepEqual(errors, []);
+  console.log(`Expected host authoring 403 denials: ${expectedHostDenials.length}`);
   console.log('PASS: real SDK/project events with explicitly simulated responses; 3D motion/rotation, responsive layout, zero/error/empty, XSS and stale-scope protection.');
 } finally { await browser.close(); }

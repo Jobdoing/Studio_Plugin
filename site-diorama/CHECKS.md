@@ -40,3 +40,12 @@
 `checks/diary-date.mjs` 通過；兩種錯誤日期 mutation 均被抓到。日期版本的瀏覽器檢查已重跑通過，涵蓋案場切換、指定日期標示、當日無資料及動畫停止。截圖比對會等待停止狀態與最終 GPU 畫面。
 
 ZIP 已產生且逐檔與來源比對一致。正式環境驗證紀錄與畫面不列入公開版本。
+
+## 0.1.1 修正驗證（2026-10-05）
+
+- 手機 WebGL fallback 重用既有手機標記排版，避免 `top: 35%` 與 `bottom` 同時生效而拉高按鈕。
+- `checks/fallback-layout.mjs` 使用實際外掛 HTML、平台 Component Kit 與 Chrome，在 393px 比對一般與 fallback 標記高度及底部位置。舊 CSS 檢查失敗（213.08px vs 52.19px），修正後 PASS。
+- 官方 `plugin.mjs lint --strict` clean。
+- `checks/browser.mjs` 案場切換後等待新的 `studioFrameId` 並重新取得 iframe；資料載入等待必須有三個摘要，避免空陣列被誤判為完成。
+- 隔離平台 5294 的 `checks/browser.mjs` PASS：canvas、動畫／旋轉、案場切換、明細、空資料／失敗、文字注入與舊回應保護。host `/api/authoring/site-diorama` 的 403 精準識別為 dev user 預期權限拒絕，共 1 筆；其餘非預期 console error 仍會使檢查失敗。
+- `0.1.1` ZIP 已由官方 CLI 封裝；尚未安裝或部署，手機實機仍待驗收。
