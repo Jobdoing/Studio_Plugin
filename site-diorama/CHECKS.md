@@ -48,4 +48,5 @@ ZIP 已產生且逐檔與來源比對一致。正式環境驗證紀錄與畫面�
 - 官方 `plugin.mjs lint --strict` clean。
 - `checks/browser.mjs` 案場切換後等待新的 `studioFrameId` 並重新取得 iframe；資料載入等待必須有三個摘要，避免空陣列被誤判為完成。
 - 隔離平台 5294 的 `checks/browser.mjs` PASS：canvas、動畫／旋轉、案場切換、明細、空資料／失敗、文字注入與舊回應保護。host `/api/authoring/site-diorama` 的 403 精準識別為 dev user 預期權限拒絕，共 1 筆；其餘非預期 console error 仍會使檢查失敗。
-- `0.1.1` ZIP 已由官方 CLI 封裝；尚未安裝或部署，手機實機仍待驗收。
+- `0.1.1` ZIP 已由官方 CLI 封裝並逐檔比對來源；正式站與手機實機仍待驗收。
+- 官方 `plugin.mjs check` 在目前平台回 `NO_IFRAME` 並以 1 退出：檢查器讀取 iframe 的 `contentDocument`，但現行 opaque sandbox 不允許同源讀取。此項未通過，不以真瀏覽器檢查代稱其通過；檢查器需另案改用瀏覽器 frame API。
