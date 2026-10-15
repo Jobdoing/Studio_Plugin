@@ -1,0 +1,12 @@
+{
+  "id": "company-site",
+  "title": "公司立體模型",
+  "kind": "app",
+  "version": "0.1.0",
+  "studio_sdk_api": 1,
+  "uses": {
+    "studio-docs": {
+      "access": "read"
+    }
+  }
+}

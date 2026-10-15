@@ -1,0 +1,8 @@
+.model-viewer { max-width: 1100px; margin: 0 auto; padding: 1.25rem; }
+.model-viewer h1 { margin-top: 0; }
+.model-viewer #viewer { width: 100%; aspect-ratio: 16 / 9; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: var(--paper); }
+.model-viewer #viewer canvas { display: block; width: 100%; height: 100%; }
+.model-viewer .controls { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .75rem; }
+.model-viewer .annotation { margin-top: 1rem; padding: 1rem; border: 1px solid var(--line); border-radius: var(--radius); }
+.model-viewer .annotation h2, .model-viewer .annotation p { margin: 0; }
+.model-viewer .annotation p { margin-top: .5rem; }

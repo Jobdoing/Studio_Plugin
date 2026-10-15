@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Blender Model Viewer</title>
+  <link rel="stylesheet" href="/studio-kit.css">
+  <link rel="stylesheet" href="./style.css">
+  <script type="importmap">{"imports":{"three":"./vendor/three/0.186/three.module.min.js","three/addons/":"./vendor/three/0.186/addons/"}}</script>
+</head>
+<body>
+  <main class="model-viewer">
+    <h1>Blender Model Viewer</h1>
+    <p id="status" class="kit-status-line" role="status">Loading configuration…</p>
+    <section id="viewer" aria-label="3D model viewer"></section>
+    <div id="controls" class="controls" role="group" aria-label="Model controls">
+      <button id="rotate-left" type="button" class="kit-button kit-button--secondary" aria-label="Rotate left">↶</button>
+      <button id="rotate-right" type="button" class="kit-button kit-button--secondary" aria-label="Rotate right">↷</button>
+      <button id="zoom-in" type="button" class="kit-button kit-button--secondary" aria-label="Zoom in">+</button>
+      <button id="zoom-out" type="button" class="kit-button kit-button--secondary" aria-label="Zoom out">−</button>
+      <button id="reset-view" type="button" class="kit-button kit-button--secondary">Reset view</button>
+    </div>
+    <aside id="annotation" class="annotation" aria-live="polite" hidden>
+      <h2 id="annotation-title"></h2>
+      <p id="annotation-description"></p>
+    </aside>
+  </main>
+  <script src="/studio-plugin.js"></script>
+  <script type="module" src="./app.mjs"></script>
+</body>
+</html>

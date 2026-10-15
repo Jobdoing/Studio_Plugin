@@ -1,0 +1,46 @@
+{
+  "Garage": {
+    "title": "車庫",
+    "description": "臨街鐵捲門，上方為屋頂綠地"
+  },
+  "RoofGarden": {
+    "title": "屋頂綠地",
+    "description": "車庫屋頂，比平台低約 50 公分"
+  },
+  "Terrace": {
+    "title": "屋頂平台",
+    "description": "一樓屋頂鋪面平台"
+  },
+  "Room_2F": {
+    "title": "二樓房間",
+    "description": "鐵皮屋頂下的鐵皮房間"
+  },
+  "IronRoof": {
+    "title": "鐵皮屋頂",
+    "description": "平台上方棚架"
+  },
+  "Stairs": {
+    "title": "戶外樓梯",
+    "description": "由車道上屋頂平台"
+  },
+  "Gate": {
+    "title": "大門",
+    "description": "不鏽鋼雙開門"
+  },
+  "Office": {
+    "title": "辦公室入口",
+    "description": "車道盡頭，雨遮下方"
+  },
+  "WaterTank": {
+    "title": "水塔",
+    "description": "不鏽鋼水塔"
+  },
+  "Yard": {
+    "title": "院子",
+    "description": "樹木與植栽"
+  },
+  "Lawn": {
+    "title": "草皮",
+    "description": "東側草地"
+  }
+}
