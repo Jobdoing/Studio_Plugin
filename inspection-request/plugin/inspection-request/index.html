@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="zh-TW">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>施工查驗申請單</title>
+  <link rel="stylesheet" href="/studio-kit.css">
+  <link rel="stylesheet" href="/blocks/inspection-request/style.css">
+</head>
+<body>
+  <main class="inspection-request">
+    <header class="screen-only app-heading">
+      <div>
+        <h1>施工查驗申請單</h1>
+        <p>選擇案場後填寫。工程名稱會先帶入案場名稱，仍可修改。</p>
+      </div>
+      <div class="actions">
+        <button type="button" class="kit-button kit-button--secondary" id="new-btn">新增</button>
+        <button type="button" class="kit-button" id="save-btn">儲存</button>
+        <button type="button" class="kit-button kit-button--secondary" id="print-btn">列印預覽</button>
+      </div>
+    </header>
+
+    <p class="screen-only guard" id="guard" hidden>請先在上方選擇案場，才能填寫與儲存。</p>
+    <p class="screen-only status" id="status" role="status" aria-live="polite"></p>
+    <div hidden aria-hidden="true">
+      <span id="message-saved">已儲存。</span>
+      <span id="message-save-error">儲存失敗，內容仍在畫面上，請再試一次。</span>
+      <span id="message-load-error">讀取紀錄失敗，請重新整理後再試。</span>
+      <span id="message-conflict">這筆紀錄已被其他人更新。請保留目前內容並重新確認，系統沒有覆蓋對方的版本。</span>
+      <span id="message-unsaved">請先儲存目前的修改，再開啟其他紀錄。</span>
+      <span id="message-print-error">無法開啟列印預覽，請再試一次。</span>
+    </div>
+
+    <form id="request-form" class="sheet" autocomplete="off" hidden>
+      <div class="paper">
+        <h2>施工查（試）驗申請單</h2>
+        <table class="paper-table header-table">
+          <colgroup><col class="label-col"><col><col class="label-col"><col></colgroup>
+          <tbody>
+            <tr><th><label for="project-name">工程名稱</label></th><td><input id="project-name" name="projectName" type="text" required></td><th><label for="form-number">表單編號</label></th><td><input id="form-number" name="formNumber" type="text"></td></tr>
+            <tr><th><label for="contractor">承攬廠商</label></th><td><input id="contractor" name="contractor" type="text"></td><th><label for="project-number">工程案號</label></th><td><input id="project-number" name="projectNumber" type="text"></td></tr>
+            <tr><th><label for="work-type">工種名稱</label></th><td><input id="work-type" name="workType" type="text"></td><th><label for="drawing-number">建造圖號</label></th><td><input id="drawing-number" name="drawingNumber" type="text"></td></tr>
+            <tr><th><label for="construction-scope">施工部位與範圍</label></th><td colspan="3"><input id="construction-scope" name="constructionScope" type="text"></td></tr>
+            <tr><th><label for="inspection-name">抽（檢、試）驗名稱</label></th><td><input id="inspection-name" name="inspectionName" type="text"></td><th>檢驗性質</th><td class="choices compact">
+              <label><input type="checkbox" name="natureMeeting">會驗</label>
+              <label><input type="checkbox" name="natureHold">檢驗停留點</label>
+              <label><input type="checkbox" name="natureReview">審查</label>
+              <label><input type="checkbox" name="natureQuantity">數量確認</label>
+            </td></tr>
+          </tbody>
+        </table>
+
+        <table class="paper-table timing-table">
+          <tbody>
+            <tr><th>預定日期／時間</th><td><label class="sr-only" for="planned-date">預定日期</label><input id="planned-date" name="plannedDate" type="date"><label class="sr-only" for="planned-time">預定時間</label><input id="planned-time" name="plannedTime" type="time"></td>
+              <th>實際日期／時間</th><td><label class="sr-only" for="actual-date">實際日期</label><input id="actual-date" name="actualDate" type="date"><label class="sr-only" for="actual-time">實際時間</label><input id="actual-time" name="actualTime" type="time"></td></tr>
+            <tr><th><label for="work-location">作業地點</label></th><td colspan="3"><input id="work-location" name="workLocation" type="text"></td></tr>
+          </tbody>
+        </table>
+
+        <table class="paper-table detail-table">
+          <thead><tr><th>施工作業名稱</th><th>抽（檢、試）驗項目</th><th>抽驗（樣）數量</th><th>代表數量</th><th>試樣編號</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td><input name="work1" aria-label="第 1 列施工作業名稱"></td><td><input name="item1" aria-label="第 1 列抽驗項目"></td><td><input name="sample1" aria-label="第 1 列抽驗數量"></td><td><input name="quantity1" aria-label="第 1 列代表數量"></td><td><input name="specimen1" aria-label="第 1 列試樣編號"></td><td><input name="remark1" aria-label="第 1 列備註"></td></tr>
+            <tr><td><input name="work2" aria-label="第 2 列施工作業名稱"></td><td><input name="item2" aria-label="第 2 列抽驗項目"></td><td><input name="sample2" aria-label="第 2 列抽驗數量"></td><td><input name="quantity2" aria-label="第 2 列代表數量"></td><td><input name="specimen2" aria-label="第 2 列試樣編號"></td><td><input name="remark2" aria-label="第 2 列備註"></td></tr>
+            <tr><td><input name="work3" aria-label="第 3 列施工作業名稱"></td><td><input name="item3" aria-label="第 3 列抽驗項目"></td><td><input name="sample3" aria-label="第 3 列抽驗數量"></td><td><input name="quantity3" aria-label="第 3 列代表數量"></td><td><input name="specimen3" aria-label="第 3 列試樣編號"></td><td><input name="remark3" aria-label="第 3 列備註"></td></tr>
+            <tr><td><input name="work4" aria-label="第 4 列施工作業名稱"></td><td><input name="item4" aria-label="第 4 列抽驗項目"></td><td><input name="sample4" aria-label="第 4 列抽驗數量"></td><td><input name="quantity4" aria-label="第 4 列代表數量"></td><td><input name="specimen4" aria-label="第 4 列試樣編號"></td><td><input name="remark4" aria-label="第 4 列備註"></td></tr>
+            <tr><td><input name="work5" aria-label="第 5 列施工作業名稱"></td><td><input name="item5" aria-label="第 5 列抽驗項目"></td><td><input name="sample5" aria-label="第 5 列抽驗數量"></td><td><input name="quantity5" aria-label="第 5 列代表數量"></td><td><input name="specimen5" aria-label="第 5 列試樣編號"></td><td><input name="remark5" aria-label="第 5 列備註"></td></tr>
+            <tr><td><input name="work6" aria-label="第 6 列施工作業名稱"></td><td><input name="item6" aria-label="第 6 列抽驗項目"></td><td><input name="sample6" aria-label="第 6 列抽驗數量"></td><td><input name="quantity6" aria-label="第 6 列代表數量"></td><td><input name="specimen6" aria-label="第 6 列試樣編號"></td><td><input name="remark6" aria-label="第 6 列備註"></td></tr>
+            <tr><td><input name="work7" aria-label="第 7 列施工作業名稱"></td><td><input name="item7" aria-label="第 7 列抽驗項目"></td><td><input name="sample7" aria-label="第 7 列抽驗數量"></td><td><input name="quantity7" aria-label="第 7 列代表數量"></td><td><input name="specimen7" aria-label="第 7 列試樣編號"></td><td><input name="remark7" aria-label="第 7 列備註"></td></tr>
+            <tr><td><input name="work8" aria-label="第 8 列施工作業名稱"></td><td><input name="item8" aria-label="第 8 列抽驗項目"></td><td><input name="sample8" aria-label="第 8 列抽驗數量"></td><td><input name="quantity8" aria-label="第 8 列代表數量"></td><td><input name="specimen8" aria-label="第 8 列試樣編號"></td><td><input name="remark8" aria-label="第 8 列備註"></td></tr>
+            <tr><td><input name="work9" aria-label="第 9 列施工作業名稱"></td><td><input name="item9" aria-label="第 9 列抽驗項目"></td><td><input name="sample9" aria-label="第 9 列抽驗數量"></td><td><input name="quantity9" aria-label="第 9 列代表數量"></td><td><input name="specimen9" aria-label="第 9 列試樣編號"></td><td><input name="remark9" aria-label="第 9 列備註"></td></tr>
+            <tr><td><input name="work10" aria-label="第 10 列施工作業名稱"></td><td><input name="item10" aria-label="第 10 列抽驗項目"></td><td><input name="sample10" aria-label="第 10 列抽驗數量"></td><td><input name="quantity10" aria-label="第 10 列代表數量"></td><td><input name="specimen10" aria-label="第 10 列試樣編號"></td><td><input name="remark10" aria-label="第 10 列備註"></td></tr>
+          </tbody>
+        </table>
+
+        <div class="paper-row"><h3>檢附文件</h3><div class="choices">
+          <label><input type="checkbox" name="attachmentLocation">施工位置圖</label>
+          <label><input type="checkbox" name="attachmentDrawing">設計圖說或施工規範</label>
+          <label><input type="checkbox" name="attachmentStandard">標的規範標準值</label>
+          <label><input type="checkbox" name="attachmentSelfCheck">自主檢查表</label>
+          <label><input type="checkbox" name="attachmentQuality">品質文件</label>
+          <label><input type="checkbox" name="attachmentDetail">施工大樣圖</label>
+          <label><input type="checkbox" name="attachmentCalculation">結構計算書</label>
+          <label><input type="checkbox" name="attachmentPhoto">照片（含說明與日期）</label>
+          <label><input type="checkbox" name="attachmentReport">檢（試）驗報告</label>
+          <label><input type="checkbox" name="attachmentFactory">供應商出廠證明</label>
+          <label><input type="checkbox" name="attachmentMaterial">材質證明</label>
+          <label><input type="checkbox" name="attachmentCalibration">設備／器具校正報告</label>
+          <label><input type="checkbox" name="attachmentOther">其他</label>
+          <label class="inline-field" for="attachment-other-text">其他文件<input id="attachment-other-text" name="attachmentOtherText" type="text"></label>
+        </div></div>
+
+        <div class="paper-row"><h3>申請查驗項目</h3><div class="choices">
+          <label><input type="checkbox" name="stageBefore">施工前查驗</label>
+          <label><input type="checkbox" name="stageDuring">施工中查驗</label>
+          <label><input type="checkbox" name="stageAfter">施工後查驗</label>
+          <label><input type="checkbox" name="stageMeasurement">測量查驗</label>
+          <label><input type="checkbox" name="stageTemporary">假設工程會驗</label>
+          <label><input type="checkbox" name="stageOther">其他</label>
+          <label class="inline-field" for="stage-other-text">其他項目<input id="stage-other-text" name="stageOtherText" type="text"></label>
+        </div></div>
+
+        <section class="explanation"><h3>說明</h3><ol>
+          <li>本申請單由承包商品管人員填妥各欄資料一式二份，於檢驗或取樣預定日期前48小時送達施工所（委託監造事務所）蓋收文章。廠商、與監造單位各取一份存查。</li>
+          <li>會同抽驗作業完成後，本單由監造單位駐場人員負責與「施工抽驗紀錄表或試驗報告」併存，若屬委託監造應影送一份送施工所督導承辦人備查。</li>
+        </ol></section>
+
+        <section class="signatures" aria-label="紙本簽章欄"><h3>簽章</h3><div class="signature-grid"><div>承包商<br>公司蓋章</div><div>承包商<br>工地負責人簽章</div><div>監造單位<br>部門蓋章</div><div>監造單位<br>監造駐場人員簽章</div></div></section>
+
+        <section class="result-section"><h3>查驗結果</h3>
+          <div class="result-grid"><div><strong>承包商品管人員用印</strong><p>是否符合契約規範</p><div class="choices"><label><input type="radio" name="conformance" value="pass">符合</label><label><input type="radio" name="conformance" value="fail">不符合</label></div></div>
+            <div><strong>監造單位</strong><p>施工品質抽驗紀錄表抽驗結果</p><div class="choices"><label><input type="radio" name="supervisorResult" value="continue">合格同意後續施工</label><label><input type="radio" name="supervisorResult" value="retest">不合格改善再抽驗</label><label><input type="radio" name="supervisorResult" value="redo">不合格拆除重做</label><label><input type="radio" name="supervisorResult" value="other">其他</label></div></div></div>
+          <div class="paper-row"><h3>補救措施</h3><div class="choices"><label><input type="checkbox" name="remedyRecord">填寫「不符合事項缺失改善紀錄表」</label><label class="inline-field" for="nonconforming-range">不合格數量或範圍<input id="nonconforming-range" name="nonconformingRange" type="text"></label></div></div>
+        </section>
+      </div>
+    </form>
+
+    <section class="screen-only saved-section" id="saved-section" hidden>
+      <h2>本案場已儲存的申請單</h2>
+      <p id="empty-records" hidden>尚無已儲存的申請單。</p>
+      <div id="record-list"></div>
+    </section>
+  </main>
+  <script src="/studio-plugin.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>

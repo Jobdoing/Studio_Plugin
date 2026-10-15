@@ -1,1 +1,6 @@
-{"id":"architect-kb","title":"建築知識庫(Sample)","kind":"app"}
+{
+  "id": "architect-kb",
+  "title": "建築知識庫(Sample)",
+  "kind": "app",
+  "version": "1.1.0"
+}
