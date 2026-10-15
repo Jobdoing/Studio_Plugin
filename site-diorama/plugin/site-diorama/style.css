@@ -37,7 +37,7 @@
 @media (max-width: 40rem) {
   .site-diorama { padding: var(--space-3); }
   .site-diorama .stage { aspect-ratio: 1.05; }
-  .site-diorama .marker { padding: var(--space-2); top: auto; bottom: var(--space-2); width: 30%; transform: translateX(-50%); }
+  .site-diorama .marker, .site-diorama .stage.no-webgl .marker { padding: var(--space-2); top: auto; bottom: var(--space-2); width: 30%; transform: translateX(-50%); }
   .site-diorama #marker-corrective { left: 17%; }
   .site-diorama #marker-diary { left: 50%; }
   .site-diorama #marker-inspection { left: 83%; }

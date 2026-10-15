@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="description" content="Field construction record PDF tool" />
+    <meta name="referrer" content="no-referrer" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="連續壁施工紀錄" />
+    <link rel="icon" href="./app-icon-144.png" type="image/png" sizes="144x144" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <link rel="stylesheet" href="./app.css?v=20261002-204" />
+    <link rel="stylesheet" href="/studio-kit.css" />
+    <link rel="stylesheet" href="./studio.css?v=20261002-204" />
+    <title>連續壁施工紀錄</title>
+  </head>
+  <body data-print-scope="none">
+    <div class="continuous-wall">
+    <a class="skip-link" href="#project-tool">跳至專案工具</a>
+
+    <header class="app-header">
+      <nav class="header-nav" aria-label="主要功能">
+      </nav>
+    </header>
+
+    <section class="studio-records kit-card" id="studio-records" hidden>
+      <div class="kit-callout" data-status="info" id="studio-no-project">
+        <p><strong>請先選擇案場。</strong>在 Studio 畫面的「案場」選單選好後，才能新增或查看施工紀錄。</p>
+      </div>
+      <div class="studio-record-browser">
+        <div class="kit-field studio-calendar-field" hidden>
+          <label id="studio-calendar-label">日期</label>
+          <button type="button" class="kit-button kit-button--secondary" id="studio-date-button" aria-labelledby="studio-calendar-label studio-calendar-selected" aria-describedby="studio-offline-hint"><span id="studio-calendar-selected"></span></button>
+        </div>
+        <div class="kit-field studio-day-records" hidden>
+          <label id="studio-day-label" for="studio-record-list">當日施工紀錄</label>
+          <select id="studio-record-list" aria-describedby="studio-offline-hint"></select>
+        </div>
+        <button type="button" class="kit-button kit-button--secondary studio-new-record" id="studio-new-record" aria-describedby="studio-offline-hint">新增一筆</button>
+      </div>
+      <div class="kit-callout" data-status="warning" id="studio-offline-hint" hidden><p>離線中：恢復連線後才能切換或新增紀錄。</p></div>
+      <div class="kit-callout" data-status="info" id="studio-draft-restored" hidden><p>已還原上次未送出的內容</p></div>
+      <div class="studio-record-actions">
+        <span class="kit-chip" id="studio-record-state" hidden></span>
+        <p class="kit-status-line" id="studio-record-status" role="status" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <main class="app-shell" id="project-tool">
+      <div class="tool-title">
+        <p>連續壁 / 施工紀錄</p>
+        <h1>施工管理<span>檢核表</span></h1>
+      </div>
+
+      <div class="kit-callout measured-errors" data-status="danger" id="measured-errors" role="alert" hidden></div>
+
+      <section class="kit-card form-grid shared-info-grid" aria-labelledby="shared-info-heading">
+        <div class="shared-info-head span-two"><span id="shared-info-heading">工程資訊</span><small>導溝、鋼筋籠、連續壁三表共用</small></div>
+        <div class="kit-field span-two"><label for="f-project">工程名稱</label><input id="f-project" type="text" data-bind="overview.project" autocomplete="organization" /></div>
+        <div class="kit-field"><label for="f-contractor">施工廠商</label><input id="f-contractor" type="text" data-bind="overview.contractor" autocomplete="organization" /></div>
+        <div class="kit-field"><label for="f-reviewer">填表人</label><input id="f-reviewer" type="text" data-bind="overview.reviewer" autocomplete="name" /></div>
+      </section>
+
+      <nav class="record-switcher" id="record-switcher" aria-label="施工紀錄類型" hidden>
+        <button type="button" data-select-tool="guideWall"><strong>導溝</strong></button>
+        <button type="button" data-select-tool="rebarCage"><strong>鋼筋籠</strong></button>
+        <button type="button" data-select-tool="diaphragmWall" aria-current="page"><strong>連續壁</strong></button>
+      </nav>
+
+      <section class="tool-view" id="tool-diaphragmWall" data-tool-view="diaphragmWall">
+      <nav class="tab-navigation" aria-label="施工紀錄分頁" hidden>
+        <div class="tab-row" role="tablist" aria-label="基本資料">
+          <button id="tab-wall" role="tab" type="button" data-tab="wall" aria-controls="panel-wall" aria-selected="true" tabindex="0">壁體資訊</button>
+          <button id="tab-quality" role="tab" type="button" data-tab="quality" aria-controls="panel-quality" aria-selected="false" tabindex="-1">品質自檢</button>
+        </div>
+        <div class="tab-row" role="tablist" aria-label="施工紀錄">
+          <button id="tab-excavation" role="tab" type="button" data-tab="excavation" aria-controls="panel-excavation" aria-selected="false" tabindex="-1">開挖紀錄</button>
+          <button id="tab-prework" role="tab" type="button" data-tab="prework" aria-controls="panel-prework" aria-selected="false" tabindex="-1">前置紀錄</button>
+          <button id="tab-pouring" role="tab" type="button" data-tab="pouring" aria-controls="panel-pouring" aria-selected="false" tabindex="-1">澆置紀錄</button>
+        </div>
+      </nav>
+
+      <section class="panel-frame">
+        <section class="tab-panel" id="panel-wall" role="tabpanel" aria-labelledby="tab-wall">
+          <div class="panel-heading">
+            <div><span>02</span><h2>壁體資訊</h2></div>
+            <p>設計基準與完工數量</p>
+          </div>
+          <div class="kit-card form-grid wall-grid">
+            <div class="unit-type span-two">
+              <span class="unit-type-label" aria-hidden="true">單元類型</span>
+              <fieldset class="kit-segmented">
+                <legend class="kit-sr-only">單元類型</legend>
+                <label><input type="radio" name="unit-type" value="公單元" data-bind="wall.unitType" />公單元</label>
+                <label><input type="radio" name="unit-type" value="母單元" data-bind="wall.unitType" />母單元</label>
+                <label><input type="radio" name="unit-type" value="公母單元" data-bind="wall.unitType" />公母單元</label>
+              </fieldset>
+            </div>
+            <div class="kit-field"><label for="f-unit-no">單元編號</label><input id="f-unit-no" type="text" data-bind="wall.unitNo" placeholder="例如：21" autocomplete="off" /></div>
+            <div class="kit-field"><label for="f-sequence-no">順序編號</label><input id="f-sequence-no" type="text" data-bind="wall.sequenceNo" inputmode="numeric" placeholder="例如：03" autocomplete="off" /></div>
+            <div class="kit-field"><label for="f-design-depth">設計深度（GL）</label><div class="kit-affix"><input id="f-design-depth" type="text" inputmode="decimal" pattern="-?(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" data-bind="wall.designDepth" placeholder="例如：-39.5" autocomplete="off" /><span class="kit-affix-unit">m</span></div></div>
+            <fieldset class="kit-field kit-field--group"><legend>混凝土強度</legend><label class="kit-sr-only" for="f-strength">強度數值</label><input id="f-strength" type="text" inputmode="decimal" data-bind="wall.strength" placeholder="例如：350" autocomplete="off" /><label class="kit-sr-only" for="f-strength-unit">強度單位</label><select id="f-strength-unit" data-bind="wall.strengthUnit"><option value="kgf/cm²">kgf/cm²</option><option value="psi">psi</option></select></fieldset>
+            <div class="kit-field"><label for="f-thickness">壁厚</label><div class="kit-affix"><input id="f-thickness" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" data-bind="wall.thickness" autocomplete="off" /><span class="kit-affix-unit">m</span></div></div>
+            <div class="kit-field"><label for="f-length">單元長度</label><div class="kit-affix"><input id="f-length" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" data-bind="wall.length" autocomplete="off" /><span class="kit-affix-unit">m</span></div></div>
+            <div class="kit-field"><label for="f-top-elevation">澆置頂端高程（GL）</label><div class="kit-affix"><input id="f-top-elevation" type="text" inputmode="decimal" pattern="-?(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" data-bind="wall.topElevation" placeholder="例如：-0.50" autocomplete="off" /><span class="kit-affix-unit">m</span></div></div>
+            <div class="kit-field calculated-field"><label for="f-actual-volume">實際數量<em>自動（澆置紀錄）</em></label><div class="kit-affix"><input id="f-actual-volume" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" data-bind="wall.actualVolume" readonly autocomplete="off" /><span class="kit-affix-unit">m³</span></div></div>
+            <div class="kit-field calculated-field"><label for="design-height-value">設計澆置高度<em>自動</em></label><div class="kit-affix"><input id="design-height-value" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" readonly autocomplete="off" /><span class="kit-affix-unit">m</span></div></div>
+            <div class="kit-field calculated-field"><label for="f-design-volume">設計數量<em>自動</em></label><div class="kit-affix"><input id="f-design-volume" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" data-bind="wall.designVolume" readonly autocomplete="off" /><span class="kit-affix-unit">m³</span></div></div>
+          </div>
+        </section>
+
+        <section class="tab-panel quality-panel" id="panel-quality" role="tabpanel" aria-labelledby="tab-quality" hidden>
+          <div class="panel-heading">
+            <div><span>03</span><h2>品質自檢</h2></div>
+            <p>只填寫其他分頁未涵蓋的品質確認項目</p>
+          </div>
+          <p class="kit-card quality-context-note">工程名稱、單元編號、設計資料、開挖／前置／澆置紀錄均沿用其他分頁內容，輸出時會自動帶入。</p>
+          <details class="kit-card quality-standard-panel">
+            <summary class="quality-standard-heading"><span>標準</span><h3 id="quality-standard-heading">檢查標準值</h3></summary>
+            <p class="quality-standard-hint">預設值可直接使用；如核定施工計畫不同，請由下拉選單調整。</p>
+            <div class="quality-standard-list" id="quality-standard-list"></div>
+            <p class="quality-standard-note" id="quality-standard-note"></p>
+          </details>
+          <dl class="kit-stats check-progress" aria-live="polite">
+            <div class="kit-stat"><dt>已完成自檢</dt><dd id="quality-progress">0 / 18</dd></div>
+            <div class="kit-stat"><dt>尚待確認</dt><dd id="quality-pending">18</dd></div>
+          </dl>
+          <div class="quality-check-list" id="quality-check-list"></div>
+          <div class="kit-card kit-field note-field quality-note-field"><label for="f-quality-note">缺失及改善結果</label><textarea id="f-quality-note" data-quality-bind="note" rows="4" placeholder="填寫缺失內容、改善方式與追蹤結果" autocomplete="off"></textarea></div>
+        </section>
+
+        <section class="tab-panel" id="panel-excavation" role="tabpanel" aria-labelledby="tab-excavation" hidden>
+          <div class="panel-heading">
+            <div><span>04</span><h2>開挖紀錄</h2></div>
+            <p>出土次數與深度確認</p>
+          </div>
+          <div class="kit-card form-grid checklist-meta-grid record-date-grid">
+            <div class="kit-field"><label for="f-excavation-start">開挖日期（起）</label><input id="f-excavation-start" type="date" data-bind="dates.excavationStart" /></div>
+            <div class="kit-field"><label for="f-excavation-end">成槽完成（迄，同日可留空）</label><input id="f-excavation-end" type="date" data-bind="dates.excavationEnd" /></div>
+          </div>
+          <dl class="kit-stats stat-board">
+            <div class="kit-stat"><dt>出土次數</dt><dd id="soil-count">0<span class="kit-stat-unit">次</span></dd></div>
+            <div class="kit-stat"><dt>深度確認</dt><dd id="depth-count">0<span class="kit-stat-unit">次</span></dd></div>
+            <div class="kit-stat"><dt>最新深度</dt><dd id="latest-depth">—<span class="kit-stat-unit">m</span></dd></div>
+            <div class="kit-stat" id="depth-difference-cell"><dt>設計差異</dt><dd id="depth-difference">—<span class="kit-stat-unit">m</span></dd></div>
+          </dl>
+
+          <section class="record-section" aria-labelledby="soil-heading">
+            <div class="record-heading"><div><span>A</span><h3 id="soil-heading">出土紀錄</h3></div><button class="kit-button kit-button--secondary" id="add-soil" type="button" aria-label="新增出土紀錄"><span aria-hidden="true">＋</span> 新增</button></div>
+            <div id="soil-list"></div>
+          </section>
+
+          <section class="record-section" aria-labelledby="depth-heading">
+            <div class="record-heading"><div><span>B</span><h3 id="depth-heading">深度確認</h3></div><button class="kit-button kit-button--secondary" id="add-depth" type="button" aria-label="新增深度確認"><span aria-hidden="true">＋</span> 新增</button></div>
+            <div id="depth-list"></div>
+          </section>
+        </section>
+
+        <section class="tab-panel" id="panel-prework" role="tabpanel" aria-labelledby="tab-prework" hidden>
+          <div class="panel-heading">
+            <div><span>05</span><h2>前置紀錄</h2></div>
+            <p>選擇工序後填寫日期與起迄時間</p>
+          </div>
+          <div class="kit-card phase-editor">
+            <div class="kit-field"><label for="phase-select">前置作業項目</label><select id="phase-select"></select></div>
+            <div class="phase-time-grid" id="phase-time-fields"></div>
+            <button class="kit-button phase-confirm" id="confirm-phase" type="button">確認更新</button>
+          </div>
+          <div class="phase-summary" id="phase-summary"></div>
+        </section>
+
+        <section class="tab-panel" id="panel-pouring" role="tabpanel" aria-labelledby="tab-pouring" hidden>
+          <div class="panel-heading">
+            <div><span>06</span><h2>澆置紀錄</h2></div>
+            <p>逐車方量與實測高度比對</p>
+          </div>
+          <div class="kit-card form-grid checklist-meta-grid record-date-grid">
+            <div class="kit-field span-two"><label for="f-pouring-date">澆置日期（跨午夜的時間會以 24 時以後接續顯示）</label><input id="f-pouring-date" type="date" data-bind="dates.pouring" /></div>
+          </div>
+          <dl class="kit-stats stat-board">
+            <div class="kit-stat"><dt>車次</dt><dd id="truck-count">0<span class="kit-stat-unit">車</span></dd></div>
+            <div class="kit-stat"><dt>累積方量</dt><dd id="pour-volume">0.00<span class="kit-stat-unit">m³</span></dd></div>
+            <div class="kit-stat"><dt>預估高度</dt><dd id="pour-expected">—<span class="kit-stat-unit">m</span></dd></div>
+            <div class="kit-stat"><dt>最後實測</dt><dd id="pour-measured">—<span class="kit-stat-unit">m</span></dd></div>
+            <div class="kit-stat" id="pour-difference-cell"><dt>高度差異</dt><dd id="pour-difference">—<span class="kit-stat-unit">m</span></dd></div>
+            <div class="kit-stat" id="pour-volume-difference-cell"><dt>數量差異</dt><dd id="pour-volume-difference">—<span class="kit-stat-unit">%</span></dd></div>
+          </dl>
+          <div class="record-heading pouring-record-heading"><div><span>逐車</span><h3>混凝土車次</h3></div><button class="kit-button kit-button--secondary" id="add-truck" type="button" aria-label="新增混凝土車次"><span aria-hidden="true">＋</span> 新增車次</button></div>
+          <div class="truck-list" id="truck-list"></div>
+          <div class="pour-warnings" id="pour-warnings" aria-live="polite"></div>
+        </section>
+      </section>
+      </section>
+
+      <section class="tool-view" id="tool-guide-wall" data-tool-view="guideWall" hidden>
+        <section class="panel-frame integrated-checklist">
+          <div class="panel-heading">
+            <div><span>導溝</span><h2>施工複核</h2></div>
+            <p>成槽前停留點</p>
+          </div>
+          <div class="kit-card form-grid checklist-meta-grid">
+            <div class="kit-field span-two"><label for="f-guide-axis">軸線／方向編號</label><input id="f-guide-axis" type="text" data-check-bind="guideWall.axisNo" placeholder="例如：X3～X7／南側" autocomplete="off" /></div>
+            <div class="kit-field span-two"><label for="f-guide-date">複核日期</label><input id="f-guide-date" type="date" data-check-bind="guideWall.date" /></div>
+            <div class="kit-field span-two"><label for="f-guide-reviewer">營造廠複核人</label><input id="f-guide-reviewer" type="text" data-check-bind="guideWall.reviewer" autocomplete="name" /></div>
+          </div>
+          <dl class="kit-stats check-progress" aria-live="polite">
+            <div class="kit-stat"><dt>已完成複核</dt><dd id="guide-wall-progress">0 / 12</dd></div>
+            <div class="kit-stat"><dt>尚待確認</dt><dd id="guide-wall-pending">12</dd></div>
+          </dl>
+          <section class="record-section" aria-labelledby="guide-wall-check-heading">
+            <div class="record-heading"><div><span>01</span><h3 id="guide-wall-check-heading">導溝複核項目</h3></div></div>
+            <div class="check-card-list" id="guide-wall-check-list"></div>
+          </section>
+          <div class="kit-card kit-field note-field"><label for="f-guide-note">複核意見／備註</label><textarea id="f-guide-note" data-check-bind="guideWall.note" rows="3" autocomplete="off"></textarea></div>
+        </section>
+      </section>
+
+      <section class="tool-view" id="tool-rebar-cage" data-tool-view="rebarCage" hidden>
+        <nav class="tab-navigation" aria-label="鋼筋籠複核分頁" hidden>
+          <div class="tab-row" role="tablist" aria-label="鋼筋籠吊放前複核">
+            <button id="tab-cage-meta" role="tab" type="button" data-tab="cage-meta" aria-controls="panel-cage-meta" aria-selected="true" tabindex="0">基本資料</button>
+            <button id="tab-cage-rebar" role="tab" type="button" data-tab="cage-rebar" aria-controls="panel-cage-rebar" aria-selected="false" tabindex="-1">配筋抽查明細</button>
+            <button id="tab-cage-check" role="tab" type="button" data-tab="cage-check" aria-controls="panel-cage-check" aria-selected="false" tabindex="-1">組裝與吊放條件</button>
+            <button id="tab-cage-photos" role="tab" type="button" data-tab="cage-photos" aria-controls="panel-cage-photos" aria-selected="false" tabindex="-1">匯入照片</button>
+          </div>
+        </nav>
+
+        <section class="panel-frame integrated-checklist">
+          <section class="tab-panel" id="panel-cage-meta" role="tabpanel" aria-labelledby="tab-cage-meta">
+            <div class="panel-heading">
+              <div><span>鋼筋籠</span><h2>吊放前複核</h2></div>
+              <p>本次複核的基本識別資料</p>
+            </div>
+            <div class="kit-card form-grid checklist-meta-grid">
+            <div class="kit-field span-two"><label for="f-cage-date">複核日期</label><input id="f-cage-date" type="date" data-check-bind="rebarCage.date" /></div>
+            <div class="kit-field"><label for="f-cage-unit-no">單元編號<em>同壁體資訊</em></label><input id="f-cage-unit-no" type="text" data-bind="wall.unitNo" placeholder="例如：21" autocomplete="off" /></div>
+            <div class="kit-field"><label for="f-cage-sequence-no">順序編號<em>同壁體資訊</em></label><input id="f-cage-sequence-no" type="text" data-bind="wall.sequenceNo" inputmode="numeric" placeholder="例如：03" autocomplete="off" /></div>
+            <div class="kit-field"><label for="f-cage-no">鋼筋籠編號</label><input id="f-cage-no" type="text" data-check-bind="rebarCage.cageNo" autocomplete="off" /></div>
+            <div class="kit-field span-two"><label for="f-cage-reviewer">營造廠複核人</label><input id="f-cage-reviewer" type="text" data-check-bind="rebarCage.reviewer" autocomplete="name" /></div>
+            </div>
+          <dl class="kit-stats check-progress" aria-live="polite">
+            <div class="kit-stat"><dt>配筋明細完成</dt><dd id="rebar-cage-rebar-progress">0 / 13</dd></div>
+            <div class="kit-stat"><dt>吊放條件完成</dt><dd id="rebar-cage-check-progress">0 / 7</dd></div>
+          </dl>
+          </section>
+
+          <section class="tab-panel" id="panel-cage-rebar" role="tabpanel" aria-labelledby="tab-cage-rebar" hidden>
+            <div class="panel-heading">
+              <div><span>01</span><h2>配筋抽查明細</h2></div>
+              <div class="kit-tabs" id="rebar-cage-mode-tabs" role="tablist" aria-label="填寫模式">
+                <button role="tab" type="button" aria-selected="true" data-cage-mode="simple">簡易</button>
+                <button role="tab" type="button" aria-selected="false" data-cage-mode="detailed">詳細</button>
+              </div>
+            </div>
+            <div class="check-card-list" id="rebar-cage-rebar-list"></div>
+          </section>
+
+          <section class="tab-panel" id="panel-cage-check" role="tabpanel" aria-labelledby="tab-cage-check" hidden>
+            <div class="panel-heading">
+              <div><span>02</span><h2>組裝與吊放條件</h2></div>
+              <p>吊放前逐項確認</p>
+            </div>
+            <div class="check-card-list" id="rebar-cage-check-list"></div>
+            <div class="kit-card kit-field note-field"><label for="f-cage-note">複核意見／備註</label><textarea id="f-cage-note" data-check-bind="rebarCage.note" rows="3" autocomplete="off"></textarea></div>
+          </section>
+
+          <section class="tab-panel" id="panel-cage-photos" role="tabpanel" aria-labelledby="tab-cage-photos" hidden>
+            <div class="panel-heading">
+              <div><span>03</span><h2>匯入照片</h2></div>
+              <button class="kit-button kit-button--secondary" id="cage-photo-add" type="button" aria-label="匯入照片"><span aria-hidden="true">＋</span> 匯入</button>
+            </div>
+            <div class="photo-panel" id="cage-photo-list"></div>
+            <input type="file" id="cage-photo-input" accept="image/*" multiple hidden />
+          </section>
+        </section>
+      </section>
+    </main>
+
+    <aside class="action-dock" aria-label="檔案處理工具" hidden>
+      <div class="dock-tools">
+        <button class="dock-tool" id="help-button" type="button"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/></svg><small>說明</small></button>
+        <button class="dock-tool" id="clear-button" type="button"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 10v6M14 10v6"/></svg><small>清空</small></button>
+      </div>
+      <div class="export-fab" id="export-fab" data-export-items="pdf-current pdf-all json import">
+        <button class="dock-primary" id="export-button" type="button" aria-label="檔案輸出"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg></button>
+      </div>
+      <input id="json-file-input" type="file" accept="application/json,.json" hidden />
+    </aside>
+
+    <dialog class="kit-dialog help-dialog" id="help-dialog">
+      <div class="kit-dialog-header"><div class="kit-dialog-heading"><span class="kit-dialog-eyebrow">說明</span><h2>使用說明</h2></div><button type="button" class="kit-dialog-close" aria-label="關閉">×</button></div>
+      <div class="kit-dialog-body help-content">
+        <ol class="help-steps">
+          <li><strong>填基本資料</strong><span>填「工程資訊」，選「導溝／鋼筋籠／連續壁」</span></li>
+          <li><strong>逐頁填寫</strong><span>連續壁依分頁順序填；開挖與澆置紀錄按「＋新增」。標「自動判定」的項目填數值就會自動 ✓／✗，可再手動改判</span></li>
+          <li><strong>輸出</strong><span>發布後，在下方工具列的「檔案」選 PDF 輸出，預覽後按「列印」；「檔案」也可匯出或匯入 JSON</span></li>
+        </ol>
+        <ul class="help-notes">
+          <li>印 PDF 前，在瀏覽器的列印設定關閉「頁首及頁尾」</li>
+        </ul>
+      </div>
+      <div class="kit-dialog-actions"><button class="kit-button kit-button--secondary" type="button" data-close-dialog>關閉</button></div>
+    </dialog>
+
+    <dialog class="kit-dialog form-dialog" id="cage-photo-dialog">
+      <form id="cage-photo-form" novalidate>
+        <div class="kit-dialog-header"><div class="kit-dialog-heading"><span class="kit-dialog-eyebrow">照片</span><h2>照片備註</h2></div><button type="button" class="kit-dialog-close" aria-label="關閉">×</button></div>
+        <div class="kit-dialog-body">
+          <img class="photo-dialog-preview" id="cage-photo-preview" alt="" />
+          <div class="kit-field"><label for="cage-photo-caption">備註（輸出 PDF 時印在照片上方）</label><input type="text" id="cage-photo-caption" maxlength="60" placeholder="例如：上段籠吊放前全景" autocomplete="off" /></div>
+        </div>
+        <div class="kit-dialog-actions"><button class="kit-button kit-button--secondary" type="button" data-close-dialog>取消</button><button class="kit-button" type="submit">儲存備註</button></div>
+      </form>
+    </dialog>
+
+    <dialog class="kit-dialog form-dialog" id="soil-dialog">
+      <form id="soil-form" novalidate>
+        <div class="kit-dialog-header"><div class="kit-dialog-heading"><span class="kit-dialog-eyebrow">開挖紀錄</span><h2 id="soil-dialog-title">新增出土紀錄</h2></div><button type="button" class="kit-dialog-close" aria-label="關閉">×</button></div>
+        <div class="kit-dialog-body">
+          <div class="dialog-fields">
+            <div class="kit-field"><label for="soil-time">出土時間</label><input id="soil-time" type="time" required /></div>
+          </div>
+        </div>
+        <div class="kit-dialog-actions"><button class="kit-button kit-button--secondary" type="button" data-close-dialog>取消</button><button class="kit-button" type="submit">確認加入</button></div>
+      </form>
+    </dialog>
+
+    <dialog class="kit-dialog form-dialog" id="depth-dialog">
+      <form id="depth-form" novalidate>
+        <div class="kit-dialog-header"><div class="kit-dialog-heading"><span class="kit-dialog-eyebrow">開挖紀錄</span><h2 id="depth-dialog-title">新增深度確認</h2></div><button type="button" class="kit-dialog-close" aria-label="關閉">×</button></div>
+        <div class="kit-dialog-body">
+          <div class="dialog-fields two-fields">
+            <div class="kit-field"><label for="depth-time">確認時間</label><input id="depth-time" type="time" required /></div>
+            <div class="kit-field"><label for="depth-value">深度值（GL）</label><div class="kit-affix"><input id="depth-value" type="text" inputmode="decimal" pattern="-?(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" placeholder="例如：-35.6" required autocomplete="off" /><span class="kit-affix-unit">m</span></div></div>
+          </div>
+        </div>
+        <div class="kit-dialog-actions"><button class="kit-button kit-button--secondary" type="button" data-close-dialog>取消</button><button class="kit-button" type="submit">確認加入</button></div>
+      </form>
+    </dialog>
+
+    <dialog class="kit-dialog form-dialog" id="truck-dialog">
+      <form id="truck-form" novalidate>
+        <div class="kit-dialog-header"><div class="kit-dialog-heading"><span class="kit-dialog-eyebrow">澆置紀錄</span><h2 class="truck-dialog-title"><span id="truck-dialog-title">新增第 1 車</span><small id="truck-cumulative">目前累積：0.00 m³</small></h2></div><button type="button" class="kit-dialog-close" aria-label="關閉">×</button></div>
+        <div class="kit-dialog-body">
+          <div class="dialog-fields two-fields">
+            <div class="kit-field"><label for="truck-number">車號</label><input id="truck-number" type="text" required autocomplete="off" /></div>
+            <div class="kit-field"><label for="truck-arrival">到場時間</label><input id="truck-arrival" type="time" required /></div>
+            <div class="kit-field"><label for="truck-dispatch">出廠時間</label><input id="truck-dispatch" type="time" /></div>
+            <div class="kit-field"><label for="truck-unload">卸料時間</label><input id="truck-unload" type="time" /></div>
+            <div class="kit-field"><label for="truck-finish">結束時間</label><input id="truck-finish" type="time" /></div>
+            <div class="kit-field"><label for="truck-volume">方量</label><div class="kit-affix"><input id="truck-volume" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" autocomplete="off" /><span class="kit-affix-unit">m³</span></div></div>
+            <div class="kit-field"><label for="truck-measured">實測累積高度</label><div class="kit-affix"><input id="truck-measured" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" autocomplete="off" /><span class="kit-affix-unit">m</span></div></div>
+            <div class="kit-field"><label for="truck-slump">坍度</label><div class="kit-affix"><input id="truck-slump" type="text" inputmode="decimal" pattern="(?:[0-9]+[.]?[0-9]*|[.][0-9]+)" placeholder="每 100 m³ 填一次" autocomplete="off" /><span class="kit-affix-unit">cm</span></div></div>
+          </div>
+        </div>
+        <div class="kit-dialog-actions"><button class="kit-button kit-button--secondary" type="button" data-close-dialog>取消</button><button class="kit-button" type="submit">確認加入</button></div>
+      </form>
+    </dialog>
+
+    <dialog class="kit-dialog form-dialog" id="rebar-dialog">
+      <form id="rebar-form" novalidate>
+        <div class="kit-dialog-header"><div class="kit-dialog-heading"><span class="kit-dialog-eyebrow">配筋抽查</span><h2 id="rebar-dialog-title">填寫配筋</h2></div><button type="button" class="kit-dialog-close" aria-label="關閉">×</button></div>
+        <div class="kit-dialog-body" id="rebar-part-fields"></div>
+        <div class="kit-dialog-actions"><button class="kit-button kit-button--secondary" type="button" data-close-dialog>取消</button><button class="kit-button" type="submit">確認更新</button></div>
+      </form>
+    </dialog>
+
+    <section class="print-report" id="print-report" aria-label="施工紀錄列印版">
+      <article class="print-page" data-print-tab="quality" id="print-quality"></article>
+      <article class="print-page" data-print-tab="excavation-prework" id="print-excavation-prework"></article>
+      <article class="print-page" data-print-tab="pouring" data-print-orientation="landscape" id="print-pouring"></article>
+      <article class="print-page" data-print-tab="guideWall" id="print-guide-wall"></article>
+      <article class="print-page" data-print-tab="rebarCage" id="print-rebar-cage"></article>
+      <article class="print-page" data-print-tab="rebarCage" id="print-rebar-cage-photos"></article>
+    </section>
+    </div>
+
+    <script src="/studio-plugin.js" defer></script>
+    <script src="./draft.js?v=20261002-204" defer></script>
+    <script src="./export-menu.js?v=20261002-204" defer></script>
+    <script src="./form-controls.js?v=20261002-204" defer></script>
+    <script src="./print-pages.js?v=20261002-204" defer></script>
+    <script src="./dialog-forms.js?v=20261002-204" defer></script>
+    <script src="./bar-sizes.js?v=20261002-204" defer></script>
+    <script src="./inspection-standards.js?v=20261002-204" defer></script>
+    <script src="./auto-judge.js?v=20261002-204" defer></script>
+    <script src="./guide-wall.js?v=20261002-204" defer></script>
+    <script src="./rebar-cage.js?v=20261002-204" defer></script>
+    <script src="./cage-photos.js?v=20261002-204" defer></script>
+    <script src="./app.js?v=20261002-204" defer></script>
+    <script src="./records-store.js?v=20261002-204" defer></script>
+    <script src="./studio-bridge.js?v=20261002-204" defer></script>
+  </body>
+</html>

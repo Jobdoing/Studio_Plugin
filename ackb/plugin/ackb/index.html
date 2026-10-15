@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>營建法規知識庫</title>
+<link rel="stylesheet" href="/studio-kit.css">
+<style>
+  /* Scoped under the root class (= plugin id). Kit components as-is; the kit sets font, h1-h3 and <mark>. */
+  .ackb { padding: 1rem; display: grid; gap: 0.9rem; color: var(--ink); }
+  .ackb .ackb-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.4rem 1rem; }
+  .ackb .ackb-head h1 { margin: 0; }
+  .ackb .ackb-version, .ackb .ackb-meta { font-size: var(--text-sm); color: var(--muted); }
+  .ackb .ackb-item { display: grid; gap: 0.3rem; }
+  .ackb .ackb-snippet, .ackb .ackb-passage { font-size: var(--text-md); line-height: 1.65; overflow-wrap: anywhere; white-space: pre-wrap; margin: 0; }
+  .ackb .ackb-pager, .ackb .ackb-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+  .ackb .ackb-detail { display: grid; gap: 0.8rem; }
+  .ackb .ackb-detail h2 { margin: 0; overflow-wrap: anywhere; }
+  .ackb .ackb-rights { font-size: var(--text-sm); color: var(--muted); border-left: 3px solid var(--line-control); padding-left: 0.6rem; }
+  .ackb .ackb-passages { display: grid; gap: 0.7rem; }
+  .ackb .ackb-passage { padding-bottom: 0.7rem; border-bottom: 1px solid var(--line); }
+</style>
+</head>
+<body>
+<div class="ackb">
+  <div class="ackb-head">
+    <h1>營建法規知識庫</h1>
+    <span class="ackb-version" id="version">載入中…</span>
+  </div>
+
+  <form class="kit-search" id="search-form">
+    <label for="q" class="kit-sr-only">關鍵字</label>
+    <input id="q" type="search" placeholder="例如：屋頂防水、施工架 護欄" autocomplete="off" autofocus>
+    <button class="kit-button" type="submit">搜尋</button>
+  </form>
+  <fieldset class="kit-segmented" id="kinds"><legend class="kit-sr-only">資料類型</legend></fieldset>
+
+  <div class="kit-callout" data-status="danger" id="notice" role="alert" hidden></div>
+
+  <section id="results-view">
+    <p class="kit-status-line" id="summary" aria-live="polite">輸入關鍵字開始搜尋。多個關鍵字以空白分隔，須同時出現在同一份文件（含標題與發布機關）；「台」「臺」視為相同。</p>
+    <div class="kit-list" id="results"></div>
+    <div class="ackb-pager" id="pager" hidden>
+      <button class="kit-button kit-button--secondary" type="button" id="prev">上一頁</button>
+      <button class="kit-button kit-button--secondary" type="button" id="next">下一頁</button>
+    </div>
+  </section>
+
+  <section class="ackb-detail kit-card" id="detail-view" hidden>
+    <div class="ackb-actions">
+      <button class="kit-button kit-button--secondary" type="button" id="back">← 回搜尋結果</button>
+      <button class="kit-button kit-button--secondary" type="button" id="open-source">開啟原始網頁 ↗</button>
+    </div>
+    <h2 id="detail-title"></h2>
+    <div class="ackb-meta" id="detail-meta"></div>
+    <div class="ackb-rights" id="detail-rights"></div>
+    <div class="ackb-passages" id="detail-passages"></div>
+    <div class="ackb-pager"><button class="kit-button kit-button--secondary" type="button" id="more" hidden>載入更多</button>
+      <span class="ackb-meta" id="detail-count"></span></div>
+  </section>
+</div>
+
+<script src="/studio-plugin.js"></script>
+<script>
+// Data comes from Studio's public source `ackb` (VCF-5 blocks ackb-stats / ackb-docs / ackb-passage).
+(function () {
+  var KINDS = [
+    ["", "全部"], ["national_law", "全國法規"], ["local_law", "地方法規"],
+    ["pcc_spec", "工程會施工規範"], ["osha", "職安署"], ["moenv", "環境部"],
+    ["abri", "建研所技術手冊"]
+  ];
+  var KIND_LABEL = {};
+  KINDS.forEach(function (k) { KIND_LABEL[k[0]] = k[1]; });
+  var RIGHTS = {
+    ogdl_v1: "依政府資料開放授權條款第 1 版，可自由利用，使用時請註明出處。",
+    copyright_act_art9: "法律、命令依著作權法第 9 條不受著作權保護，可自由利用。"
+  };
+  var PAGE = 20, PASSAGE_PAGE = 200;
+  var state = { q: "", kind: "", offset: 0, terms: [], doc: null, loaded: 0, place: null };
+  var $ = function (id) { return document.getElementById(id); };
+
+  // ---- Term contract + county detection (Task 5) ----
+  // TERM-CONTRACT-START: framework-free (no document/studio/window) -- read verbatim by
+  // plugins/studio5-ackb/test/normalize.test.mjs and checked against config/search_normalize_vectors.json.
+  var STRIP_ASCII_PUNCT = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
+  var STRIP_FULLWIDTH_PUNCT = STRIP_ASCII_PUNCT.split("").map(function (c) {
+    return String.fromCharCode(c.charCodeAt(0) + 0xFEE0);
+  }).join("");
+  var STRIP_CJK_PUNCT = "、。「」『』【】〔〕《》〈〉—～·‧";
+  var STRIP_CHARS = " \t\n\r\v\f　 " + STRIP_ASCII_PUNCT + STRIP_FULLWIDTH_PUNCT + STRIP_CJK_PUNCT;
+  var SPLIT_RE = new RegExp("[" + STRIP_CHARS.replace(/[\\\]^-]/g, "\\$&") + "]+");
+
+  // Split on whitespace/STRIP_CHARS, drop empties, 台->臺 -- same rule as
+  // ackb.search_normalize.split_terms but with NO term-count cap, so county detection (which
+  // runs on this before capping) can still find a county mentioned as the 6th+ token.
+  // NOTE(ceiling): full-width letters/digits are not folded to half-width here -- same documented
+  // gap as the Python side (see that file's docstring); only split_terms is ported, not
+  // normalize/bigrams/law_key, which the plugin never calls.
+  function splitAllTerms(query) {
+    return query.split(SPLIT_RE).filter(Boolean).map(function (t) {
+      return t.replace(/台/g, "臺");
+    });
+  }
+
+  // JS port of ackb.search_normalize.split_terms (src/ackb/search_normalize.py) exactly: the
+  // above, capped at 5 terms (t1..t5).
+  function splitTerms(query) {
+    return splitAllTerms(query).slice(0, 5);
+  }
+
+  // The 22 counties' official issuing bodies, exactly as stored in ackb.documents.jurisdiction
+  // (always 臺). Aliases: full name, name without 市/縣, and (for the ambiguous ones) a common
+  // short form.
+  // NOTE(ceiling): a bare 新竹/嘉義 (no 市/縣 suffix) is genuinely ambiguous between the city and
+  // the county; this table always resolves it to the city (city listed before county below), so
+  // e.g. "新竹 違章建築" narrows to 新竹市政府 and hides 新竹縣's local laws. Upgrade path: stop
+  // treating the bare name as a place match at all (leave it as a plain keyword) once this proves
+  // to matter in practice -- not done now to keep the alias table one rule, not two.
+  var COUNTIES = [
+    ["臺北市政府", ["臺北市", "臺北", "北市"]],
+    ["新北市政府", ["新北市", "新北"]],
+    ["臺中市政府", ["臺中市", "臺中", "中市"]],
+    ["高雄市政府", ["高雄市", "高雄", "高市"]],
+    ["桃園市政府", ["桃園市", "桃園"]],
+    ["臺南市政府", ["臺南市", "臺南", "南市"]],
+    ["基隆市政府", ["基隆市", "基隆"]],
+    ["新竹市政府", ["新竹市", "新竹", "竹市"]],
+    ["新竹縣政府", ["新竹縣", "竹縣"]],
+    ["苗栗縣政府", ["苗栗縣", "苗栗"]],
+    ["彰化縣政府", ["彰化縣", "彰化"]],
+    ["南投縣政府", ["南投縣", "南投"]],
+    ["雲林縣政府", ["雲林縣", "雲林"]],
+    ["嘉義市政府", ["嘉義市", "嘉義", "嘉市"]],
+    ["嘉義縣政府", ["嘉義縣", "嘉縣"]],
+    ["屏東縣政府", ["屏東縣", "屏東"]],
+    ["宜蘭縣政府", ["宜蘭縣", "宜蘭"]],
+    ["花蓮縣政府", ["花蓮縣", "花蓮"]],
+    ["臺東縣政府", ["臺東縣", "臺東"]],
+    ["澎湖縣政府", ["澎湖縣", "澎湖"]],
+    ["金門縣政府", ["金門縣", "金門"]],
+    ["連江縣政府", ["連江縣", "連江"]]
+  ];
+  // Flattened {alias, place}, longest alias first (ties keep table order) -- so "新北市" is
+  // matched, and consumes its token, before the shorter "北市" alias ever gets a chance.
+  var COUNTY_ALIASES = COUNTIES.reduce(function (acc, county) {
+    county[1].forEach(function (alias) { acc.push({ alias: alias, place: county[0] }); });
+    return acc;
+  }, []).sort(function (a, b) { return b.alias.length - a.alias.length; });
+
+  // Detect a county among whole split_terms tokens only (never a substring of a token, e.g.
+  // "新北市" must never match "北市"). `tokens` must already be 台->臺 folded (splitAllTerms does
+  // this), so a plain `===` against the (always-臺) COUNTY_ALIASES is a correct whole-token match
+  // with no re-folding needed here. The matched token is removed; every other token (including
+  // another county's name) is returned unchanged as a still-searchable keyword.
+  function detectPlace(tokens) {
+    for (var i = 0; i < COUNTY_ALIASES.length; i++) {
+      var idx = tokens.indexOf(COUNTY_ALIASES[i].alias);
+      if (idx !== -1) {
+        return { place: COUNTY_ALIASES[i].place, tokens: tokens.slice(0, idx).concat(tokens.slice(idx + 1)) };
+      }
+    }
+    return { place: null, tokens: tokens };
+  }
+
+  // Full pipeline for a raw query box value: split (uncapped) into split_terms tokens, detect a
+  // county among them, then cap at 5. If nothing is left once the county token is removed (e.g.
+  // the query was only a county name), fall back to keeping that token as a term -- ackb-docs'
+  // t1 is required, so terms must never come back empty here unless the whole query was
+  // empty/only punctuation (in which case there was no county to fall back to either).
+  function prepareQuery(q) {
+    var allTerms = splitAllTerms(q);
+    var detected = detectPlace(allTerms);
+    var terms = detected.tokens;
+    if (terms.length === 0 && detected.place) terms = allTerms;
+    return { place: detected.place, terms: terms.slice(0, 5) };
+  }
+  // TERM-CONTRACT-END
+
+  function clear(el) { while (el.firstChild) el.removeChild(el.firstChild); }
+
+  // kit-status-line: one fixed-height line for 載入中 / 沒有資料 / 共 N 筆 (no layout jump).
+  function setSummary(text) {
+    $("summary").textContent = text;
+  }
+
+  function showNotice(message) {
+    $("notice").textContent = message;
+    $("notice").hidden = !message;
+  }
+
+  // Studio's suggested Chinese text per platform error code (onboarding: query / data blocks table).
+  var ERROR_TEXT = {
+    NOT_FOUND: "查無此資料表",
+    INVALID_PARAM: "查詢失敗，請重新整理後再試",
+    UNKNOWN_PARAM: "查詢失敗，請重新整理後再試",
+    PARAM_REQUIRED: "查詢失敗，請重新整理後再試",
+    QUERY_REJECTED: "查詢失敗，請重新整理後再試",
+    QUERY_BUSY: "系統忙碌中，請稍後再試",
+    TOO_MANY_REQUESTS: "系統忙碌中，請稍後再試",
+    QUERY_TIMEOUT: "查詢逾時，請縮小查詢範圍後再試",
+    ROW_CAP_EXCEEDED: "查詢結果過多，請縮小查詢範圍後再試",
+    UNKNOWN_SOURCE: "查無此資料來源",
+    SOURCE_UNAVAILABLE: "資料來源暫時無法使用，請稍後再試"
+  };
+
+  function errorText(e) {
+    var code = e && (e.code || e.message);
+    return ERROR_TEXT[code] || code || "未知錯誤";
+  }
+
+  // 台 and 臺 are interchangeable; highlight both spellings.
+  function variants(terms) {
+    var out = [];
+    terms.forEach(function (t) {
+      [t, t.replace(/台/g, "臺"), t.replace(/臺/g, "台")].forEach(function (v) { if (out.indexOf(v) < 0) out.push(v); });
+    });
+    return out;
+  }
+
+  // Append text to el with every term wrapped in <mark>, using DOM nodes only.
+  function appendHighlighted(el, text, terms) {
+    var i = 0;
+    while (i < text.length) {
+      var best = -1, len = 0;
+      terms.forEach(function (t) {
+        var at = t ? text.indexOf(t, i) : -1;
+        if (at !== -1 && (best === -1 || at < best)) { best = at; len = t.length; }
+      });
+      if (best === -1) { el.appendChild(document.createTextNode(text.slice(i))); break; }
+      if (best > i) el.appendChild(document.createTextNode(text.slice(i, best)));
+      var mark = document.createElement("mark");
+      mark.textContent = text.slice(best, best + len);
+      el.appendChild(mark);
+      i = best + len;
+    }
+  }
+
+
+  function metaLine(d) {
+    return [KIND_LABEL[d.document_type] || d.document_type, d.jurisdiction].filter(Boolean).join(" · ");
+  }
+
+  // kit-segmented: one choice of document type (radios). Counts come from ackb-stats.
+  function renderKinds(counts) {
+    var box = $("kinds");
+    while (box.children.length > 1) box.removeChild(box.lastChild);  // keep the <legend>
+    KINDS.forEach(function (k) {
+      var label = document.createElement("label");
+      var radio = document.createElement("input");
+      radio.type = "radio";
+      radio.name = "kind";
+      radio.value = k[0];
+      radio.checked = state.kind === k[0];
+      radio.addEventListener("change", function () {
+        state.kind = k[0];
+        if (state.q) runSearch(0);
+      });
+      var n = k[0] ? counts[k[0]] : null;
+      label.appendChild(radio);
+      label.appendChild(document.createTextNode(n == null ? k[1] : k[1] + " " + Number(n).toLocaleString()));
+      box.appendChild(label);
+    });
+  }
+
+  async function loadStats() {
+    try {
+      var s = (await studio.query("ackb-stats")).rows[0];
+      $("version").textContent = "資料版本 " + s.bundle + " · " + Number(s.total).toLocaleString() + " 筆 · 建立於 " + new Date(s.built_at).toLocaleDateString("zh-TW", { timeZone: "Asia/Taipei" });
+      renderKinds(s);
+    } catch (e) {
+      $("version").textContent = "";
+      renderKinds({});
+      showNotice("知識庫資料目前無法讀取（" + errorText(e) + "）。");
+    }
+  }
+
+  async function runSearch(offset) {
+    showNotice("");
+    showResults();
+    setSummary("搜尋中…");
+    var prepared = prepareQuery(state.q);
+    if (!prepared.terms.length) {
+      // Query was empty/only punctuation after stripping: nothing to send ackb-docs (t1 is
+      // required), so show the empty-result state directly instead of an avoidable PARAM_REQUIRED.
+      state.offset = offset;
+      state.terms = [];
+      state.place = null;
+      renderResults([], 0);
+      return;
+    }
+    var params = { limit: PAGE, offset: offset };
+    prepared.terms.forEach(function (w, i) { params["t" + (i + 1)] = w; });
+    if (state.kind) params.doc_type = state.kind;
+    if (prepared.place) params.place = prepared.place;
+    try {
+      var r = await studio.query("ackb-docs", params);
+      state.offset = offset;
+      state.terms = variants(prepared.terms);
+      state.place = prepared.place;
+      renderResults(r.rows, r.page.total);
+    } catch (e) {
+      setSummary("");
+      showNotice("搜尋失敗：" + errorText(e));
+    }
+  }
+
+  // "已限定：臺北市（另含全國性法規）" -- state.place is the full jurisdiction body (…政府); shown
+  // without that suffix.
+  function placeLabel(place) {
+    return place ? "已限定：" + place.replace(/政府$/, "") + "（另含全國性法規）" : "";
+  }
+
+  function renderResults(rows, total) {
+    var list = $("results");
+    clear(list);
+    var label = placeLabel(state.place);
+    if (!total) {
+      setSummary("找不到符合「" + state.q + "」的內容。可以試試較短或不同的關鍵字。" + (label ? "。" + label : ""));
+      $("pager").hidden = true;
+      return;
+    }
+    setSummary("共 " + total.toLocaleString() + " 筆，顯示第 " + (state.offset + 1) + "–" + (state.offset + rows.length) + " 筆" + (label ? "。" + label : ""));
+    rows.forEach(function (d) {
+      var li = document.createElement("div");
+      li.className = "kit-list-item ackb-item";
+      var title = document.createElement("button");
+      title.type = "button";
+      title.className = "kit-button kit-button--link";
+      title.textContent = d.title;
+      title.addEventListener("click", function () { openDocument(d); });
+      var meta = document.createElement("div");
+      meta.className = "ackb-meta";
+      meta.textContent = metaLine(d) + (d.hit_count > 1 ? " · " + d.hit_count + " 段符合" : "") +
+        (d.related_count > 0 ? " · 另有 " + d.related_count + " 筆相符" : "") +
+        (d.matched_alias ? " · 相關說法：" + d.matched_alias : "");
+      var snip = document.createElement("p");
+      snip.className = "ackb-snippet";
+      appendHighlighted(snip, d.snippet || "", state.terms);
+      li.appendChild(title); li.appendChild(meta); li.appendChild(snip);
+      list.appendChild(li);
+    });
+    $("pager").hidden = total <= PAGE;
+    $("prev").disabled = state.offset === 0;
+    $("next").disabled = state.offset + rows.length >= total;
+  }
+
+  function showResults() {
+    $("detail-view").hidden = true;
+    $("results-view").hidden = false;
+  }
+
+  async function openDocument(d) {
+    showNotice("");
+    state.doc = d;
+    state.loaded = 0;
+    $("detail-title").textContent = d.title;
+    $("detail-meta").textContent = metaLine(d);
+    $("detail-rights").textContent = (RIGHTS[d.rights_basis] || "授權待確認，僅供內部參考。") +
+      " 出處：" + (d.jurisdiction || "原始網站") + "，" + d.source_url;
+    $("open-source").hidden = !d.source_url;
+    clear($("detail-passages"));
+    $("results-view").hidden = true;
+    $("detail-view").hidden = false;
+    window.scrollTo(0, 0);
+    await loadPassages();
+  }
+
+  async function loadPassages() {
+    $("more").disabled = true;
+    try {
+      var r = await studio.query("ackb-passage", { document_id: state.doc.document_id, limit: PASSAGE_PAGE, offset: state.loaded });
+      var rows = r.rows, total = r.page.total;
+      rows.forEach(function (r) {
+        var p = document.createElement("p");
+        p.className = "ackb-passage";
+        appendHighlighted(p, r.text, state.terms);
+        $("detail-passages").appendChild(p);
+      });
+      state.loaded += rows.length;
+      $("detail-count").textContent = total > PASSAGE_PAGE ? "已顯示 " + state.loaded.toLocaleString() + " / " + total.toLocaleString() + " 段" : "";
+      $("more").hidden = state.loaded >= total;
+    } catch (e) {
+      showNotice("讀取內容失敗：" + errorText(e));
+    } finally {
+      $("more").disabled = false;
+    }
+  }
+
+  $("search-form").addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    state.q = $("q").value.trim();
+    if (!state.q) { $("q").focus(); return; }
+    runSearch(0);
+  });
+  $("prev").addEventListener("click", function () { runSearch(Math.max(state.offset - PAGE, 0)); });
+  $("next").addEventListener("click", function () { runSearch(state.offset + PAGE); });
+  $("back").addEventListener("click", showResults);
+  $("more").addEventListener("click", loadPassages);
+  $("open-source").addEventListener("click", function () {
+    if (state.doc && state.doc.source_url) studio.openExternal(state.doc.source_url);
+  });
+
+  loadStats();
+})();
+</script>
+</body>
+</html>
