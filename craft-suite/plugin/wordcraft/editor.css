@@ -1,0 +1,7 @@
+.craft-editor { height: 100%; width: 100%; display: grid; grid-template-rows: minmax(0, 1fr) auto; overflow: hidden; }
+.craft-editor .craft-surface { position: relative; min-height: 0; }
+.craft-editor canvas { width: 100%; height: 100%; display: block; }
+.craft-editor .craft-surface div { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
+.craft-editor footer { text-align: right; }
+.craft-editor .craft-license-dialog { max-width: 90%; max-height: 80%; }
+.craft-editor .craft-license-dialog pre { white-space: pre-wrap; overflow: auto; }

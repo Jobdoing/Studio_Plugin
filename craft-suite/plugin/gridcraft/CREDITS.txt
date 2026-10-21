@@ -1,0 +1,9 @@
+Based on GridCraft by the ArtCraft Team and GridCraft contributors.
+Copyright (c) 2026 ArtCraft Team and the GridCraft contributors.
+Upstream: https://github.com/storytold/gridcraft/tree/a2cc4b42cac6e2c41bae71fba4607300755a0b47
+License: MIT OR Apache-2.0; full texts and original NOTICE are included.
+Studio modifications: document-center and local file I/O, confirmed asynchronous saves, available Chinese defaults
+and Noto Sans CJK TC where needed (OFL-1.1). This is an independently modified Studio plugin.
+The upstream team does not endorse or support this integration.
+The restricted ArtCraft brand artwork is not included in this package.
+The desktop editor uses WebAssembly, WebGL2/WebGPU and the browser's gzip DecompressionStream.

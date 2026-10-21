@@ -1,0 +1,2 @@
+# Font bytes and OFL must be fetched from the pinned source below before building.
+Noto Sans CJK TC | Regular | fonts/NotoSansCJKtc-Regular.otf | Hant,Hans,Latn | OFL-1.1 | OFL.txt | pinned-source | https://github.com/notofonts/noto-cjk/tree/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Sans/OTF/TraditionalChinese

@@ -1,0 +1,9 @@
+Based on DeckCraft by the ArtCraft Team and DeckCraft contributors.
+Copyright (c) 2026 ArtCraft Team and the DeckCraft contributors.
+Upstream: https://github.com/storytold/deckcraft/tree/22db9261f9d1a214c296fd390173130c45d76d66
+License: MIT OR Apache-2.0; full texts and original NOTICE are included.
+Studio modifications: document-center and local file I/O, confirmed asynchronous saves, available Chinese defaults
+and Noto Sans CJK TC where needed (OFL-1.1). This is an independently modified Studio plugin.
+The upstream team does not endorse or support this integration.
+The restricted ArtCraft brand artwork is not included in this package.
+The desktop editor uses WebAssembly, WebGL2/WebGPU and the browser's gzip DecompressionStream.

@@ -1,0 +1,13 @@
+{
+  "id": "pdfcraft",
+  "title": "PdfCraft",
+  "kind": "app",
+  "scope": "project",
+  "desktop_only": true,
+  "version": "0.9.0",
+  "uses": {
+    "studio-docs": {
+      "access": "write"
+    }
+  }
+}

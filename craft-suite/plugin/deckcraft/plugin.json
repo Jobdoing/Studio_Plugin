@@ -1,0 +1,13 @@
+{
+  "id": "deckcraft",
+  "title": "DeckCraft",
+  "kind": "app",
+  "scope": "project",
+  "desktop_only": true,
+  "version": "0.8.0",
+  "uses": {
+    "studio-docs": {
+      "access": "write"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "wordcraft": {"tag": "v0.8.0", "commit": "f2e15cf8f899a79899a2d9595ca4ce7df1e5ea22"},
+  "deckcraft": {"tag": "v0.8.0", "commit": "22db9261f9d1a214c296fd390173130c45d76d66"},
+  "gridcraft": {"tag": "v0.9.0", "commit": "a2cc4b42cac6e2c41bae71fba4607300755a0b47"},
+  "pdfcraft": {"tag": "v0.9.0", "commit": "645016addcfb9078c557f0189559ab47cdcee057"}
+}
