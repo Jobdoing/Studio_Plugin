@@ -77,11 +77,11 @@ if (credits) credits.onclick = async () => {
   const dialog = document.createElement("dialog");
   dialog.className = "craft-license-dialog";
   const select = document.createElement("select");
-  select.setAttribute("aria-label", "License document");
+  select.setAttribute("aria-label", "授權文件");
   for (const name of ["CREDITS.txt", "NOTICE", "LICENSE-MIT", "LICENSE-APACHE", "ATTRIBUTION.md", "licenses/rust/SOURCES.txt", "licenses/rust/inventory.json"]) select.add(new Option(name, name));
   const content = document.createElement("pre");
   const close = document.createElement("button");
-  close.textContent = "Close";
+  close.textContent = "關閉";
   close.onclick = () => dialog.close();
   let generation = 0;
   async function load() {

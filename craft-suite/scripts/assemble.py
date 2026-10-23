@@ -36,21 +36,24 @@ await init({{ module_or_path: bytes }});
     "version": upstream["tag"].removeprefix("v"), "uses": {"studio-docs": {"access": "write"}},
 }, indent=2) + "\n")
 (output / "index.html").write_text(f'''<!doctype html>
-<html lang="{language}"><head><meta charset="utf-8">
+<html lang="{language}" style="height:100%"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{title}</title><link rel="stylesheet" href="/studio-kit.css">
 <link rel="stylesheet" href="editor.css"><script src="/studio-plugin.js"></script>
 <script type="module" src="boot.mjs"></script></head>
-<body><main class="craft-editor"><section class="craft-surface"><canvas id="{canvas_id}"></canvas>
+<body style="height:100%;margin:0;overflow:hidden"><main class="craft-editor"><section class="craft-surface"><canvas id="{canvas_id}"></canvas>
 {loading}</section>
-<footer><button class="craft-credits kit-button" type="button">Licenses and credits</button></footer>
+<footer><button class="craft-credits" type="button">授權與來源</button></footer>
 </main></body></html>
 ''')
 (output / "editor.css").write_text('''.craft-editor { height: 100%; width: 100%; display: grid; grid-template-rows: minmax(0, 1fr) auto; overflow: hidden; }
 .craft-editor .craft-surface { position: relative; min-height: 0; }
 .craft-editor canvas { width: 100%; height: 100%; display: block; }
 .craft-editor .craft-surface div { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
-.craft-editor footer { text-align: right; }
+.craft-editor footer { padding: 0 .5rem; text-align: right; line-height: 0; }
+.craft-editor .craft-credits { min-height: 1.5rem; max-width: 100%; padding: .125rem .25rem; border: 0; border-radius: var(--radius); background: none; color: var(--muted); font: inherit; font-size: .75rem; line-height: 1.5; text-decoration: underline; text-underline-offset: .15em; cursor: pointer; overflow-wrap: anywhere; }
+.craft-editor .craft-credits:hover { color: var(--ink); }
+.craft-editor .craft-credits:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: -2px; }
 .craft-editor .craft-license-dialog { max-width: 90%; max-height: 80%; }
 .craft-editor .craft-license-dialog pre { white-space: pre-wrap; overflow: auto; }
 ''')
