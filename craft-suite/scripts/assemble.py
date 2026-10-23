@@ -33,7 +33,7 @@ await init({{ module_or_path: bytes }});
 ''')
 (output / "plugin.json").write_text(json.dumps({
     "id": editor, "title": title, "kind": "app", "scope": "project", "desktop_only": True,
-    "version": upstream["tag"].removeprefix("v"), "uses": {"studio-docs": {"access": "write"}},
+    "version": upstream.get("plugin_version", upstream["tag"].removeprefix("v")), "uses": {"studio-docs": {"access": "write"}},
 }, indent=2) + "\n")
 (output / "index.html").write_text(f'''<!doctype html>
 <html lang="{language}" style="height:100%"><head><meta charset="utf-8">
