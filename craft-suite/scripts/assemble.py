@@ -46,8 +46,7 @@ await init({{ module_or_path: bytes }});
 <footer><button class="craft-credits" type="button">授權與來源</button></footer>
 </main></body></html>
 ''')
-(output / "editor.css").write_text('''html, body { height: 100%; margin: 0; overflow: hidden; }
-.craft-editor { height: 100%; width: 100%; display: grid; grid-template-rows: minmax(0, 1fr) auto; overflow: hidden; }
+(output / "editor.css").write_text('''.craft-editor { position: fixed; inset: 0; display: grid; grid-template-rows: minmax(0, 1fr) auto; overflow: hidden; }
 .craft-editor .craft-surface { position: relative; min-height: 0; }
 .craft-editor canvas { width: 100%; height: 100%; display: block; }
 .craft-editor .craft-surface div { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
