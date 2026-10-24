@@ -1,0 +1,30 @@
+.meeting-notes { padding: var(--space-6); color: var(--ink); max-width: 96rem; margin-inline: auto; }
+.meeting-notes .heading, .meeting-notes .section-heading { display: flex; align-items: start; justify-content: space-between; gap: var(--space-5); }
+.meeting-notes .heading p, .meeting-notes .section-heading p { margin-top: var(--space-2); }
+.meeting-notes .eyebrow { color: var(--brand); letter-spacing: .12em; }
+.meeting-notes .muted { color: var(--muted); }
+.meeting-notes section { padding-block: var(--space-6); border-bottom: 1px solid var(--line); }
+.meeting-notes .input-row { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 1fr); gap: var(--space-5); align-items: start; }
+.meeting-notes .actions { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-block: var(--space-3); }
+.meeting-notes .stages { display: flex; flex-wrap: wrap; gap: var(--space-6); padding-block: var(--space-5); }
+.meeting-notes .stages a { display: flex; align-items: center; gap: var(--space-3); color: var(--brand); }
+.meeting-notes .step-number { border: 1px solid var(--line-control); border-radius: 50%; padding: var(--space-2) var(--space-3); }
+.meeting-notes .segment { padding: var(--space-4); border-left: 2px solid var(--line); margin-block: var(--space-4); }
+.meeting-notes .segment textarea { width: 100%; resize: vertical; }
+.meeting-notes .segment details { margin-top: var(--space-3); }
+.meeting-notes .segment p, .meeting-notes .issue p, .meeting-notes blockquote { white-space: pre-wrap; overflow-wrap: anywhere; }
+.meeting-notes .issue { padding-block: var(--space-4); border-top: 1px solid var(--line); }
+.meeting-notes blockquote { margin-inline: 0; padding-left: var(--space-4); border-left: 2px solid var(--brand); color: var(--muted); }
+.meeting-notes .saved-list { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+.meeting-notes .notes-grid { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: var(--space-6); align-items: start; }
+.meeting-notes .notes-grid > section { min-width: 0; }
+.meeting-notes .notes-grid .section-heading { display: block; }
+.meeting-notes .summary-panel { padding-inline-start: var(--space-6); border-left: 1px solid var(--line); }
+.meeting-notes .recording-controls audio { width: 100%; }
+.meeting-notes #source-info { overflow-wrap: anywhere; }
+@media (max-width: 40rem) {
+  .meeting-notes .heading, .meeting-notes .section-heading { flex-direction: column; }
+  .meeting-notes .input-row { grid-template-columns: minmax(0, 1fr); }
+  .meeting-notes .notes-grid { grid-template-columns: minmax(0, 1fr); }
+  .meeting-notes .summary-panel { padding-inline-start: 0; border-left: 0; }
+}

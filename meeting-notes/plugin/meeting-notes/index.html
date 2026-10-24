@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Meeting notes</title>
+  <link rel="stylesheet" href="/studio-kit.css">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <main class="meeting-notes">
+    <header class="heading">
+      <div><p class="eyebrow" data-copy="eyebrow"></p><h1 data-copy="title"></h1>
+        <p data-copy="intro"></p><p id="project-name" class="muted"></p></div>
+      <button id="new" class="kit-button kit-button--secondary" type="button" data-copy="new"></button>
+    </header>
+    <p id="status" class="kit-callout" role="status" aria-live="polite"></p>
+    <section class="setup" aria-labelledby="recording-heading">
+      <h2 id="recording-heading" data-copy="recording"></h2>
+      <div class="kit-form">
+        <div class="kit-field"><label for="meeting-title" data-copy="meetingTitle"></label><input id="meeting-title" maxlength="160" autocomplete="off" required></div>
+        <div class="recording-controls">
+          <div class="actions"><button id="record-start" class="kit-button kit-button--secondary" type="button" data-copy="recordStart"></button>
+            <button id="record-stop" class="kit-button kit-button--danger" type="button" data-copy="recordStop" disabled></button>
+            <button id="record-download" class="kit-button kit-button--secondary" type="button" data-copy="recordDownload" disabled></button>
+            <span id="record-time" class="muted" role="timer">00:00:00</span></div>
+          <p id="recording-info" class="muted" data-copy="recordHelp"></p>
+          <audio id="recording-preview" controls hidden></audio>
+        </div>
+        <div class="input-row">
+          <div class="kit-field"><label for="audio" data-copy="audio"></label><input id="audio" type="file" accept=".wav,.mp3,.m4a,.aac,.flac,.ogg,.opus,.webm,.wma"><p class="muted" data-copy="audioHelp"></p></div>
+          <div class="kit-field"><label for="speakers" data-copy="maxSpeakers"></label><input id="speakers" type="number" min="2" max="35" value="8" autocomplete="off" required></div>
+        </div>
+        <div class="kit-field"><label for="keywords" data-copy="keywords"></label><input id="keywords" maxlength="4000" autocomplete="off"><p class="muted" data-copy="keywordsHelp"></p></div>
+      </div>
+      <div class="actions"><button id="transcribe" class="kit-button" type="button" data-copy="transcribe"></button>
+        <button id="save" class="kit-button kit-button--secondary" type="button" data-copy="save"></button>
+        <button id="export-raw" class="kit-button kit-button--secondary" type="button" data-copy="exportRaw"></button></div>
+      <p id="source-info" class="muted"></p>
+    </section>
+    <nav class="stages" aria-label="Processing stages">
+      <a href="#fulltext-heading"><span class="step-number">1</span><span data-copy="fullText"></span></a>
+      <a href="#summary-heading"><span class="step-number">2</span><span data-copy="summary"></span></a>
+    </nav>
+    <div class="notes-grid">
+    <section class="transcript-panel" aria-labelledby="fulltext-heading">
+      <div class="section-heading"><div><h2 id="fulltext-heading" data-copy="fullText"></h2><p data-copy="fullTextHelp"></p></div>
+        <div class="actions"><button id="polish" class="kit-button" type="button" data-copy="polish"></button>
+          <button id="export-full" class="kit-button kit-button--secondary" type="button" data-copy="exportFull"></button></div></div>
+      <p id="coverage" class="muted"></p><div id="fulltext"></div>
+    </section>
+    <section class="summary-panel" aria-labelledby="summary-heading">
+      <div class="section-heading"><div><h2 id="summary-heading" data-copy="summary"></h2><p data-copy="summaryHelp"></p></div>
+        <div class="actions"><button id="summarize" class="kit-button" type="button" data-copy="summarize"></button>
+          <button id="export-summary" class="kit-button kit-button--secondary" type="button" data-copy="exportSummary"></button></div></div>
+      <div id="summary-output"></div>
+    </section>
+    </div>
+    <section aria-labelledby="saved-heading"><h2 id="saved-heading" data-copy="savedMeetings"></h2><div id="saved-list" class="saved-list"></div></section>
+  </main>
+  <script src="/studio-plugin.js"></script>
+  <script type="module" src="./app.mjs"></script>
+</body>
+</html>

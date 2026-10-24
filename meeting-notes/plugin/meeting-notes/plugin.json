@@ -1,0 +1,8 @@
+{
+  "id": "meeting-notes",
+  "title": "會議筆記",
+  "kind": "app",
+  "capabilities": ["microphone"],
+  "version": "0.2.0",
+  "backend": { "url": "http://127.0.0.1:8937", "timeout_s": 60 }
+}
