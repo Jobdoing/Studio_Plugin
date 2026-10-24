@@ -1,5 +1,9 @@
 # Studio 上架提交：會議筆記 0.2.0
 
+- 原始碼送審：[Studio_Plugin PR #3](https://github.com/Jobdoing/Studio_Plugin/pull/3)
+- Studio 上架交付：[Studio Issue #22](https://github.com/jobdone-cc/Studio/issues/22)
+- 狀態：已提交；待 Studio 審核、簽章、部署與官方通道發布。
+
 ## 識別與安裝來源
 
 - Plugin id：`meeting-notes`
