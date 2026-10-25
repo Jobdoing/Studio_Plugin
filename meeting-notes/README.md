@@ -28,10 +28,11 @@
 `plugin/meeting-notes/` 是靜態 plugin 安裝來源；`backend/` 是其專用的輕量 API 後端，負責驗證 Studio 身分、接收分段上傳及呼叫 Azure Speech。它不執行語音模型。
 
 - 後端需 Node.js 22.17+、`ffmpeg` 與 `ffprobe`，並能連到 Studio5 與 Azure。
-- `plugin.json` 的 `backend.url` 預設為 `http://127.0.0.1:8937`。後端應放在 Studio 主機上，僅監聽 loopback。
+- `plugin.json` 的 `backend.url` 為 `http://127.0.0.1:8937`、`backend.data_dir` 為 `data`。後端放在 Studio 主機上，僅監聽 loopback。developer-run 由平台注入 `PORT` 與 `DATA_DIR`；暫存預設為 `DATA_DIR/scratch`，`MEETING_NOTES_SCRATCH` 可明確覆寫。
 - 依 Studio5 自有後端部署方式放置服務包，保留 `server.mjs`、`backend/` 與 `plugin/meeting-notes/model.mjs` 的相對位置。服務包根目錄的 `server.mjs` 是正式啟動入口，支援平台的 `backend-deploy` 約定。
 - 依 `backend/.env.example` 準備伺服器環境變數；真正金鑰不能放在靜態 plugin 目錄或版本控制中。
 - `STUDIO5_URL` 必須指向實際 Studio，以取得簽章公鑰。`AZURE_SPEECH_ENDPOINT` 使用 Azure Speech／AI Services 資源 endpoint，不能填 Foundry project endpoint。
+- launchd 的 PATH 未必包含音訊工具；以 `FFMPEG_BIN`、`FFPROBE_BIN` 指定絕對路徑（Mac Homebrew 通常在 `/opt/homebrew/bin/`）。未設定時才從 PATH 找 `ffmpeg`／`ffprobe`。由 Studio 確認工具與私有設定的供應方式，不包含在公開包中。
 - 文字 AI 使用 Studio 現有路由；須確認部署環境的路由確實已連到你們的 Foundry 模型。本 plugin 不另存模型金鑰。
 
 在服務包根目錄，將真正設定存入權限為 `0600` 的 `backend/.env`，再啟動：
@@ -42,10 +43,12 @@ node server.mjs
 
 入口使用 Node 原生 `loadEnvFile` 載入該設定。安裝靜態 plugin 不會自動啟動後端；由主機既有服務管理方式維持後端程序。正式安裝、服務部署及市集發布尚未執行。
 
-新版 SDK 檢查成功後會產出兩個可交付檔案，目前版本位於 `releases/0.3.0/`（檢查產物於 `/Volumes/Vibe-Temp/meeting-notes/releases/0.3.0/`）：
+新版 SDK 檢查成功後會產出兩個可交付檔案，目前版本位於 `releases/0.3.1/`（檢查產物於 `/Volumes/Vibe-Temp/meeting-notes/releases/0.3.1/`）：
 
-- `meeting-notes-0.3.0.zip`：交給目前 Studio 的 `plugin.mjs install` 安裝；已用新版官方安裝函數驗證解包後內容一致。
-- `meeting-notes-backend-0.3.0.tar.gz`：交給主機既有後端部署流程；包含根目錄入口、執行所需程式、設定範例與本文件，不包含金鑰、真實 `.env`、錄音或測試資料。
+- `meeting-notes-0.3.1.zip`：交給目前 Studio 的 `plugin.mjs install` 安裝；使用固定 ZIP 中繼資料，並經官方安裝函數驗證解包後內容一致。
+- `meeting-notes-backend-0.3.1.tar.gz`：交給主機既有後端部署流程；包含根目錄入口、執行所需程式、設定範例與本文件，不包含金鑰、真實 `.env`、錄音或測試資料。
+
+重建交付檔案：`python3 meeting-notes/checks/package-release.py <output-directory>`。僅使用 Python 標準庫；ZIP 用儲存模式避免壓縮器版本差異，tar.gz 固定檔案順序、mtime、uid/gid 及 gzip 時間。官方打包器使用當下時間，故未用於此次 SHA 重建交付；官方安裝及檢查流程仍照常執行。
 
 主機若採平台的 developer-run backend：先解包成獨立 source-dir，再由主機既有 `studio-developer.mjs backend-deploy meeting-notes <source-dir>` 部署；首次服務啟用與真正 `backend/.env` 設定由主機管理員完成。請使用部署主機的目前 Studio 版本，勿使用本機舊工作目錄。
 

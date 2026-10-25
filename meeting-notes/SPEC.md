@@ -46,6 +46,14 @@
 
 ## 邊界
 
+### 0.3.1 提交與 developer-run 後端
+
+- 依使用者提供的 `plugin-submission-standard.md`（Studio PR #27，尚未合併）提交；只交付，不由外掛專案簽章、部署或發布。
+- Studio 已指定 developer-run 路徑：`backend.url` 保持 loopback 8937，`backend.data_dir` 為 `data`；讀取平台注入的 `PORT`、`DATA_DIR`，暫存預設為 `DATA_DIR/scratch`，明確的 `MEETING_NOTES_SCRATCH` 優先。
+- 可選 `FFMPEG_BIN`／`FFPROBE_BIN` 必須為絕對路徑；未設定時沿用 PATH 的 `ffmpeg`／`ffprobe`。不擅自安裝外部程式或打包金鑰。
+- 以 Python 標準庫產生固定時間、權限、排序的 ZIP／tar.gz，從固定 source commit 的乾淨檔案重建比對 SHA-256。
+- 未知錯誤只顯示繁體中文通用訊息，不向使用者顯示原始錯誤代碼。
+
 ### Studio 宿主錄音接入（2026-10-25，取代下方舊限制）
 
 - 重用 SDK 3.12.0 `studio.audio.record({project_handle})`，由點擊直接觸發；宿主負責計時、停止、取消與最多 2 小時限制。

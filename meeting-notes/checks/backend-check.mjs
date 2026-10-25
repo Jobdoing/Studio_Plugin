@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import { generateKeyPairSync, sign } from 'node:crypto';
 import { mkdtemp, mkdir, rm, readdir, writeFile, readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 import { assertionVerifier } from '../backend/auth.mjs';
 import { createMeetingServer, uploadSettings } from '../backend/server.mjs';
 import { transcribeFile, speechUrl } from '../backend/speech.mjs';
@@ -92,6 +94,30 @@ try {
     },
   });
   assert.deepEqual(converted, raw);
+  const savedEnv = Object.fromEntries(['PATH', 'FFMPEG_BIN', 'FFPROBE_BIN'].map(name => [name, process.env[name]]));
+  try {
+    process.env.FFMPEG_BIN = (await promisify(execFile)('which', ['ffmpeg'])).stdout.trim();
+    process.env.FFPROBE_BIN = (await promisify(execFile)('which', ['ffprobe'])).stdout.trim();
+    process.env.PATH = `${scratch}/no-tools-on-path`;
+    await mkdir(`${scratch}/absolute-binaries`);
+    const result = await transcribeFile(input, `${scratch}/absolute-binaries`, { maxSpeakers: 2, keywords: [] }, {
+      endpoint: 'https://check.cognitiveservices.azure.com/', key: 'test-only', signal: AbortSignal.timeout(15000),
+      fetchImpl: async () => Response.json({ durationMilliseconds: 1000,
+        phrases: [{ text: 'Synthetic test.', offsetMilliseconds: 0, durationMilliseconds: 1000, speaker: 0 }] }),
+    });
+    assert.deepEqual(result, raw, 'Absolute tool paths must work without ffmpeg or ffprobe on PATH.');
+    for (const name of ['FFMPEG_BIN', 'FFPROBE_BIN']) {
+      const absolute = process.env[name]; process.env[name] = 'relative-tool';
+      await assert.rejects(() => transcribeFile(input, scratch, { maxSpeakers: 2, keywords: [] }, {
+        endpoint: 'https://check.cognitiveservices.azure.com/', key: 'test-only', signal: AbortSignal.timeout(15000),
+      }), /INVALID_AUDIO_BINARY/);
+      process.env[name] = absolute;
+    }
+  } finally {
+    for (const [name, value] of Object.entries(savedEnv)) {
+      if (value === undefined) delete process.env[name]; else process.env[name] = value;
+    }
+  }
   await mkdir(`${scratch}/rate-limit`);
   await assert.rejects(() => transcribeFile(input, `${scratch}/rate-limit`, { maxSpeakers: 2, keywords: [] }, {
     endpoint: 'https://check.cognitiveservices.azure.com/', key: 'test-only', signal: AbortSignal.timeout(15000),
@@ -104,5 +130,5 @@ try {
   }), /AUDIO_CONVERSION_FAILED/);
   await app.dispose(); app = null;
   assert.deepEqual((await readdir(scratch)).filter(name => name.startsWith('run-')), []);
-  console.log('Backend contracts passed: signed identity, project isolation, uploads, capacity, audio conversion and cleanup.');
+  console.log('Backend contracts passed: signed identity, project isolation, uploads, capacity, audio conversion, absolute binary paths without PATH lookup, and cleanup.');
 } finally { if (app) await app.dispose(); await rm(scratch, { recursive: true, force: true }); }

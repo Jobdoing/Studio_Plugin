@@ -104,18 +104,16 @@ try {
     env: { ...process.env, STUDIO5_ROOT: snapshot, CHROME_FOR_TESTING: chromePath }, timeout: 120000, maxBuffer: 200000,
   });
   console.log(host.stdout.trim());
-  const { packPlugin, installPlugin } = await import(pathToFileURL(`${snapshot}/scripts/lib/blocks/plugin-install.mjs`).href);
+  const { installPlugin } = await import(pathToFileURL(`${snapshot}/scripts/lib/blocks/plugin-install.mjs`).href);
   const pluginManifest = JSON.parse(await readFile(`${plugin}/plugin.json`, 'utf8'));
   const release = `${root}/../releases/${pluginManifest.version}`;
   await mkdir(release, { recursive: true });
   const bundle = `${release}/meeting-notes-${pluginManifest.version}.zip`;
-  packPlugin({ dir: plugin, out: bundle });
+  const packaged = await exec('python3', [fileURLToPath(new URL('./package-release.py', import.meta.url)), release]);
+  console.log(packaged.stdout.trim());
   await installPlugin({ blocksDir: `${scratch}/installed/blocks`, appDataRoot: `${scratch}/installed/app-data`,
     blobRoot: `${scratch}/installed/blob`, source: bundle, strict: true, expectedId: 'meeting-notes' });
   assert.deepEqual(await readFile(`${scratch}/installed/blocks/meeting-notes/app.mjs`), await readFile(`${plugin}/app.mjs`));
-  await exec('tar', ['-czf', `${release}/meeting-notes-backend-${pluginManifest.version}.tar.gz`,
-    '-C', fileURLToPath(new URL('../', import.meta.url)), 'server.mjs', 'backend/server.mjs', 'backend/auth.mjs',
-    'backend/speech.mjs', 'backend/.env.example', 'plugin/meeting-notes/model.mjs', 'README.md', 'docs/platform-recording.md']);
   const service = await exec(process.execPath, [fileURLToPath(new URL('./service-check.mjs', import.meta.url)),
     `${release}/meeting-notes-backend-${pluginManifest.version}.tar.gz`], { timeout: 30000 });
   console.log(service.stdout.trim());

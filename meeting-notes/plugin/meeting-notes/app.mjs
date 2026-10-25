@@ -36,7 +36,7 @@ function element(tag, content, className) {
 function status(message, error = false) { $('status').textContent = message; $('status').dataset.status = error ? 'danger' : 'info'; }
 function report(error) {
   const code = error?.message || 'UNKNOWN_ERROR';
-  status(copy.errors[code] || `${copy.error} (${code})`, true);
+  status(copy.errors[code] || copy.error, true);
 }
 function changed() { dirty = true; sdk?.dirty(true); controls(); }
 function capturing() { return recordingPending || Boolean(recorder); }

@@ -1,18 +1,19 @@
-# Studio 上架提交：會議筆記 0.3.0
+# Studio 上架提交：會議筆記 0.3.1
 
 - 原始碼送審：[Studio_Plugin PR #3](https://github.com/Jobdoing/Studio_Plugin/pull/3)
 - Studio 上架交付：[Studio Issue #22](https://github.com/jobdone-cc/Studio/issues/22)
-- 狀態：已提交，暫不上架。使用者於 2026-10-25 要求先完成正式 Studio 內的直接錄音與驗證，再進行簽章與上架。
+- 狀態：依使用者指定的 Studio PR #27 提交規範重新打包，交由 Studio 主控審查、簽章及安排安裝驗證；外掛專案不自行部署或發布。
+- 固定 source commit、SHA-256 與逐項自查見 [0.3.1 交付報告](docs/submission-0.3.1.md)。
 
 ## 識別與安裝來源
 
 - Plugin id：`meeting-notes`
 - 顯示名稱：會議筆記
-- 版本：`0.3.0`
+- 版本：`0.3.1`
 - 原始碼：本目錄 `plugin/meeting-notes/`
-- Plugin 安裝包：`releases/0.3.0/meeting-notes-0.3.0.zip`
-- 後端服務包：`releases/0.3.0/meeting-notes-backend-0.3.0.tar.gz`
-- 完整性核對：`releases/0.3.0/SHA256SUMS`
+- Plugin 安裝包：`releases/0.3.1/meeting-notes-0.3.1.zip`
+- 後端服務包：`releases/0.3.1/meeting-notes-backend-0.3.1.tar.gz`
+- 完整性核對：`releases/0.3.1/SHA256SUMS`
 - 授權：沿用 repo 根目錄 Apache-2.0。
 
 ## 上架內容
@@ -32,15 +33,16 @@
 ## 後端部署需求與責任
 
 - 執行環境：Node.js 22.17+，PATH 可執行 `ffmpeg`、`ffprobe`；入口為服務包根目錄 `server.mjs`。
-- 網路：預設只監聽 `127.0.0.1:8937`，透過 Studio backend proxy 呼叫；需能連線至 `STUDIO5_URL` 驗證憑證，以及設定的 Azure Speech endpoint。
+- 網路：只監聽 `127.0.0.1`，預設埠 `8937`，以平台注入的 `PORT` 為準，透過 Studio backend proxy 呼叫；需能連線至 `STUDIO5_URL` 驗證憑證，以及設定的 Azure Speech endpoint。
 - 機密：部署方在服務端建立權限 `0600` 的 `backend/.env`，設定 `STUDIO5_URL`、`AZURE_SPEECH_ENDPOINT`、`AZURE_SPEECH_KEY`。金鑰不交給瀏覽器、不放入 plugin ZIP 或公開服務包。
-- 寫入資料：上傳音檔、轉檔結果暫存於 `MEETING_NOTES_SCRATCH`；預設 `/Volumes/Vibe-Temp/meeting-notes/uploads`，未掛載則使用專案 `.tmp/uploads` 並警示。其他主機應由部署方指定專用暫存目錄。音檔在成功、失敗或正常服務關閉時清除，未完成上傳閒置 30 分鐘後清除；非正常終止的清理行為仍需部署驗證。
+- 寫入資料：manifest 宣告 `backend.data_dir: "data"`，developer-run 注入 `DATA_DIR`，暫存預設為 `DATA_DIR/scratch`；明確的 `MEETING_NOTES_SCRATCH` 優先。本機獨立開發未指定兩者時才使用 Vibe-Temp／專案暫存。處理副本在成功、失敗或正常關閉時清除，未完成上傳閒置 30 分鐘後清除，異常終止遺留由維運處理。
+- 工具路徑：可選 `FFMPEG_BIN`、`FFPROBE_BIN` 為絕對路徑，未設定時使用 PATH。工具不隨包提供，由 Studio 確認安裝與設定。
 - 保存成果：轉錄、全文與摘要透過 Studio 專案儲存介面保存；宿主錄音停止後另存入本外掛的專案文件夾，轉錄紀錄保留來源文件參照。停止前的錄音仍在記憶體中，關閉或當機會遺失。
-- 責任：外掛方提供服務包、需求及整合檢查；平台方確認託管方式、部署負責人與機密配置，尚未確認，也尚未自行部署到客戶機器。
+- 責任：Studio 已指定 developer-run 路徑（CLI reference §2.6）；外掛方提供包與檢查，由 Studio／擁有者部署、設定工具及機密。不是一鍵 managed backend 包，也沒有自行部署到客戶機器。
 
 ## 已有證據
 
-- 驗證 SDK：遠端 `origin/main`，提交 `86ec85af3bd277646382763f965fa0d2888a1a3c`。
+- 驗證 SDK：遠端 `origin/main`，提交 `766debb1e1d42d55ade431461952c9fe20dd9e60`。
 - 瀏覽器收到組合後 SDK 的 SHA-256：`8bd9fbfbee6b5b6619f9d565547c67de30b983e0a0ed6fa0e138ab92c0850b29`，與平台 `assembleSdk()` 輸出一致。
 - 官方 plugin check：PASS；strict lint 零警告，沒有 unload 警告、bridge 拒絕或檢查判定的網路失敗，320／375／1024px 無溢出。
 - 操作檢查：保存、重開、四種衝突處理、專案切換、左右欄／手機版面通過；SDK 與 ASR／AI 回應為模擬。

@@ -141,9 +141,9 @@ export async function createMeetingServer({ studioUrl, scratchRoot, endpoint, ke
 
 export async function startServer() {
   const external = '/Volumes/Vibe-Temp/meeting-notes/uploads';
-  const scratchRoot = process.env.MEETING_NOTES_SCRATCH || (existsSync('/Volumes/Vibe-Temp') ? external
-    : fileURLToPath(new URL('../.tmp/uploads', import.meta.url)));
-  if (!existsSync('/Volumes/Vibe-Temp') && !process.env.MEETING_NOTES_SCRATCH) console.warn('External scratch volume unavailable; using project .tmp/uploads.');
+  const scratchRoot = process.env.MEETING_NOTES_SCRATCH || (process.env.DATA_DIR ? resolve(process.env.DATA_DIR, 'scratch')
+    : existsSync('/Volumes/Vibe-Temp') ? external : fileURLToPath(new URL('../.tmp/uploads', import.meta.url)));
+  if (!existsSync('/Volumes/Vibe-Temp') && !process.env.MEETING_NOTES_SCRATCH && !process.env.DATA_DIR) console.warn('External scratch volume unavailable; using project .tmp/uploads.');
   const app = await createMeetingServer({ studioUrl: process.env.STUDIO5_URL || 'http://127.0.0.1:5177',
     scratchRoot, endpoint: process.env.AZURE_SPEECH_ENDPOINT, key: process.env.AZURE_SPEECH_KEY });
   app.server.listen(Number(process.env.PORT || 8937), '127.0.0.1', () => console.log('Meeting notes backend ready on loopback.'));

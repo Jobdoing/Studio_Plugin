@@ -63,6 +63,7 @@
     "AUDIO_TOO_LARGE": "錄音檔超過大小限制，請先轉為較小的音訊格式。",
     "AUDIO_TOO_LONG": "錄音超過 5 小時限制，請先分成較短的錄音。",
     "AUDIO_CONVERSION_FAILED": "無法讀取錄音，請確認音檔格式，或請管理員檢查音訊轉換服務。",
+    "INVALID_AUDIO_BINARY": "音訊工具路徑設定有誤，請管理員確認 ffmpeg 與 ffprobe 的完整路徑。",
     "SPEECH_NOT_CONFIGURED": "Azure Speech 尚未設定，請管理員完成語音服務連線。",
     "SPEECH_RATE_LIMIT": "語音服務目前忙碌，請稍後再試。",
     "SPEECH_TIMEOUT": "轉錄等待逾時，未取得完整結果。請稍後重試。",

@@ -270,6 +270,9 @@ try {
     await page.waitForFunction(message => document.querySelector('#status').textContent === message, {}, copy.errors[error]);
     assert.equal(await page.$eval('#record-start', el => el.disabled), false, 'Host errors must allow a retry.');
   }
+  await page.evaluate(() => { window.testState.hostError = 'Internal diagnostic not for display'; });
+  await page.click('#record-start');
+  await page.waitForFunction(message => document.querySelector('#status').textContent === message, {}, copy.error);
   await page.reload({ waitUntil: 'networkidle0' });
   await page.waitForFunction(() => !document.querySelector('#record-start').disabled);
   await page.type('#meeting-title', 'Host recording handoff');

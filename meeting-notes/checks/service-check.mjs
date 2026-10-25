@@ -19,9 +19,8 @@ try {
   await new Promise(resolve => probe.listen(0, '127.0.0.1', resolve));
   const port = probe.address().port;
   await new Promise(resolve => probe.close(resolve));
-  await writeFile(`${scratch}/backend/.env`, `PORT=${port}\nMEETING_NOTES_SCRATCH=${scratch}/uploads\nSTUDIO5_URL=http://127.0.0.1:1\n`, { mode: 0o600 });
-  const env = { ...process.env };
-  delete env.PORT;
+  await writeFile(`${scratch}/backend/.env`, 'PORT=1\nSTUDIO5_URL=http://127.0.0.1:1\n', { mode: 0o600 });
+  const env = { ...process.env, PORT: String(port), DATA_DIR: `${scratch}/data` };
   delete env.MEETING_NOTES_SCRATCH;
   delete env.STUDIO5_URL;
   child = spawn(process.execPath, [`${scratch}/server.mjs`], { cwd: scratch, env, stdio: ['ignore', 'pipe', 'pipe'] });
@@ -39,8 +38,8 @@ try {
   child.kill('SIGTERM');
   assert.deepEqual(await exited, { code: 0, signal: null });
   child = null;
-  assert.deepEqual(await readdir(`${scratch}/uploads`), [], 'Service shutdown must remove its temporary run directory.');
-  console.log('Backend archive passed: secure environment loading, production entry point, authentication and clean shutdown.');
+  assert.deepEqual(await readdir(`${scratch}/data/scratch`), [], 'Service must use DATA_DIR/scratch and clean its run directory on shutdown.');
+  console.log('Backend archive passed: launchd PORT/DATA_DIR precedence, private environment loading, authentication and clean shutdown.');
 } finally {
   if (child) { child.kill('SIGTERM'); await exited; }
   await rm(scratch, { recursive: true, force: true });
