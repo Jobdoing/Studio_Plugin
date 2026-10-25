@@ -1,6 +1,6 @@
 import { MAX_AUDIO_BYTES, UPLOAD_CHUNK_BYTES, AUDIO_EXTENSIONS, generateFullText, generateSummary,
   timeLabel, exportText, validateReadable, validateRaw, validateMeeting } from './model.mjs';
-import { recordMicrophone } from './recorder.mjs';
+import { recordMicrophone, validateHostRecording, readHostRecording } from './recorder.mjs';
 
 const sdk = window.studio;
 const $ = id => document.getElementById(id);
@@ -23,6 +23,8 @@ let recordingRequest = 0;
 let recordedFile = null;
 let recordingUrl = null;
 let recordingBackedUp = false;
+let hostRecording = null;
+const hostRecorder = typeof sdk?.audio?.record === 'function';
 
 function emptyMeeting() { return { title: '', source: null, raw: null, readable: [], summary: null }; }
 function element(tag, content, className) {
@@ -43,20 +45,24 @@ function syncDirty() { sdk?.dirty(dirty || capturing() || audioNeedsBackup()); }
 function clearRecording() {
   recordingRequest++; recorder?.cancel(); recorder = null; recordingPending = false;
   recordedFile = null; recordingBackedUp = false;
+  hostRecording = null;
   if (recordingUrl) URL.revokeObjectURL(recordingUrl);
   recordingUrl = null;
   $('recording-preview').removeAttribute('src'); $('recording-preview').load(); $('recording-preview').hidden = true;
-  $('recording-info').textContent = copy.recordHelp; $('record-time').textContent = '00:00:00';
+  $('recording-info').textContent = hostRecorder ? copy.recordHostHelp : copy.recordHelp; $('record-time').textContent = '00:00:00';
 }
 function fullReady() { return meeting.raw && meeting.readable.length === meeting.raw.segments.length; }
 function controls() {
   const available = Boolean(project?.project_handle) && !busy && !capturing();
   for (const id of ['meeting-title', 'speakers', 'keywords', 'new']) $(id).disabled = !available;
   $('audio').disabled = !available || Boolean(meeting.raw) || Boolean(recordedFile);
-  $('record-start').disabled = !available || Boolean(meeting.raw) || Boolean(recordedFile) || window.origin === 'null';
-  if (window.origin === 'null') $('recording-info').textContent = copy.errors.RECORDING_HOST_REQUIRED;
+  $('record-start').disabled = !available || Boolean(meeting.raw) || Boolean(recordedFile) || Boolean(hostRecording) || (!hostRecorder && window.origin === 'null');
+  if (!hostRecorder && window.origin === 'null') $('recording-info').textContent = copy.errors.RECORDING_HOST_REQUIRED;
+  $('record-stop').hidden = hostRecorder;
+  $('record-time').hidden = hostRecorder;
+  if (hostRecorder && !capturing() && !hostRecording) $('recording-info').textContent = copy.recordHostHelp;
   $('record-stop').disabled = !capturing();
-  $('record-download').disabled = !recordedFile || busy || capturing();
+  $('record-download').disabled = (!recordedFile && !hostRecording) || busy || capturing();
   $('transcribe').disabled = !available || Boolean(meeting.raw);
   $('save').disabled = !available || !dirty;
   $('export-raw').disabled = !meeting.raw || busy;
@@ -218,6 +224,10 @@ async function run(action) {
   finally { if (token === epoch) { busy = false; operation = null; controls(); } }
 }
 async function transcribe(token) {
+  if (!recordedFile && hostRecording && !$('audio').files[0]) {
+    const file = await readHostRecording(sdk, hostRecording, project.project_handle);
+    checkEpoch(token); recordedFile = file;
+  }
   const file = recordedFile || $('audio').files[0];
   const maxSpeakers = Number($('speakers').value);
   const keywords = $('keywords').value.split(/[,，\n]/).map(value => value.trim()).filter(Boolean);
@@ -251,7 +261,8 @@ async function transcribe(token) {
       const result = await api(`jobs/${job.id}`, {}, token);
       if (result.status === 'failed') throw new Error(result.error || 'INVALID_TRANSCRIPT');
       if (result.status === 'complete') {
-        meeting.raw = validateRaw(result.result); meeting.source = { name: file.name, size: file.size };
+        meeting.raw = validateRaw(result.result); meeting.source = { name: file.name, size: file.size,
+          ...(hostRecording && file === recordedFile ? { ref: hostRecording.ref } : {}) };
         meeting.readable = []; meeting.summary = null; changed(); render();
         await save(token); status(copy.transcribed); break;
       }
@@ -271,7 +282,29 @@ $('record-start').addEventListener('click', async () => {
   const request = ++recordingRequest;
   recordingPending = true; syncDirty(); controls();
   $('recording-info').textContent = copy.recordRequesting;
+  status(copy.recordRequesting);
   try {
+    if (hostRecorder) {
+      const handle = project.project_handle;
+      const result = await sdk.audio.record({ project_handle: handle });
+      if (token !== epoch || request !== recordingRequest) return;
+      if (!result) { $('recording-info').textContent = copy.recordHostHelp; status(copy.ready); return; }
+      hostRecording = validateHostRecording(result);
+      recordingBackedUp = true;
+      $('source-info').textContent = result.name;
+      $('recording-info').textContent = copy.recordLoading;
+      const file = await readHostRecording(sdk, result, handle);
+      if (token !== epoch || request !== recordingRequest) return;
+      recordedFile = file;
+      recordingUrl = URL.createObjectURL(file);
+      $('recording-preview').src = recordingUrl; $('recording-preview').hidden = false;
+      $('recording-preview').setAttribute('aria-label', copy.recordHostReady);
+      $('audio').value = '';
+      $('recording-info').textContent = result.stopped_by === 'limit' ? copy.recordHostLimit
+        : result.stopped_by === 'interrupted' ? copy.recordHostInterrupted : copy.recordHostReady;
+      status($('recording-info').textContent);
+      return;
+    }
     const session = await recordMicrophone({
       onTick: elapsed => { if (request === recordingRequest) $('record-time').textContent = timeLabel(elapsed); },
       onComplete: (file, reason) => {
@@ -294,6 +327,9 @@ $('record-start').addEventListener('click', async () => {
   } catch (error) {
     if (token !== epoch || request !== recordingRequest) return;
     recordingPending = false; syncDirty(); controls(); report(error);
+    if (hostRecording) $('recording-info').textContent = copy.recordReadFailed;
+  } finally {
+    if (hostRecorder && token === epoch && request === recordingRequest) { recordingPending = false; syncDirty(); controls(); }
   }
 });
 $('record-stop').addEventListener('click', () => {
@@ -302,6 +338,10 @@ $('record-stop').addEventListener('click', () => {
   syncDirty(); controls();
 });
 $('record-download').addEventListener('click', () => run(async token => {
+  if (hostRecording) {
+    await sdk.docs.download(hostRecording.ref, {}, { project_handle: project.project_handle });
+    checkEpoch(token); $('recording-info').textContent = copy.recordHostDownloaded; return;
+  }
   // NOTE(ceiling): the download acknowledgement confirms dispatch, not the user's disk save; the UI asks the user to verify the file.
   await sdk.download(recordedFile.name, recordedFile, recordedFile.type);
   checkEpoch(token); recordingBackedUp = true; syncDirty(); $('recording-info').textContent = copy.recordBackedUp;

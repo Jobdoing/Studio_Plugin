@@ -98,6 +98,12 @@ try {
     env: { ...process.env, STUDIO5_ROOT: snapshot, CHROME_FOR_TESTING: chromePath }, timeout: 120000, maxBuffer: 200000,
   });
   console.log(flow.stdout.trim());
+  const recording = await exec(process.execPath, [fileURLToPath(new URL('./recorder-check.mjs', import.meta.url))]);
+  console.log(recording.stdout.trim());
+  const host = await exec(process.execPath, [fileURLToPath(new URL('./host-browser-check.mjs', import.meta.url))], {
+    env: { ...process.env, STUDIO5_ROOT: snapshot, CHROME_FOR_TESTING: chromePath }, timeout: 120000, maxBuffer: 200000,
+  });
+  console.log(host.stdout.trim());
   const { packPlugin, installPlugin } = await import(pathToFileURL(`${snapshot}/scripts/lib/blocks/plugin-install.mjs`).href);
   const pluginManifest = JSON.parse(await readFile(`${plugin}/plugin.json`, 'utf8'));
   const release = `${root}/../releases/${pluginManifest.version}`;

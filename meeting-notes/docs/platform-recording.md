@@ -1,27 +1,34 @@
-# 正式 Studio 錄音整合待辦
+# Studio 宿主錄音整合
 
-2026-10-25 使用者決定：「不急，直接解決再上架」。正式 Studio 內的直接錄音是上架前必要條件，不能以音檔上傳取代驗收。已轉交 Studio session 確認並實作宿主介面，外掛方負責接入及驗證；介面契約尚待平台確認。
+2026-10-25 使用者決定：錄音解決再上架。平台 PR #25 已合併；Studio session 回報 m2-studio5 0.6.5、m2-aha-demo／onlywin 0.4.5 已發布宿主錄音。外掛 0.3.0 已接入最終介面；正式站安裝與真實麥克風驗證尚待進行，不能與本機整合檢查混稱完成。
 
-## 已完成
+## 實際流程
 
-`meeting-notes` 0.2.0 已有瀏覽器錄音、停止、試聽、下載及既有 Azure 轉錄銜接。獨立 HTTPS／localhost 頁面可使用；Chrome for Testing 使用虛擬音源驗證原生 MediaRecorder、WebM 解碼、下載資料及麥克風釋放。這不代表正式 Studio iframe 已可錄音。
+1. 使用者直接按「開始錄音」，呼叫 `studio.audio.record({project_handle})`；不在點擊前後插入非同步工作而失去使用者啟動狀態。
+2. Studio 宿主控制麥克風、計時、停止／取消，最多 2 小時。取消回 `null`，不讀取文件，也不顯示失敗。
+3. 停止後宿主把錄音存入這個外掛在本專案的文件中心系統資料夾，回傳音檔中繼資料與 `doc:<id>@<version>`。
+4. 外掛驗證回傳資料，透過 `studio.docs.fetch(ref, {}, {project_handle})` 讀回釘選版本，建立試聽與既有轉錄流程。Safari MP4 以 M4A 檔名交給既有 ffmpeg 轉檔流程。
+5. 下載使用 `studio.docs.download`；轉錄紀錄保留來源文件參照，後端只清除處理副本，不刪除原始文件。
 
-## 平台限制的目前證據
+## 權限與失敗處理
 
-已核對遠端 `origin/main` 的 `src/AppBlockView.tsx`，plugin iframe 為 `sandbox="allow-scripts allow-forms"`。雖可用 manifest 的 `capabilities: ["microphone"]` 設定 Permissions Policy，iframe 仍沒有可直接請求麥克風的有效 origin。
+- `uses["audio-record"]: true`、`uses["studio-docs"]: {"access":"read"}`；文字處理另宣告 `uses.ai`。新增權限需使用者同意。
+- 不需要 `docs:write` 或 iframe 麥克風 capability，也不加入 `allow-same-origin`。草稿預覽會回 `DEVELOPER_SCOPE`。
+- 權限拒絕、其他外掛忙碌、缺少點擊與離線均有對應說明；失敗後可重試。
+- SDK 文件讀取上限 64 MiB。較大錄音仍留在文件中心，可下載後由原有選擇音檔入口轉錄；讀取失敗不把錄音標成已載入。
+- 專案切換後忽略先前錄音及讀取結果，不把音檔或轉錄送入新專案。
 
-[getUserMedia 官方文件](https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia#privacy_and_security) 說明 sandbox iframe 需要 `allow-same-origin` 才能直接呼叫此 API。這裡不應為單一 plugin 放寬 Studio 的隔離設定。
+## 已知限制
 
-目前 `studio.device.speech.transcribe` 回傳辨識文字，不能取代需要原始音檔、長會議及 Azure 說話者區分的本功能。plugin 沒有呼叫任何虛構的宿主錄音 API。
+錄音停止前在宿主記憶體中；分頁當機／關閉會遺失這段，離開或切換專案會丟棄未保存內容。畫面明示錄音時勿關閉分頁。未實測 Safari、手機或連續 2 小時記憶體負載。
 
-## 請平台提供的最小介面
+## 可重跑驗證
 
-介面名稱由平台定案；需求如下：
+`node meeting-notes/checks/current-sdk-check.mjs` 從目前平台 `origin/main` 建立可刪除的隔離環境，執行：
 
-- 從使用者點擊開始，交由宿主開啟麥克風並提供開始／停止／取消與經過時間。
-- 停止後回傳實際錄音的 `File`／`Blob`、正確 MIME type、檔名及是否因限制或中斷而停止。
-- 在宿主保存檔案或讓使用者下載，避免 plugin 分頁關閉造成唯一音檔遺失。
-- 拒絕權限、取消、導航、plugin 關閉或使用者／案場切換時確實停止所有音軌，不能將結果送往其他 plugin 或新案場。
-- 長會議須有清楚的時長／大小上限與自動停止提示；不能只靠常駐記憶體假稱無限錄音。
+- 官方 strict lint、實際 SDK 核對、桌面／窄螢幕檢查。
+- Chrome for Testing：模擬 SDK 的取消、權限／忙碌／草稿錯誤、讀取失敗後下載及重試、跨專案結果隔離、轉錄銜接。
+- `host-browser-check.mjs`：真正外掛安裝、opaque iframe、平台 SDK／bridge／錄音視窗、虛擬麥克風、真正文件服務保存及版本讀取、試聽、音軌釋放、ffmpeg 解碼。
+- `recorder-check.mjs`：參照釘選、專案參數、M4A 命名、不完整中繼資料、大小上限及實際內容大小。
 
-平台完成後，plugin 再把本機錄音入口換成宿主介面，沿用現有上傳、Azure Speech、全文與摘要流程。正式 iframe 目前將直接錄音按鈕停用，保留上傳音檔。
+上述未使用正式站登入或真實麥克風。實際中文會議的辨識與兩段文字品質仍依使用者要求，在目標部署完成後驗證。

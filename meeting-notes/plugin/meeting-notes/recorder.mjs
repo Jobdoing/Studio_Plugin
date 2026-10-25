@@ -2,6 +2,28 @@
 const MAX_RECORDING_BYTES = 128 * 1024 * 1024;
 const MAX_RECORDING_MS = 17940 * 1000;
 
+export function validateHostRecording(value) {
+  if (!value || typeof value.file_id !== 'string' || !Number.isSafeInteger(value.version) || value.version < 1
+    || !/^doc:[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}@[1-9][0-9]*$/i.test(value.ref)
+    || value.ref !== `doc:${value.file_id}@${value.version}` || typeof value.name !== 'string' || !value.name.trim()
+    || !Number.isSafeInteger(value.bytes) || value.bytes < 1 || !Number.isFinite(value.duration_ms) || value.duration_ms < 0
+    || typeof value.mime !== 'string' || !/^audio\//.test(value.mime)
+    || !['user', 'limit', 'interrupted'].includes(value.stopped_by)) throw new Error('INVALID_RECORDING');
+  return value;
+}
+
+export async function readHostRecording(sdk, value, projectHandle) {
+  validateHostRecording(value);
+  // NOTE(ceiling): docs.fetch caps reads at 64 MiB; larger recordings remain downloadable in Document Center for local upload.
+  if (value.bytes > 64 * 1024 * 1024) throw new Error('RECORDING_READ_LIMIT');
+  const blob = await sdk.docs.fetch(value.ref, {}, { project_handle: projectHandle });
+  if (!(blob instanceof Blob) || blob.size !== value.bytes) throw new Error('INVALID_RECORDING');
+  const extension = value.mime.includes('mp4') ? 'm4a' : value.mime.includes('ogg') ? 'ogg' : 'webm';
+  const name = /\.(webm|m4a|ogg|opus)$/i.test(value.name) ? value.name : /\.mp4$/i.test(value.name)
+    ? value.name.replace(/\.mp4$/i, '.m4a') : `${value.name}.${extension}`;
+  return new File([blob], name, { type: value.mime });
+}
+
 export async function recordMicrophone({ onTick, onComplete, onError }) {
   if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') throw new Error('RECORDING_UNSUPPORTED');
   if (window.origin === 'null') throw new Error('RECORDING_HOST_REQUIRED');

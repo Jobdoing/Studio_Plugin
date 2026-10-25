@@ -236,8 +236,83 @@ try {
   await page.waitForFunction(() => window.testCaptureStream.getTracks().every(track => track.readyState === 'ended'));
   assert.equal(await page.$eval('#recording-preview', element => element.hidden), true);
   assert.equal(await page.$eval('#record-download', element => element.disabled), true);
+  await page.evaluateOnNewDocument(audioBytes => {
+    const state = window.testState;
+    const fileId = 'a1234567-1234-1234-1234-123456789abc';
+    state.hostResult = { file_id: fileId, version: 2, ref: `doc:${fileId}@2`, name: 'Host recording.webm',
+      mime: 'audio/webm', duration_ms: 1000, bytes: audioBytes.length, stopped_by: 'user', folder_id: 'folder-a' };
+    window.studio.audio = { record: async options => {
+      state.calls.push({ type: 'record', options, activated: navigator.userActivation.isActive });
+      if (state.hostError) throw new Error(state.hostError);
+      if (state.holdRecording) await new Promise(resolveRecord => { state.releaseRecording = resolveRecord; });
+      return state.hostResult;
+    } };
+    window.studio.docs = {
+      fetch: async (ref, input, options) => {
+        state.calls.push({ type: 'docs-fetch', ref, input, options });
+        if (state.failDocRead) throw new Error('OFFLINE');
+        if (state.holdDocRead) await new Promise(resolveRead => { state.releaseRead = resolveRead; });
+        return new Blob([new Uint8Array(audioBytes)], { type: 'audio/webm' });
+      },
+      download: async (ref, input, options) => { state.calls.push({ type: 'docs-download', ref, input, options }); },
+    };
+  }, encoded);
+  await page.reload({ waitUntil: 'networkidle0' });
+  await page.waitForFunction(() => !document.querySelector('#record-start').disabled);
+  assert.equal(await page.$eval('#record-stop', el => el.hidden), true, 'Host dialog owns stop and timer controls.');
+  await page.evaluate(() => { window.testState.hostResult = null; });
+  await page.click('#record-start');
+  await page.waitForFunction(() => !document.querySelector('#record-start').disabled);
+  assert.equal(await page.$eval('#recording-info', el => el.textContent), copy.recordHostHelp);
+  for (const error of ['PERMISSION_DENIED', 'BUSY', 'DEVELOPER_SCOPE']) {
+    await page.evaluate(value => { window.testState.hostError = value; }, error);
+    await page.click('#record-start');
+    await page.waitForFunction(message => document.querySelector('#status').textContent === message, {}, copy.errors[error]);
+    assert.equal(await page.$eval('#record-start', el => el.disabled), false, 'Host errors must allow a retry.');
+  }
+  await page.reload({ waitUntil: 'networkidle0' });
+  await page.waitForFunction(() => !document.querySelector('#record-start').disabled);
+  await page.type('#meeting-title', 'Host recording handoff');
+  await page.evaluate(() => { window.testState.failDocRead = true; });
+  await page.click('#record-start');
+  await page.waitForFunction(message => document.querySelector('#recording-info').textContent === message, {}, copy.recordReadFailed);
+  assert.equal(await page.$eval('#record-download', el => el.disabled), false, 'A failed read must retain the saved document download.');
+  await page.click('#record-download');
+  await page.waitForFunction(() => window.testState.calls.some(call => call.type === 'docs-download'));
+  await page.evaluate(() => { window.testState.failDocRead = false; });
+  await page.click('#transcribe');
+  await page.waitForFunction(() => !document.querySelector('#polish').disabled);
+  assert.equal(await page.evaluate(() => window.testState.records[0].body.source.ref === window.testState.hostResult.ref), true);
+  const hostCalls = await page.evaluate(() => window.testState.calls.filter(call => ['record', 'docs-fetch', 'docs-download'].includes(call.type)));
+  assert.deepEqual(hostCalls[0], { type: 'record', options: { project_handle: 'p1' }, activated: true });
+  assert.ok(hostCalls.slice(1).every(call => call.options.project_handle === 'p1' && call.ref.endsWith('@2')));
+  await page.evaluate(async () => { await window.testState.switchProject({ project_handle: 'p2', name: 'Other project' }); window.testState.holdRecording = true; });
+  await page.click('#record-start');
+  await page.waitForFunction(() => typeof window.testState.releaseRecording === 'function');
+  await page.evaluate(async () => { await window.testState.switchProject({ project_handle: 'p3', name: 'Final project' }); window.testState.releaseRecording(); });
+  await page.waitForFunction(() => !document.querySelector('#record-start').disabled);
+  assert.equal(await page.$eval('#record-download', el => el.disabled), true);
+  assert.equal(await page.evaluate(() => window.testState.calls.filter(call => call.type === 'docs-fetch' && call.options.project_handle !== 'p1').length), 0);
+  await page.evaluate(() => { window.testState.holdRecording = false; window.testState.hostResult.stopped_by = 'interrupted'; });
+  await page.click('#record-start');
+  await page.waitForSelector('#recording-preview:not([hidden])');
+  assert.equal(await page.$eval('#recording-info', el => el.textContent), copy.recordHostInterrupted);
+  assert.equal(await page.evaluate(() => window.testState.canClose({ save: false })), true, 'A saved host document does not need a second local backup.');
+  await page.evaluate(async () => {
+    await window.testState.switchProject({ project_handle: 'p4', name: 'Read boundary project' });
+    window.testState.holdDocRead = true;
+  });
+  await page.click('#record-start');
+  await page.waitForFunction(() => typeof window.testState.releaseRead === 'function');
+  await page.evaluate(async () => {
+    await window.testState.switchProject({ project_handle: 'p5', name: 'After read boundary' });
+    window.testState.releaseRead();
+  });
+  await page.waitForSelector('#record-start:not([disabled])');
+  assert.equal(await page.$eval('#recording-preview', el => el.hidden), true, 'A stale document read must not appear in the new project.');
+  assert.equal(await page.$eval('#record-download', el => el.disabled), true);
   assert.deepEqual(errors, []);
-  console.log('Chrome for Testing passed: two-column desktop, mobile stack, two stages, persistence, conflicts, project isolation, microphone denial, native recording/stop/download, WebM decoding and transcription handoff. Audio device, SDK and ASR/AI responses were simulated.');
+  console.log('Chrome for Testing passed: layout, two stages, persistence/conflicts, project isolation, native recording, host recording cancellation/errors, pinned document read/download, failed-read retry and transcription handoff. Audio device, SDK and ASR/AI responses were simulated.');
 } finally {
   await browser?.close();
   await new Promise(resolveClose => server.close(resolveClose));
