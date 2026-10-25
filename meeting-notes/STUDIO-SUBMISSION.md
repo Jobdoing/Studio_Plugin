@@ -2,7 +2,7 @@
 
 - 原始碼送審：[Studio_Plugin PR #3](https://github.com/Jobdoing/Studio_Plugin/pull/3)
 - Studio 上架交付：[Studio Issue #22](https://github.com/jobdone-cc/Studio/issues/22)
-- 狀態：已提交；待 Studio 審核、簽章、部署與官方通道發布。
+- 狀態：已提交，暫不上架。使用者於 2026-10-25 要求先完成正式 Studio 內的直接錄音與驗證，再進行簽章與上架。
 
 ## 識別與安裝來源
 
@@ -27,7 +27,16 @@
 2. 部署後端服務包，確認 `127.0.0.1:8937` 可用；服務包根目錄 `server.mjs` 為啟動入口，符合既有 backend-deploy 目錄約定。
 3. 以私有、權限 `0600` 的 `backend/.env` 設定 `STUDIO5_URL`、`AZURE_SPEECH_ENDPOINT`、`AZURE_SPEECH_KEY`；真正金鑰沒有包含在原始碼或交付包。
 4. 在目標 Studio 驗證安裝與服務設定。使用者同意真實中文多人會議錄音於上線後測試，不要求零錯字。
-5. 另評估宿主錄音介面：[平台整合需求](docs/platform-recording.md)。目前 Studio iframe 的隔離設定禁止 plugin 直接開啟麥克風，正式環境保留音檔上傳並停用直接錄音；不得把「瀏覽器本機頁面可錄音」寫成「Studio 內已可錄音」。
+5. 完成宿主錄音介面及 plugin 接入：[平台整合需求](docs/platform-recording.md)。目前 Studio iframe 的隔離設定禁止 plugin 直接開啟麥克風；這是上架前必須解決的項目。保留音檔上傳作為替代入口，不代表直接錄音已完成。
+
+## 後端部署需求與責任
+
+- 執行環境：Node.js 22.17+，PATH 可執行 `ffmpeg`、`ffprobe`；入口為服務包根目錄 `server.mjs`。
+- 網路：預設只監聽 `127.0.0.1:8937`，透過 Studio backend proxy 呼叫；需能連線至 `STUDIO5_URL` 驗證憑證，以及設定的 Azure Speech endpoint。
+- 機密：部署方在服務端建立權限 `0600` 的 `backend/.env`，設定 `STUDIO5_URL`、`AZURE_SPEECH_ENDPOINT`、`AZURE_SPEECH_KEY`。金鑰不交給瀏覽器、不放入 plugin ZIP 或公開服務包。
+- 寫入資料：上傳音檔、轉檔結果暫存於 `MEETING_NOTES_SCRATCH`；預設 `/Volumes/Vibe-Temp/meeting-notes/uploads`，未掛載則使用專案 `.tmp/uploads` 並警示。其他主機應由部署方指定專用暫存目錄。音檔在成功、失敗或正常服務關閉時清除，未完成上傳閒置 30 分鐘後清除；非正常終止的清理行為仍需部署驗證。
+- 保存成果：轉錄、全文與摘要透過 Studio 專案儲存介面保存；目前 browser 錄音僅在記憶體中，持久保存方式須與宿主錄音介面一起確認。
+- 責任：外掛方提供服務包、需求及整合檢查；平台方確認託管方式、部署負責人與機密配置，尚未確認，也尚未自行部署到客戶機器。
 
 ## 已有證據
 

@@ -1,5 +1,7 @@
 # 正式 Studio 錄音整合待辦
 
+2026-10-25 使用者決定：「不急，直接解決再上架」。正式 Studio 內的直接錄音是上架前必要條件，不能以音檔上傳取代驗收。已轉交 Studio session 確認並實作宿主介面，外掛方負責接入及驗證；介面契約尚待平台確認。
+
 ## 已完成
 
 `meeting-notes` 0.2.0 已有瀏覽器錄音、停止、試聽、下載及既有 Azure 轉錄銜接。獨立 HTTPS／localhost 頁面可使用；Chrome for Testing 使用虛擬音源驗證原生 MediaRecorder、WebM 解碼、下載資料及麥克風釋放。這不代表正式 Studio iframe 已可錄音。
