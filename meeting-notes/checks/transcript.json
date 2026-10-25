@@ -1,0 +1,22 @@
+{
+  "kind": "synthetic-test-data",
+  "preview": {
+    "banner": "本機畫面預覽｜目前為示範資料，語音轉錄與 AI 回應皆為模擬。",
+    "project": "示範案場",
+    "title": "施工協調會議：日期與檢查條件",
+    "source": "示範錄音.wav"
+  },
+  "voices": ["Reed (中文（台灣）)", "Meijia (中文（台灣）)"],
+  "expectedPhrases": ["只是提議", "還不是決定", "我不同意", "還沒有定案"],
+  "raw": {
+    "duration": 20000,
+    "segments": [
+      { "id": "s1", "start": 0, "end": 9000, "speaker": 0, "text": "我的意思是，週五可以先試試看，但前提是檢查通過。注意，我現在只是提議，還不是決定。" },
+      { "id": "s2", "start": 9500, "end": 19000, "speaker": 1, "text": "我不同意現在就訂週五。上次就是太急，才漏掉檢查。這件事還沒有定案，要先確認檢查結果。" }
+    ]
+  },
+  "summary": {
+    "subject": "施工日期與檢查條件",
+    "issues": [{ "topic": "是否安排週五施工", "discussion": "有人提議檢查通過後於週五施工，另一人反對現在確定日期，並提醒過去漏檢的經驗。", "conclusion": "尚未定案，須先確認檢查結果。", "status": "unresolved", "evidence": [{ "id": "s2", "quote": "這件事還沒有定案，要先確認檢查結果。" }] }]
+  }
+}
