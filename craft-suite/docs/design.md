@@ -8,8 +8,9 @@
   save and Save As to both Studio documents and the browser user's local computer.
   Local access must not require a selected project. Document-center access remains
   project-scoped. A browser download dispatch is never a confirmed disk write.
-- Default to Traditional Chinese where upstream supports it, otherwise Simplified
-  Chinese; retain the upstream language when neither is available.
+- Default all four Studio editor interfaces to Traditional Chinese. GridCraft and
+  DeckCraft use maintained, version-pinned localization patches; document content
+  and command identifiers retain their original values.
 - Preserve upstream copyright, full licenses, NOTICE and third-party attribution.
   Modified distributions must remove restricted ArtCraft brand marks. Plain-text
   attribution remains in the credits and marketplace description.

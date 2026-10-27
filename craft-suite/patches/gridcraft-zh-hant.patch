@@ -1,0 +1,131 @@
+--- a/apps/gridcraft-web/index.html
++++ b/apps/gridcraft-web/index.html
+@@ -1,5 +1,5 @@
+ <!DOCTYPE html>
+-<html lang="zh-Hans">
++<html lang="zh-Hant">
+ <head>
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+--- a/apps/gridcraft-web/src/web.rs
++++ b/apps/gridcraft-web/src/web.rs
+@@ -46,7 +46,7 @@
+                     }
+                     let mut app = SheetApp::new(session, services);
+                     app.ui.system_theme = true;
+-                    app.ui.language = gridcraft_ui_egui::i18n::Language::Zh;
++                    app.ui.language = gridcraft_ui_egui::i18n::Language::ZhHant;
+                     SheetApp::setup_context_for_language(&cc.egui_ctx, false, app.ui.language);
+                     Ok(Box::new(WebShell { app, bridge: app_bridge }))
+                 }),
+@@ -64,7 +64,6 @@
+ fn query() -> String {
+     web_sys::window().and_then(|w| w.location().search().ok()).unwrap_or_default()
+ }
+-
+ 
+ struct WebShell {
+     app: SheetApp,
+@@ -183,4 +182,3 @@
+     iframe.set_src(&url);
+     Ok(())
+ }
+-
+--- a/crates/ui-egui/src/ribbon.rs
++++ b/crates/ui-egui/src/ribbon.rs
+@@ -52,15 +52,19 @@
+         ui.horizontal_centered(|ui| {
+             ui.add_space(TITLE_LEFT_PAD);
+             // AutoSave toggle (saves after each change when the workbook has a file).
+-            ui.label(egui::RichText::new("AutoSave").font(theme::ui_font(12.5)).color(t.text_dim));
++            ui.label(egui::RichText::new(app.ui.language.tr("AutoSave")).font(theme::ui_font(12.5)).color(t.text_dim));
+             let on = app.grid.autosave();
+             let (r, resp) = ui.allocate_exact_size(vec2(30.0, 16.0), Sense::click());
+             ui.painter().rect_filled(r, 8.0, if on { t.accent } else { Color32::TRANSPARENT });
+             ui.painter().rect_stroke(r, 8.0, Stroke::new(1.0, if on { t.accent } else { t.text_dim }), StrokeKind::Inside);
+             let knob = if on { pos2(r.right() - 8.0, r.center().y) } else { pos2(r.left() + 8.0, r.center().y) };
+             ui.painter().circle_filled(knob, 5.0, if on { Color32::WHITE } else { t.text_dim });
+-            let tip = if app.services.studio_saves.is_some() { "AutoSave needs a persistent destination. Use Save to choose a document-center destination." } else { "AutoSave: save after every change (workbooks saved to a file)" };
+-            if resp.on_hover_text(tip).clicked() && app.services.studio_saves.is_none() {
++            let tip = if app.services.studio_saves.is_some() {
++                "AutoSave needs a persistent destination. Use Save to choose a document-center destination."
++            } else {
++                "AutoSave: save after every change (workbooks saved to a file)"
++            };
++            if resp.on_hover_text(app.ui.language.tr(tip)).clicked() && app.services.studio_saves.is_none() {
+                 app.grid.toggle_autosave();
+             }
+             ui.add_space(6.0);
+--- a/crates/ui-egui/src/i18n.rs
++++ b/crates/ui-egui/src/i18n.rs
+@@ -18,6 +18,7 @@
+ mod ru;
+ mod sr;
+ mod zh;
++mod zh_hant;
+ 
+ #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+ #[serde(rename_all = "lowercase")]
+@@ -26,6 +27,8 @@
+     En,
+     Es,
+     Zh,
++    #[serde(rename = "zh-hant", alias = "zh-Hant", alias = "zh-TW")]
++    ZhHant,
+     Ja,
+     Ko,
+     Ru,
+@@ -38,7 +41,8 @@
+ }
+ 
+ impl Language {
+-    pub const ALL: [Self; 11] = [Self::En, Self::Es, Self::Zh, Self::Ja, Self::Ko, Self::Ru, Self::PtBr, Self::De, Self::Cs, Self::Fr, Self::Sr];
++    pub const ALL: [Self; 12] =
++        [Self::En, Self::Es, Self::Zh, Self::ZhHant, Self::Ja, Self::Ko, Self::Ru, Self::PtBr, Self::De, Self::Cs, Self::Fr, Self::Sr];
+ 
+     /// The language's own name, shown in the switcher.
+     pub fn name(self) -> &'static str {
+@@ -46,6 +50,7 @@
+             Self::En => "English",
+             Self::Es => "Español",
+             Self::Zh => "简体中文",
++            Self::ZhHant => "繁體中文",
+             Self::Ja => "日本語",
+             Self::Ko => "한국어",
+             Self::Ru => "Русский",
+@@ -63,6 +68,7 @@
+             Self::En => "en",
+             Self::Es => "es",
+             Self::Zh => "zh",
++            Self::ZhHant => "zh-hant",
+             Self::Ja => "ja",
+             Self::Ko => "ko",
+             Self::Ru => "ru",
+@@ -79,6 +85,11 @@
+     }
+ 
+     fn from_tag(tag: &str) -> Option<Self> {
++        let normalized = tag.trim().to_ascii_lowercase().replace('_', "-");
++        let parts: Vec<_> = normalized.split(['-', '.', '@']).collect();
++        if parts.first() == Some(&"zh") && !parts.contains(&"hans") && parts.iter().any(|part| matches!(*part, "hant" | "tw" | "hk" | "mo")) {
++            return Some(Self::ZhHant);
++        }
+         match tag.trim().split(['-', '_']).next()?.to_ascii_lowercase().as_str() {
+             "en" => Some(Self::En),
+             "es" => Some(Self::Es),
+@@ -122,6 +133,7 @@
+             Self::Es => es::translate(text),
+             Self::Ja => JAPANESE.iter().find(|(english, _)| *english == text).map(|(_, translated)| *translated),
+             Self::Zh => zh::translate(text),
++            Self::ZhHant => zh_hant::translate(text),
+             Self::Ko => ko::translate(text),
+             Self::Ru => ru::translate(text),
+             Self::PtBr => pt::translate(text),
+@@ -768,3 +780,7 @@
+         }
+     }
+ }
++
++#[cfg(test)]
++#[path = "studio_zh_hant_tests.rs"]
++mod studio_zh_hant_tests;

@@ -31,8 +31,9 @@ continuation. Later edits remain unsaved. Batch outputs acknowledge every file;
 a partial batch reports the exact completed count and keeps its continuation
 blocked. The iframe sandbox is unchanged; dropped files remain disabled.
 
-WordCraft and PdfCraft default to Traditional Chinese. GridCraft defaults to
-its upstream Simplified Chinese. DeckCraft currently provides English only.
+WordCraft, PdfCraft, GridCraft and DeckCraft default to Traditional Chinese.
+GridCraft retains its Simplified Chinese option. DeckCraft's display translation
+boundaries are adapted from upstream PR 34; its engine stays at the pinned version.
 The licensed Noto Sans CJK TC font is bundled for Chinese rendering.
 
 ## Source and rebuilding
@@ -52,6 +53,9 @@ refuse to reapply over already modified files.
    `scripts/prepare-file-access.py <editor> <prepared-checkout>`. The second pass
    copies the current shared Rust and editor save/web adapters. Both passes require their
    expected pinned input and refuse to reapply over modified files.
+   For GridCraft and DeckCraft, also run `scripts/prepare-localization.py <editor>
+   <prepared-checkout>` after those two passes. This preserves the existing Studio
+   save adapters and adds only the reviewed interface localization patch/catalogs.
 4. In the upstream `apps/<editor>-web` directory, run Trunk's release build with
    `CRAFT_FONTS_DIR` set and an explicit external output directory. Keep Cargo
    caches, targets and temporary files outside the system disk.

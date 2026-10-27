@@ -7,3 +7,6 @@ and Noto Sans CJK TC where needed (OFL-1.1). This is an independently modified S
 The upstream team does not endorse or support this integration.
 The restricted ArtCraft brand artwork is not included in this package.
 The desktop editor uses WebAssembly, WebGL2/WebGPU and the browser's gzip DecompressionStream.
+
+Studio Traditional Chinese interface: original translations and reused sibling-app terminology.
+Interface translation boundaries adapted from https://github.com/storytold/deckcraft/pull/34 (MIT OR Apache-2.0).

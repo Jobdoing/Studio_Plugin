@@ -10,7 +10,7 @@ source, build, output, font_dir = (Path(p).resolve() for p in sys.argv[2:])
 suite = Path(__file__).resolve().parents[1]
 upstream = json.loads((suite / "upstream.json").read_text())[editor]
 title = {"wordcraft": "WordCraft", "deckcraft": "DeckCraft", "gridcraft": "GridCraft", "pdfcraft": "PdfCraft"}[editor]
-language = {"wordcraft": "zh-Hant", "deckcraft": "en", "gridcraft": "zh-Hans", "pdfcraft": "zh-Hant"}[editor]
+language = {"wordcraft": "zh-Hant", "deckcraft": "zh-Hant", "gridcraft": "zh-Hant", "pdfcraft": "zh-Hant"}[editor]
 canvas_id = "pdfcraft" if editor == "pdfcraft" else f"{editor}_canvas"
 loading = "" if editor == "pdfcraft" else f'<div id="{editor}_loading">Loading {title}…</div>'
 if output.exists():

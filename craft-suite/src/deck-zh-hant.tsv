@@ -1,0 +1,1603 @@
+# Traditional Chinese (Taiwan) interface catalog. MIT OR Apache-2.0.
+  Fixed date (empty = update automatically):	  固定日期（留白即自動更新）：
+  Footer text:	  頁尾文字：
+  Present  	  放映  
+ pt	 點
+ — Edited	 — 已編輯
+"Not Allowed" Symbol	禁止符號
+% of all commits	佔全部提交的百分比
++ New Comment	＋ 新增註解
++ New Slide	＋ 新增投影片
++ Row	＋ 新增列
++ Series	＋ 新增數列
++Bin	新增二進位
+100% Stacked Bar	百分比堆疊橫條圖
+100% Stacked Column	百分比堆疊直條圖
+35mm Slides	35mm 投影片
+@ribbon:Home	常用
+@ribbon:Insert	插入
+@{}: {} PRs, {} commits, +{} / −{} lines (Δ {}), +{} / −{} binary assets, {} – {}	@{}：{} 個 PR、{} 次提交、＋{}／−{} 行（差異 {}）、＋{}／−{} 個二進位資產，{} – {}
+A3 Paper (297x420 mm)	A3 紙張（297x420 mm）
+A4 Paper (210x297 mm)	A4 紙張（210x297 mm）
+Aa	Aa
+Abc	Abc
+About	關於
+About DeckCraft	關於 DeckCraft
+Accent 1	輔色 1
+Accent 2	輔色 2
+Accent 3	輔色 3
+Accent 4	輔色 4
+Accent 5	輔色 5
+Accent 6	輔色 6
+Accessibility Checker	無障礙偵測工具
+Across	橫向
+Action	動作
+Action Button: Custom	動作按鈕：自訂
+Action Button: Document	動作按鈕：文件
+Action Button: Get Information	動作按鈕：取得資訊
+Action Button: Go Back	動作按鈕：返回
+Action Button: Go Back or Previous	動作按鈕：返回或上一頁
+Action Button: Go Forward or Next	動作按鈕：前進或下一頁
+Action Button: Go Home	動作按鈕：首頁
+Action Button: Go to Beginning	動作按鈕：移至開頭
+Action Button: Go to End	動作按鈕：移至結尾
+Action Button: Help	動作按鈕：說明
+Action Button: Sound	動作按鈕：音效
+Action Button: Video	動作按鈕：影片
+Action Button: {k}	動作按鈕：{k}
+Action Buttons	動作按鈕
+Add Animation	新增動畫
+Add Section	新增章節
+Add\nAnimation	新增動畫
+Address:	地址：
+Adjust Shape	調整圖案
+After Previous	接續前動畫
+After:	段落後：
+Airplane	飛機
+Align	對齊
+Align Bottom	靠下對齊
+Align Center	置中對齊
+Align Left	靠左對齊
+Align Middle	垂直置中
+Align Right	靠右對齊
+Align Text	對齊文字
+Align Top	靠上對齊
+Alt Text	替代文字
+Alt+	Alt+
+Alt+F9	Alt+F9
+Alt\nText	替代\n文字
+An open-source, clean-room project. Not affiliated with Microsoft.	以獨立實作方式開發的開源專案，與 Microsoft 無關。
+Angle	角度
+Animation Gallery	動畫庫
+Animation Pane	動畫窗格
+Animation Styles	動畫樣式
+Animation\nPane	動畫窗格
+Animations	動畫
+Animation Painter	複製動畫
+Apply Animation	套用動畫
+Play/Pause GIF	播放／暫停 GIF
+Animations on Slide	投影片上的動畫
+Appear	出現
+Apply	套用
+Apply To All	全部套用
+Apply to All	全部套用
+Apply\nTo All	全部套用
+Arc	圓弧
+Arcs	弧線
+Area	區域圖
+Arrange	排列
+Arrow	箭號
+Arrow at end	結尾箭號
+Arrow at start	起始箭號
+Arrow: Bent	箭號：彎曲
+Arrow: Bent-Up	箭號：上彎
+Arrow: Chevron	箭號：＞形
+Arrow: Down	箭號：向下
+Arrow: Left	箭號：向左
+Arrow: Left-Right	箭號：左右
+Arrow: Left-Right-Up	箭號：左右向上
+Arrow: Left-Up	箭號：左上
+Arrow: Notched Right	箭號：缺角向右
+Arrow: Pentagon	箭號：五邊形
+Arrow: Quad	箭號：四向
+Arrow: Right	箭號：向右
+Arrow: Striped Right	箭號：條紋向右
+Arrow: U-Turn	箭號：迴轉
+Arrow: Up	箭號：向上
+Arrow: Up-Down	箭號：上下
+Arrows	箭頭
+Arrows at both ends	兩端箭號
+As One Object	視為單一物件
+Audio	音訊
+Audio from File…	從檔案插入音訊…
+AutoCorrect as you type	輸入時自動校正
+Autofit	自動調整
+Automatic	自動
+B4 (ISO) Paper (250x353 mm)	B4（ISO）紙張（250x353 mm）
+B5 (ISO) Paper (176x250 mm)	B5（ISO）紙張（176x250 mm）
+Background	背景
+Background Styles	背景樣式
+Background\nStyles	背景樣式
+Backspace	退格
+Banded Columns	帶狀欄
+Banded Rows	帶狀列
+Banner	橫幅
+Basic Cycle	基本循環
+Basic List	基本清單
+Basic Process	基本流程
+Basic Shapes	基本圖案
+Before text (in):	文字前（英吋）：
+Bevel	斜角
+Binary assets added	新增二進位資源
+Binary assets removed	移除二進位資源
+Black Left	黑色向左
+Black Pen	黑色畫筆
+Black Right	黑色向右
+Blinds	百葉窗
+Block Arc	粗弧線
+Block Arrows	區塊箭號
+Blue	藍色
+Blue Pen	藍色畫筆
+Bold	粗體
+Bold Flash	粗體閃爍
+Both	兩者
+Bottom	下
+Bounce	彈跳
+Box	方框
+Box In	方塊內縮
+Box Out	方塊外擴
+Box and Whisker	盒鬚圖
+Brightness	亮度
+Brightness {:+}%	亮度 {:+}%
+Bring Forward	上移一層
+Bring to Front	移至最上層
+Bring\nForward	上移一層
+Browsed at a kiosk (full screen)	資訊站瀏覽（全螢幕）
+Browsed by an individual (window)	個人瀏覽（視窗）
+Bubble	泡泡圖
+Bullets	項目符號
+Burst	爆裂
+By Paragraph	依段落
+Callout: Down Arrow	圖說文字：向下箭號
+Callout: Left Arrow	圖說文字：向左箭號
+Callout: Line	圖說文字：直線
+Callout: Right Arrow	圖說文字：向右箭號
+Callout: Up Arrow	圖說文字：向上箭號
+Callouts	圖說文字
+Cameo	攝影機畫面
+Camera capture is not available yet	目前尚不支援攝影機擷取
+Cancel	取消
+Capitalize Each Word	每個單字字首大寫
+Caps	端點樣式
+Center	置中
+Centered	置中
+Change Case	變更大小寫
+Change Chart Type	變更圖表類型
+Change Picture	變更圖片
+Change Shape	變更圖案
+Change\nChart Type	變更圖表類型
+Character Spacing	字元間距
+Characters	字元
+Chart	圖表
+Chart Data	圖表資料
+Chart Design	圖表設計
+Chart Elements	圖表項目
+Chart…	圖表…
+Check Accessibility	檢查協助工具
+Check\nAccessibility	檢查協助工具
+Checkerboard	棋盤
+Chevron	＞形
+Choose a SmartArt Graphic	選擇 SmartArt 圖形
+Chord	弦形
+Circle	圓形
+Circle In	圓形內縮
+Circle Out	圓形外擴
+Clear All Formatting	清除所有格式設定
+Click a symbol to insert it at the insertion point.	按一下符號，即可在插入點插入。
+Click icon to add SmartArt graphic	按一下圖示以新增 SmartArt 圖形
+Click icon to add chart	按一下圖示以新增圖表
+Click icon to add media	按一下圖示以新增媒體
+Click icon to add picture	按一下圖示以新增圖片
+Click icon to add table	按一下圖示以新增表格
+Click to add first slide	按一下以新增第一張投影片
+Click to add notes	按一下以新增備忘稿
+Click to add subtitle	按一下以新增子標題
+Click to add text	按一下以新增文字
+Click to add title	按一下以新增標題
+Click to edit Master text styles	按一下以編輯母片文字樣式
+Click to edit Master title style	按一下以編輯母片標題樣式
+Clock	時鐘
+Clockwise	順時針
+Close	關閉
+Close Master View	關閉母片檢視
+Close\nMaster View	關閉母片檢視
+Cloud	雲形
+Clustered Bar	群組橫條圖
+Clustered Column	群組直條圖
+Cmd+	Cmd+
+Cmd+,	Cmd+,
+Cmd+-	Cmd+-
+Cmd+=	Cmd+=
+Cmd+F1	Cmd+F1
+Cmd+Shift+P	Cmd+Shift+P
+Collapse the Ribbon	摺疊功能區
+Color	色彩
+Color Pulse	色彩脈動
+Colors	色彩
+Columns	欄
+Comb	梳狀
+Combo	下拉選單
+Command Palette	指令面板
+Comment	註解
+Comments	註解
+Commits	提交
+Community Links	社群連結
+Company	公司
+Complementary Color	互補色
+Connect Shapes	連接圖案
+Connection Sites	連接點
+Connector: Curved	連接線：曲線
+Connector: Elbow	連接線：肘形
+Connector: Elbow (one bend)	連接線：單一轉折肘形
+Content	內容
+Contrast	對比
+Contrast {:+}%	對比 {:+}%
+Contributors	貢獻者
+Conveyor	輸送帶
+Copy	複製
+Corrections	校正
+Couldn't save AutoRecover information: {e}	無法儲存自動復原資訊：{e}
+Counter Clockwise	逆時針
+Cover	覆蓋
+Create	建立
+Crop	裁剪
+Crop 10% each side	每側裁剪 10%
+Crop 20% each side	每側裁剪 20%
+Crop to Shape	裁剪成圖案
+Cross	叉號
+Crush	壓碎
+Ctrl+	Ctrl+
+Cube	立方體
+Currency	貨幣
+Curtains	布幕
+Custom	自訂
+Custom Path	自訂路徑
+Custom Show	自訂放映
+Custom Show 1	自訂放映 1
+Custom Shows	自訂放映
+Custom Slide Show	自訂投影片放映
+Custom\nShow	自訂放映
+Cut	剪下
+Cylinder	圓柱
+Dark Blue	深藍色
+Dark Mode	深色模式
+Dark Red	深紅色
+Dark appearance	深色外觀
+Dark\nMode	深色模式
+Darken	變暗
+Dash	虛線
+Dash Dot	點虛線
+Dashes	虛線
+Database	資料庫
+Date	日期
+Date & Time	日期及時間
+Date &\nTime	日期與時間
+Date and Time	日期和時間
+Date and time	日期及時間
+Decagon	十邊形
+Decision	判斷
+DeckCraft	DeckCraft
+Decrease Font Size	縮小字型大小
+Decrease List Level	降低清單階層
+Delay:	延遲：
+Delete	刪除
+Delete Columns	刪除欄
+Delete Comment	刪除註解
+Delete Layout	刪除配置
+Delete Rows	刪除列
+Delete Slide	刪除投影片
+Delete Table	刪除表格
+Delete Text	刪除文字
+Desaturate	降低飽和度
+Deselect	取消選取
+Design	設計
+Design Ideas	設計構想
+Design\nIdeas	設計構想
+Deutsch	Deutsch
+Diagonal Stripe	斜條紋
+Diamond	菱形
+Diamond In	菱形內縮
+Diamond Out	菱形外擴
+Direction	方向
+Disappear	消失
+Discard Recovered Presentations	捨棄已復原的簡報
+Display name	顯示名稱
+Dissolve	溶解
+Dissolve In	溶入
+Dissolve Out	溶出
+Distribute	分佈
+Distribute Columns	平均分配欄寬
+Distribute Horizontally	水平均分
+Distribute Rows	平均分配列高
+Distribute Vertically	垂直均分
+Division Sign	除號
+Do not Autofit	不要自動調整
+Do you want to save the changes you made to {what}?	是否儲存對 {what} 所做的變更？
+Document	文件
+Dodecagon	十二邊形
+Don't Save	不儲存
+Don't show on title slide	標題投影片不顯示
+Done	完成
+Donut	圓環
+Doors	門扉
+Double Brace	雙大括弧
+Double Bracket	雙中括弧
+Double Wave	雙波浪
+Doughnut	環圈圖
+Down	下
+Drape	垂簾
+Draw	繪圖
+Drop Shadow Rectangle	陰影矩形
+Duplicate	建立複本
+Duplicate Selected Slides	複製選取的投影片
+Duplicate Slide	複製投影片
+Duration:	持續時間：
+Dynamic Content	動態內容
+Edit	編輯
+Edit Alt Text…	編輯替代文字…
+Edit Data	編輯資料
+Edit Shape	編輯圖案
+Edit Text	編輯文字
+Edit the data: first row = series names, first column = categories.	編輯資料：第一列為數列名稱，第一欄為類別。
+Edit\nData	編輯\n資料
+Edit\nShape	編輯圖案
+Editing	編輯
+Effect Options	效果選項
+Effect\nOptions	效果選項
+Effects	效果
+Email Address	電子郵件地址
+Email address:	電子郵件地址：
+Emphasis	強調
+End	結束
+End Show	結束放映
+End of slide show	投影片放映結束
+End of slide show, click to exit.	投影片放映結束，按一下以離開。
+End trim (s):	剪裁終點（秒）：
+English (United Kingdom)	英文（英國）
+English (United States)	英文（美國）
+Enter	輸入
+Entrance	進入
+Equals	等於
+Equation	方程式
+Equation Shapes	方程式圖案
+Eraser	橡皮擦
+Escape	Escape
+Español	Español
+Exciting	華麗
+Exit	離開
+Expand	擴展
+Explosion: 14 Points	爆炸形：14 角
+Explosion: 8 Points	爆炸形：8 角
+Export	匯出
+Export the presentation as:	將簡報匯出為：
+Exported {path}	已匯出 {path}
+Export…	匯出…
+Fade	淡化
+Fade in (s):	淡入（秒）：
+Fade out (s):	淡出（秒）：
+Fall Over	傾倒
+Ferris Wheel	摩天輪
+File	檔案
+Fill	填滿
+Fill & Line	填滿與線條
+Fill Color	填滿色彩
+Filled Radar	填滿雷達圖
+Find…	尋找…
+First	首次
+First Column	第一欄
+First Slide	第一張投影片
+First commit	首次提交
+Fit	調整大小
+Fit slide to current window	調整投影片以符合目前視窗
+Fit to Window	符合視窗大小
+Fit to\nWindow	符合視窗大小
+Flash	閃爍
+Flip	翻轉
+Flip Horizontal	水平翻轉
+Flip Vertical	垂直翻轉
+Float In	浮入
+Float Out	浮出
+Flowchart	流程圖
+Flowchart: Alternate Process	流程圖：替代程序
+Flowchart: Card	流程圖：卡片
+Flowchart: Collate	流程圖：校對
+Flowchart: Connector	流程圖：連接點
+Flowchart: Data	流程圖：資料
+Flowchart: Decision	流程圖：判斷
+Flowchart: Delay	流程圖：延遲
+Flowchart: Direct Access Storage	流程圖：直接存取儲存裝置
+Flowchart: Display	流程圖：顯示
+Flowchart: Document	流程圖：文件
+Flowchart: Extract	流程圖：擷取
+Flowchart: Internal Storage	流程圖：內部儲存裝置
+Flowchart: Magnetic Disk	流程圖：磁碟
+Flowchart: Manual Input	流程圖：手動輸入
+Flowchart: Manual Operation	流程圖：手動操作
+Flowchart: Merge	流程圖：合併
+Flowchart: Multidocument	流程圖：多份文件
+Flowchart: Off-page Connector	流程圖：跨頁連接點
+Flowchart: Or	流程圖：或
+Flowchart: Predefined Process	流程圖：預先定義的程序
+Flowchart: Preparation	流程圖：準備
+Flowchart: Process	流程圖：程序
+Flowchart: Punched Tape	流程圖：打孔紙帶
+Flowchart: Sequential Access Storage	流程圖：循序存取儲存裝置
+Flowchart: Sort	流程圖：排序
+Flowchart: Stored Data	流程圖：已儲存資料
+Flowchart: Summing Junction	流程圖：加總接點
+Flowchart: Terminator	流程圖：起點／終點
+Fly In	飛入
+Fly Out	飛出
+Fly Through	穿越
+Folded Corner	摺角
+Follow the layout	依版面配置
+Followed Hyperlink	已瀏覽的超連結
+Font	字型
+Font Color	字型色彩
+Font Size	字型大小
+Fonts	字型
+Footer	頁尾
+Foreground	前景
+Format	格式
+Format Background	背景格式
+Format Background…	背景格式…
+Format Painter	複製格式
+Format Painter (double-click to keep it on)	複製格式（按兩下可連續使用）
+Format Pane	格式窗格
+Format Shape	圖案格式
+Format Shape…	圖案格式…
+Format\nBackground	背景格式
+Format\nPane	格式窗格
+Formatting State	格式狀態
+Fracture	碎裂
+Frame	框架
+Français	Français
+Freeform	手繪多邊形
+From 	從
+From Beginning	從頭開始
+From Bottom	從下方
+From Bottom Left	從左下方
+From Bottom Right	從右下方
+From Current Slide	從目前投影片
+From Left	從左方
+From Right	從右方
+From Top	從上方
+From Top Left	從左上方
+From Top Right	從右上方
+From bottom left	從左下方
+From bottom right	從右下方
+From center	從中央
+From top left	從左上方
+From top right	從右上方
+From\nBeginning	從頭開始
+From\nCurrent Slide	從目前投影片
+Full	完整
+Full Page Slides	整頁投影片
+Funnel	漏斗圖
+Gallery	畫廊
+General	一般
+Get Text	取得文字
+Glitter	閃耀
+Glow	光暈
+Go to	移至
+Go to Slide	移至投影片
+Grab bag	隨機展示
+Gradient fill	漸層填滿
+Gradient stops	漸層停駐點
+Gradient…	漸層…
+Grayscale	灰階
+Greek	希臘文
+Green	綠色
+Gridlines	格線
+Group	群組
+Group Objects	群組物件
+Grow & Turn	放大旋轉
+Grow/Shrink	放大／縮小
+Guides	參考線
+Half	一半
+Half Frame	半框形
+Handout Master	講義母片
+Handout Master (coming soon)	講義母片（尚未推出）
+Handout\nMaster	講義母片
+Handouts (1 slide per page)	講義（每頁 1 張投影片）
+Handouts (2 slides per page)	講義（每頁 2 張投影片）
+Handouts (3 slides per page)	講義（每頁 3 張投影片）
+Handouts (4 slides per page)	講義（每頁 4 張投影片）
+Handouts (6 slides per page)	講義（每頁 6 張投影片）
+Handouts (9 slides per page)	講義（每頁 9 張投影片）
+Header	頁首
+Header & Footer	頁首及頁尾
+Header &\nFooter	頁首及頁尾
+Header Row	標題列
+Header and Footer	頁首與頁尾
+Header and Footer…	頁首及頁尾…
+Heart	心形
+Height	高度
+Height (in):	高度（英吋）：
+Height:	高度：
+Help	說明
+Heptagon	七邊形
+Hexagon	六邊形
+Hide All	全部隱藏
+Hide Background Graphics	隱藏背景圖形
+Hide During Show	放映時隱藏
+Hide Slide	隱藏投影片
+Hide background graphics	隱藏背景圖形
+Hide\nSlide	隱藏投影片
+Hierarchy	階層
+High	高
+Highlighter	螢光筆
+Histogram	直方圖
+Home	常用
+Honeycomb	蜂巢
+Horizontal	水平
+Horz In	水平內縮
+Horz Out	水平外擴
+How would you describe this object and its context to someone who is blind or has low vision?	請描述物件及其所在情境，協助盲人或低視能使用者理解。
+Hyperlink	超連結
+Icons	圖示
+In	放大
+In Bounce	向內彈跳
+Include hidden slides	包含隱藏的投影片
+Increase Font Size	放大字型
+Increase List Level	提高清單階層
+Ink to Math	筆跡轉數學公式
+Ink to Math (coming soon)	筆跡轉換成數學式（尚未推出）
+Ink to Shape	筆跡轉圖形
+Ink to Shape (coming soon)	筆跡轉換成圖案（尚未推出）
+Ink to Text	筆跡轉換成文字
+Ink to Text (coming soon)	筆跡轉換成文字（尚未推出）
+Ink to\nMath	筆跡轉數學公式
+Ink to\nShape	筆跡轉換成圖案
+Ink to\nText	筆跡轉換成文字
+Inner	內部
+Insert	插入
+Insert Above	插入上方列
+Insert Below	插入下方列
+Insert Hyperlink	插入超連結
+Insert Layout	插入版面配置
+Insert Left	插入左方欄
+Insert Placeholder	插入預留位置
+Insert Right	插入右方欄
+Insert Table	插入表格
+Insert Table…	插入表格…
+Insert picture from file…	從檔案插入圖片…
+Insert\nAbove	插入上方列
+Insert\nBelow	插入下方列
+Insert\nLayout	插入版面配置
+Insert\nLeft	插入左方欄
+Insert\nPlaceholder	插入預留位置
+Insert\nRight	插入右方欄
+Inspect Presentation	檢查簡報
+Inspect Shape	檢查圖案
+Inspect Slide	檢查投影片
+Interface Language	介面語言
+Interface language:	介面語言：
+Interface size	介面大小
+Isosceles Triangle	等腰三角形
+Italiano	Italiano
+Italic	斜體
+JPEG image (current slide)	JPEG 圖片（目前投影片）
+Join our community on Discord	加入我們的 Discord 社群
+Join the ArtCraft community on Discord	加入 Discord 上的 ArtCraft 社群
+Justify	左右對齊
+L-Shape	L 形
+Language	語言
+Last	最近
+Last Column	最後一欄
+Last Slide	最後一張投影片
+Last commit	最近提交
+Layout	版面配置
+Learn More	深入了解
+Learn\nMore	深入了解
+Ledger Paper (11x17 in)	Ledger 紙張（11x17 英吋）
+Left	左
+Left Brace	左大括弧
+Left Bracket	左中括弧
+Letter Paper (8.5x11 in)	Letter 紙張（8.5x11 英吋）
+Liberation Serif	Liberation Serif
+Light Blue	淺藍色
+Light Green	淺綠色
+Light/Dark appearance	淺色／深色外觀
+Lighten	變亮
+Lightning	閃電
+Lightning Bolt	閃電形
+Line	直線
+Line Color	線條色彩
+Line Spacing	行距
+Line Spacing Options…	行距選項…
+Line delta	行數變化
+Line spacing (lines):	行距（行）：
+Line with Markers	含資料標記的折線圖
+Linear	線性格式
+Lines	行數
+Lines +/−	行數 +/−
+Lines added	新增行數
+Lines deleted	刪除行數
+Link	連結
+Link…	連結…
+List Commands	列出指令
+Lock	鎖定
+Long Dash	長虛線
+Long Dash Dot	長點虛線
+Loop continuously until 'Esc'	持續循環放映，直到按 Esc
+Loop until Stopped	循環播放直到停止
+Loops	循環
+Loose	寬鬆
+Low	低
+MIT OR Apache-2.0 · © 2026 ArtCraft Team and the DeckCraft contributors	MIT OR Apache-2.0 · © 2026 ArtCraft Team 與 DeckCraft 貢獻者
+Margins (pt)	邊界（點）
+Mark as decorative	標示為裝飾用
+Mark selected text as:	將選取的文字標示為：
+Math	數學
+Matrix	矩陣
+Maximize content (else ensure fit)	最大化內容（否則確保符合投影片大小）
+Media	媒體
+Media Info	媒體資訊
+Medium	中等
+Merge Cells	合併儲存格
+Merge Shapes	合併圖案
+Merge\nCells	合併儲存格
+Merge\nShapes	合併圖案
+Merged PRs	已合併的 PR
+Middle	中間
+Minus Sign	減號
+Model	模型
+Models	模型
+Moon	月亮
+More Colors… #	其他色彩… #
+Morph	轉化
+Motion	移動
+Motion Paths	移動路徑
+Move	移動
+Move Down	下移
+Move Insertion Point	移動插入點
+Move Section	移動章節
+Move Section Down	下移章節
+Move Section Up	上移章節
+Move Slide	移動投影片
+Move Up	上移
+Multiplication Sign	乘號
+Multiply	相乘
+Mute	靜音
+Name	名稱
+Name (A–Z)	名稱（A–Z）
+Name:	名稱：
+New Comment	新增註解
+New Presentation	新增簡報
+New Slide	新增投影片
+New Slide (⇧⌘N)	新增投影片 (⇧⌘N)
+New presentation	新增簡報
+New show name:	新放映名稱：
+New\nComment	新增註解
+New\nSlide	新增投影片
+Next	下一個
+Next Slide	下一張投影片
+Next Window	下一個視窗
+Next ▶	下一張 ▶
+No Color	無色彩
+No Fill	無填滿
+No Glow	無光暈
+No Outline	無外框
+No Reflection	無反射
+No Shadow	無陰影
+No Soft Edges	無柔化邊緣
+No accessibility issues found. People with disabilities should not have difficulty reading this document.	未發現協助工具問題，身心障礙使用者應能順利閱讀這份文件。
+No comments on this slide.	這張投影片沒有註解。
+No contributor data was built into this copy.	此版本未內建貢獻者資料。
+No fill	無填充
+No line	無線條
+No model credits were built into this copy.	此版本未內建模型致謝資訊。
+No notes.	沒有備忘稿。
+No sound: {err}	無法播放聲音：{err}
+None	無
+Normal	標準
+Not Equal	不等於
+Not allowed	不允許
+Notes	備忘稿
+Notes Master	備忘稿母片
+Notes Master (coming soon)	備忘稿母片（尚未推出）
+Notes Page	備忘稿頁
+Notes Pages	備忘稿頁
+Notes\nMaster	備忘稿母片
+Notes\nPage	備忘稿頁
+Nudge	微移
+Number of columns:	欄數：
+Number of rows:	列數：
+Numbering	編號
+Object Color	物件色彩
+Objects	物件
+Octagon	八邊形
+On Click	按一下時
+On Click of {name}	按一下 {name} 時
+On Click of… (none)	按一下指定物件時…（無）
+On Mouse Click	按一下滑鼠時
+On-screen Show (16:10)	螢幕放映（16:10）
+Open Data	開啟資料
+Open Dialog	開啟對話框
+Open Recovered Presentations	開啟已復原的簡報
+Open the sample deck	開啟範例簡報
+Open…	開啟…
+Orange	橙色
+Orbit	環轉
+Order Objects	排列物件
+Origami	摺紙
+Out	縮小
+Out Bounce	向外彈跳
+Outer	外部
+Outline	大綱
+Outline (.txt)	大綱 (.txt)
+Outline View	大綱檢視
+Outline\nView	大綱檢視
+Oval	橢圓
+Oval ends	圓形端點
+Overhead	投影機
+PDF document (.pdf)	PDF 文件 (.pdf)
+PNG images (all slides)	PNG 圖片（所有投影片）
+PNG images (current slide)	PNG 圖片（目前投影片）
+PRs	PR
+Page Curl	捲頁
+Page Setup…	版面設定…
+PageDown	PageDown
+PageUp	PageUp
+Pan	平移
+Pane	窗格
+Paragraph	段落
+Paragraph…	段落…
+Parallelogram	平行四邊形
+Pareto	柏拉圖
+Partial Circle	不完整圓形
+Particles	粒子
+Paste	貼上
+Paste (⌘V)	貼上 (⌘V)
+Paste Formatting	貼上格式
+Paste and Match Formatting	貼上並符合格式
+Paste or type an outline. Unindented lines become slide titles; tab-indented lines become bullets.	貼上或輸入大綱。未縮排的行會成為投影片標題，以 Tab 縮排的行會成為項目符號。
+Pasted image.png	貼上的圖片.png
+Path	路徑
+Pattern fill	圖樣填滿
+Pause	暫停
+Peek In	窺入
+Peel Off	剝離
+Pencil	鉛筆
+Pentagon	五邊形
+Perspective	透視
+Pick a graphic; type one item per line.	選擇圖形，每行輸入一個項目。
+Pick a look for your slides. Ideas are generated on your device.	為投影片選擇外觀，設計構想會在你的裝置上產生。
+Picture	圖片
+Picture Format	圖片格式
+Picture Styles	圖片樣式
+Picture from File…	從檔案插入圖片…
+Picture or texture fill	圖片或材質填滿
+Picture\nStyles	圖片樣式
+Pictures	圖片
+Pie	圓形圖
+Pin	圖釘
+Placeholder colour	預留位置色彩
+Plan\nBuild\nLaunch	規劃\n製作\n推出
+Plaque	匾額
+Play	播放
+Play Across Slides	跨投影片播放
+Play Full Screen	全螢幕播放
+Play Narrations	播放旁白
+Play from Current Slide	從目前投影片播放
+Play from Start	從頭播放
+Play from Start (F5)	從頭播放 (F5)
+Play from\nCurrent Slide	從目前投影片播放
+Play from\nStart	從頭播放
+Play/Pause	播放/暫停
+Playback	播放
+Plus	加號
+Plus In	十字內縮
+Plus Out	十字外擴
+Plus Sign	加號
+Portrait (9:16)	直向（9:16）
+Português	Português
+Position	位置
+Position Objects	定位物件
+Position and Size	位置及大小
+Post	張貼
+Poster Frame	海報畫面
+PowerPoint Presentation (.pptx)	PowerPoint 簡報 (.pptx)
+Preferences	偏好設定
+Preferences…	偏好設定…
+Presentation	簡報
+Presentations	簡報
+Presentations and slide shows, rebuilt from scratch in pure Rust.	以純 Rust 從零實作的簡報與投影片放映工具。
+Presented by a speaker (full screen)	演講者放映（全螢幕）
+Presenter View	簡報者檢視
+Presenter View — DeckCraft	簡報者檢視 — DeckCraft
+Presenter\nView	簡報者檢視
+Preset gradients	預設漸層
+Prestige	典雅
+Preview	預覽
+Previous Slide	上一張投影片
+Print layout:	整頁模式：
+Properties	內容
+Pulse	脈動
+Punctuation	標點符號
+Purple	紫色
+Push	推入
+Pyramid	金字塔圖
+Quick Styles	快速樣式
+Quick\nStyles	快速樣式
+Radar	雷達圖
+Radial	放射
+Random	隨機
+Random Bars	隨機橫條
+Reading View	閱讀檢視
+Reading\nView	閱讀檢視
+Real name	真實姓名
+Recent	最近
+Record	錄製
+Recording narration needs audio capture (coming soon)	錄製旁白需要音訊擷取功能（尚未推出）
+Recovered Presentations	已復原的簡報
+Recovered {} from the last session	已從上次工作階段復原 {}
+Rectangle	矩形
+Rectangle: Diagonal Corners Rounded	矩形：對角圓角
+Rectangle: Diagonal Corners Snipped	矩形：對角切角
+Rectangle: Rounded Corners	矩形：圓角
+Rectangle: Single Corner Rounded	矩形：單一圓角
+Rectangle: Single Corner Snipped	矩形：單一切角
+Rectangle: Top Corners One Rounded and One Snipped	矩形：上方一圓角一切角
+Rectangle: Top Corners Rounded	矩形：上方圓角
+Rectangle: Top Corners Snipped	矩形：上方切角
+Rectangles	矩形
+Rectangular	矩形
+Red	紅色
+Red Pen	紅色畫筆
+Redo	取消復原
+Redo (⌘Y)	取消復原 (⌘Y)
+Reflected Rounded Rectangle	含反射的圓角矩形
+Reflection	反射
+Regroup	重新群組
+Regular Pentagon	正五邊形
+Rehearse Timings	排練計時
+Rehearse\nTimings	排練計時
+Remove	移除
+Remove All Animations	移除所有動畫
+Remove All Sections	移除所有章節
+Remove Animation	移除動畫
+Remove Background	移除背景
+Remove Background (coming soon)	移除背景（尚未推出）
+Remove Section	移除章節
+Remove Section & Slides	移除章節及投影片
+Remove stop	移除停駐點
+Remove\nBackground	移除背景
+Rename	重新命名
+Rename Layout	重新命名配置
+Rename Section	重新命名章節
+Rename Section…	重新命名章節…
+Rename Slide	重新命名投影片
+Rename…	重新命名…
+Render Slide	繪製投影片
+Reopen	重新開啟
+Reorder Animation	重新排列動畫
+Reorder Objects	重新排列物件
+Replace straight quotes with smart quotes	將直引號取代為智慧引號
+Reply	回覆
+Reply…	回覆…
+Reset	重設
+Reset Background	重設背景
+Reset Crop	重設裁剪
+Reset Effects	重設效果
+Reset Picture	重設圖片
+Reset Slide	重設投影片
+Reset Slide Background	重設投影片背景
+Resize shape to fit text	調整圖案大小以符合文字
+Resolve	解決
+Resolve Thread	解決討論串
+Return	Return
+Reveal	揭開
+Reverse the order	反轉順序
+Revert	回復至上次儲存
+Review	校閱
+Rewind after Playing	播放完畢後倒帶
+Ribbon Tab	功能區索引標籤
+Ribbon: Tilted Down	綵帶：下斜
+Ribbon: Tilted Up	綵帶：上斜
+Right	右
+Right Brace	右大括弧
+Right Bracket	右中括弧
+Right Triangle	直角三角形
+Right-to-Left Text Direction	從右至左文字方向
+Ring	圓環
+Ripple	漣漪
+Rise Up	上升
+Rotate	旋轉
+Rotate Left 90°	向左旋轉 90°
+Rotate Right 90°	向右旋轉 90°
+Rotate all text 270°	將所有文字旋轉 270°
+Rotate all text 90°	將所有文字旋轉 90°
+Rotate with shape	隨圖案旋轉
+Rotation	旋轉角度
+Round Dot	圓點
+Rounded Diagonal Corner	對角圓角
+Ruler	尺規
+Saturation	飽和度
+Saturation {}%	飽和度 {}%
+Save	儲存
+Save (⌘S)	儲存（⌘S）
+Save As…	另存新檔…
+Save AutoRecover Information	儲存自動復原資訊
+Save as Template…	另存為範本…
+Save to Data	儲存至資料
+Saved	已儲存
+Saved {path}	已儲存 {path}
+Scatter	散佈圖
+ScreenTip:	工具提示：
+Screenshot	螢幕擷取畫面
+Screenshot (not available yet)	螢幕擷取畫面（尚未支援）
+Scroll: Horizontal	捲軸：水平
+Scroll: Vertical	捲軸：垂直
+Search commands (⇧⌘P)	搜尋指令 (⇧⌘P)
+Search commands…	搜尋指令…
+Section	章節
+Seek	跳轉
+Select	選取
+Select All	全選
+Select All Text	選取所有文字
+Select Cells	選取儲存格
+Select Objects	選取物件
+Select Paragraph	選取段落
+Select Slides	選取投影片
+Select Text	選取文字
+Select Word	選取單字
+Select a chart first.	請先選取圖表。
+Select a shape to format it.	請選取圖案以設定格式。
+Select an object on the slide and add an animation from the Animations tab.	選取投影片上的物件，再從「動畫」索引標籤新增動畫。
+Selection	選取範圍
+Selection Pane	選取窗格
+Selection Pane…	選取窗格…
+Selection\nPane	選取窗格
+Send Backward	下移一層
+Send to Back	移至最下層
+Send\nBackward	下移一層
+Sentence case.	句首字母大寫。
+Set Text	設定文字
+Set Up Show…	設定放映…
+Set Up Slide Show	設定投影片放映
+Set Up Slide Show…	設定投影片放映…
+Set Up\nSlide Show	設定投影片放映
+Set as Default Shape	設為預設圖案
+Shading	網底
+Shadow	陰影
+Shape	形狀
+Shape Effects	圖案效果
+Shape Fill	圖案填滿
+Shape Format	圖形格式
+Shape Gallery	圖案庫
+Shape Outline	圖案外框
+Shape Styles	圖案樣式
+Shape {}	圖案 {}
+Shape\nStyles	圖案樣式
+Shapes	圖案
+Shift+	Shift+
+Shift+F9	Shift+F9
+Show	顯示
+Show All	全部顯示
+Show Comments	顯示註解
+Show Media Controls	顯示媒體控制項
+Show Slide	顯示投影片
+Show smart guides	顯示智慧參考線
+Show type	放映類型
+Show without animation	放映時不使用動畫
+Show without narration	放映時不播放旁白
+Show/Hide	顯示／隱藏
+Show\nComments	顯示註解
+Shred	撕碎
+Shrink & Turn	縮小旋轉
+Shrink text on overflow	溢位時縮小文字
+Simple Frame, White	簡單框架，白色
+Size	大小
+Size & Properties	大小與內容
+Slide Master	投影片母片
+Slide Number	投影片編號
+Slide Show	投影片放映
+Slide Size	投影片大小
+Slide Sorter	投影片瀏覽
+Slide number	投影片編號
+Slide timings recorded.	已記錄投影片計時。
+Slide {:02}:{:04.1}   Total {:02}:{:02}	投影片 {:02}:{:04.1}   總計 {:02}:{:02}
+Slide {} of {}	第 {} 張，共 {} 張投影片
+Slide {}: {}{}	投影片 {}：{}{}
+Slide {}: “{w}”	投影片 {}：「{w}」
+Slide\nMaster	投影片母片
+Slide\nNumber	投影片編號
+Slide\nSize	投影片大小
+Slide\nSorter	投影片瀏覽
+Slides (e.g. 1,3,5):	投影片（例如 1,3,5）：
+Slides from Outline	從大綱新增投影片
+Slides from Outline…	從大綱新增投影片…
+Slides sized for:	投影片大小適用於：
+SmartArt	SmartArt
+Smile	微笑
+Smiley Face	笑臉
+Smoothly	平順
+Smoothly Left	平順向左
+Smoothly Right	平順向右
+Snap objects to grid	物件貼齊格線
+Soft Edge Rectangle	柔邊矩形
+Soft Edges	柔化邊緣
+Solid	實線
+Solid fill	實心填滿
+Solid line	實線
+Sort	排序
+Source on GitHub	GitHub 原始碼
+Space	空格
+Spacing after (pt):	段落後間距（點）：
+Spacing before (pt):	段落前間距（點）：
+Special — hanging (in):	特殊格式 — 凸排（英吋）：
+Speech	語音
+Speech Bubble: Oval	對話泡泡：橢圓形
+Speech Bubble: Rectangle	對話泡泡：矩形
+Speech Bubble: Rectangle with Corners Rounded	對話泡泡：圓角矩形
+Spelling	拼字
+Spin	旋轉
+Spinner	旋轉輪
+Split	分割
+Split Cells	分割儲存格
+Split\nCells	分割儲存格
+Square	矩形
+Square (1:1)	正方形（1:1）
+Square Dot	方點
+Stacked	堆疊
+Stacked Area	堆疊區域圖
+Stacked Bar	堆疊橫條圖
+Stacked Column	堆疊直條圖
+Stacked Line	堆疊折線圖
+Standard (4:3)	標準（4:3）
+Standard Colors	標準色彩
+Star	星形
+Star: 10 Points	星形：10 角
+Star: 12 Points	星形：12 角
+Star: 16 Points	星形：16 角
+Star: 24 Points	星形：24 角
+Star: 32 Points	星形：32 角
+Star: 4 Points	星形：4 角
+Star: 5 Points	星形：5 角
+Star: 6 Points	星形：6 角
+Star: 7 Points	星形：7 角
+Star: 8 Points	星形：8 角
+Stars and Banners	星形及綵帶
+Start After Previous	接續前動畫開始
+Start Automatically	自動開始
+Start On Click	按一下時開始
+Start With Previous	與前動畫同時開始
+Start a conversation	開始討論
+Start time (s):	開始時間（秒）：
+Start:	開始：
+Stealth end	隱形箭號端點
+Stock	股價圖
+Stop	停止
+Stop Editing Text	結束文字編輯
+Strikethrough	刪除線
+Strips	條紋
+Style {i}	樣式 {i}
+Subscript	下標
+Subtle	細微
+Sun	太陽
+Sunburst	旭日圖
+Superscript	上標
+Surface	曲面圖
+Switch	切換
+Swivel	迴旋
+Symbol	符號
+System language	系統語言
+Tab	定位字元
+Table	表格
+Table Design	表格設計
+Table Style Options	表格樣式選項
+Table Styles	表格樣式
+Table…	表格…
+Task Pane	工作窗格
+Teardrop	淚滴形
+Teeter	搖晃
+Text	文字
+Text Box	文字方塊
+Text Box Margins	文字方塊邊界
+Text Direction	文字方向
+Text Effects	文字效果
+Text Fill	文字填滿
+Text Highlight Color	文字醒目提示色彩
+Text Options	文字選項
+Text Outline	文字外框
+Text Shadow	文字陰影
+Text/Background - Dark 1	文字／背景 - 深色 1
+Text/Background - Dark 2	文字／背景 - 深色 2
+Text/Background - Light 1	文字／背景 - 淺色 1
+Text/Background - Light 2	文字／背景 - 淺色 2
+Text\nBox	文字方塊
+The spelling check is complete. No issues found.	拼字檢查完成，未發現問題。
+Theme Colors	佈景主題色彩
+Theme Gallery	佈景主題庫
+Themes	佈景主題
+Thesaurus	同義字典
+Thesaurus (coming soon)	同義字庫（尚未推出）
+This Document	此文件
+Thought	思考
+Thought Bubble: Cloud	思考泡泡：雲形
+Through Black	經過黑色
+Tight	緊密
+Timing	計時
+Top	上
+Total Row	合計列
+Transition	轉場
+Transition Gallery	轉場效果庫
+Transitions	轉場
+Translate	翻譯
+Translation needs a language model (not bundled)	翻譯需要語言模型（未內附）
+Transparency	透明度
+Trapezoid	梯形
+Treemap	矩形式樹狀圖
+Triangle	三角形
+Trigger	觸發程序
+Trim	修剪
+Trim Media	剪裁媒體
+Turns	轉彎
+Type	類型
+Type Text	輸入文字
+Type an equation in linear form (e.g. a^2+b^2=c^2, x=(-b±√(b^2-4ac))/2a).	以線性格式輸入方程式（例如 a^2+b^2=c^2、x=(-b±√(b^2-4ac))/2a）。
+Uncover	揭露
+Underline	底線
+Undo	復原
+Undo (⌘Z)	復原（⌘Z）
+Ungroup	取消群組
+Up	上
+Use Timings	使用計時
+Use timings, if present	使用現有計時
+Username	使用者名稱
+Version	版本
+Version {}	版本 {}
+Vert In	垂直內縮
+Vert Out	垂直外擴
+Vertical	垂直
+Vertical alignment	垂直對齊方式
+Very Loose	非常寬鬆
+Very Tight	非常緊密
+Video	影片
+Video from File…	從檔案插入影片…
+View	檢視
+Volume	卷
+Vortex	漩渦
+Waterfall	瀑布圖
+Wave	波浪線
+Web Page or File	網頁或檔案
+Wedge	楔形
+Weight	粗細
+Wheel	輪形
+Widescreen (13.333x7.5 in)	寬螢幕（13.333x7.5 英吋）
+Widescreen (16:9)	寬螢幕（16:9）
+Width	寬度
+Width (in):	寬度（英吋）：
+Width:	寬度：
+Width: 	寬度：
+Wind	風
+Window	視窗
+Wipe	擦去
+With Previous	與前動畫同時
+WordArt	文字藝術師
+WordArt style {}	文字藝術師樣式 {}
+Words	字數
+Wrap Text in Shape	圖案內文字自動換行
+Wrap text in shape	圖案內文字自動換行
+Yellow	黃色
+Your changes will be lost if you don't save them.	如果不儲存，您的變更將會遺失。
+Your name (comments):	你的名稱（註解）：
+Zoom	縮放
+Zoom In	放大
+Zoom Out	縮小
+Zoom…	縮放…
+a) b) c)	a) b) c)
+a. b. c.	a. b. c.
+dropped file	拖入的檔案
+i. ii. iii.	i. ii. iii.
+no presentation open	目前未開啟簡報
+no slides	沒有投影片
+no text insertion point	沒有文字插入點
+nothing selected	尚未選取任何項目
+nothing to redo	沒有可重做的操作
+nothing to undo	沒有可復原的操作
+select text or a shape	請選取文字或圖案
+select two or more objects	請選取至少兩個物件
+size (pt)	大小（點）
+tOGGLE cASE	切換大小寫
+unknown interface language	不支援的介面語言
+{ch}  Bullet	{ch}  項目符號
+{f} (Body)	{f}（本文）
+{f} (Headings)	{f}（標題）
+{name}: DeckCraft can't open this kind of file	{name}：DeckCraft 無法開啟這類檔案
+{n} Column{}	{n} 欄{}
+{r} pt	{r} 點
+{r} pt glow	{r} 點光暈
+{w} pt	{w} 點
+{} ({} slides)	{}（{} 張投影片）
+{} Slide Master	{} 投影片母片
+{} contributors · {} commits	{} 位貢獻者 · {} 次提交
+{} presentations	{} 份簡報
+{}x{} Table	{}x{} 表格
+“{}” is not available yet.	「{}」目前尚未支援。
+−Bin	移除二進位
+▶ Play All	▶ 全部播放
+◀ Previous	◀ 上一張
+✏ on	✏ 開啟
+@backstage:Home	首頁
+Column	欄
+presentations	簡報
+unsaved presentation	份未儲存的簡報
+unsaved presentations	份未儲存的簡報
+Grid Options…	格線選項…
+Set Zoom	設定縮放比例
+New Window	新增視窗
+Preview Animations	預覽動畫
+Print	列印
+Insert Picture in SmartArt…	在 SmartArt 中插入圖片…
+Reuse Slides…	重複使用投影片…
+Compare…	比較…
+Quick Access Toolbar	快速存取工具列
+Starter Templates	起始範本
+Open	開啟
+Info	資訊
+Color At	取得位置色彩
+Paste Special	選擇性貼上
+Icon Gallery	圖示庫
+Photo Album…	相簿…
+Edit Photo Album…	編輯相簿…
+Action Settings	動作設定
+Text Pane	文字窗格
+Edit SmartArt Text	編輯 SmartArt 文字
+Add Shape	新增圖案
+Remove Shape	移除圖案
+Promote	升階
+Demote	降階
+Change Layout	變更版面配置
+Convert to SmartArt	轉換成 SmartArt
+Insert Picture in SmartArt	在 SmartArt 中插入圖片
+SmartArt Styles	SmartArt 樣式
+Change Colors	變更色彩
+Picture Style Gallery	圖片樣式庫
+Recolor Gallery	重新著色色彩庫
+Set Transparent Color	設定透明色彩
+Add Guide	新增參考線
+Move Guide	移動參考線
+Delete Guide	刪除參考線
+Points	端點
+Move Point	移動端點
+Add Point	新增端點
+Point Type	端點類型
+Move Handle	移動控制點
+Fonts in Presentation	簡報使用的字型
+Replace Fonts	取代字型
+AutoCorrect Options	自動校正選項
+Compose Text	組合輸入文字
+Commit Composition	確認組字
+Add Font	新增字型
+Text Transparency	文字透明度
+Text Transform	文字變形
+Variants	變化
+Variant Gallery	變化樣式庫
+Handout Placeholders	講義預留位置
+Notes Placeholders	備忘稿預留位置
+Layout Placeholders	版面配置預留位置
+Apply Design Idea	套用設計構想
+Sound	音效
+Borders	框線
+Cell Margins	儲存格邊界
+Align Cell Text	對齊儲存格文字
+Table Eraser	表格橡皮擦
+Find	尋找
+Next Comment	下一則註解
+Previous Comment	上一則註解
+Change Spelling	變更拼字
+Spelling Dictionary	拼字字典
+Insert Synonym	插入同義字
+Compare	比較
+Revisions	修訂
+Accept Revision	接受修訂
+Artistic Effects	美術效果
+Compress Pictures	壓縮圖片
+Print…	列印…
+Line: Rising	線條：向上
+Trapezoid: Uneven Sides	梯形：不等長邊
+Quarter Wedge	四分之一楔形
+Corner Tabs: Triangles	角標：三角形
+Corner Tabs: Squares	角標：正方形
+Corner Tabs: Quarter Circles	角標：四分之一圓
+Gear: 6 Teeth	齒輪：6 齒
+Gear: 9 Teeth	齒輪：9 齒
+Chart Marker: Cross Lines	圖表標記：交叉線
+Chart Marker: Star Lines	圖表標記：星形線
+Chart Marker: Plus Lines	圖表標記：十字線
+Arrow: Curved Right	箭號：向右彎曲
+Arrow: Curved Left	箭號：向左彎曲
+Arrow: Curved Up	箭號：向上彎曲
+Arrow: Curved Down	箭號：向下彎曲
+Arrow: Circular	箭號：環形
+Arrow: Circular Counter-clockwise	箭號：逆時針環形
+Arrow: Circular Two-headed	箭號：雙向環形
+Arrow: Swoosh	箭號：弧形
+Callout: Left-Right Arrow	圖說文字：左右箭號
+Callout: Up-Down Arrow	圖說文字：上下箭號
+Callout: Quad Arrow	圖說文字：四向箭號
+Flowchart: Offline Storage	流程圖：離線儲存裝置
+Ribbon: Curved and Tilted Up	綵帶：向上彎曲傾斜
+Ribbon: Curved and Tilted Down	綵帶：向下彎曲傾斜
+Ribbon: Left-Right Fold	綵帶：左右摺疊
+Callout: Bent Line	圖說文字：彎折線
+Callout: Double Bent Line	圖說文字：雙彎折線
+Callout: Line with Accent Bar	圖說文字：含強調線的直線
+Callout: Bent Line with Accent Bar	圖說文字：含強調線的彎折線
+Callout: Double Bent Line with Accent Bar	圖說文字：含強調線的雙彎折線
+Callout: Line with No Border	圖說文字：無框線的直線
+Callout: Bent Line with No Border	圖說文字：無框線的彎折線
+Callout: Double Bent Line with No Border	圖說文字：無框線的雙彎折線
+Callout: Line with Border and Accent Bar	圖說文字：含框線及強調線的直線
+Callout: Bent Line with Border and Accent Bar	圖說文字：含框線及強調線的彎折線
+Callout: Double Bent Line with Border and Accent Bar	圖說文字：含框線及強調線的雙彎折線
+New	新增
+Save As	另存新檔
+Account	帳戶
+Options	選項
+PowerPoint Presentation (*.pptx)	PowerPoint 簡報 (*.pptx)
+Opens in PowerPoint and other presentation apps	可使用 PowerPoint 及其他簡報軟體開啟
+DeckCraft Presentation (*.deckcraft)	DeckCraft 簡報 (*.deckcraft)
+DeckCraft's own format: everything is kept	DeckCraft 原生格式，可保留所有內容
+PDF (*.pdf)	PDF (*.pdf)
+A fixed copy that keeps its layout on any device	保留固定版面配置、可在各種裝置上閱讀的副本
+Outline (*.txt)	大綱 (*.txt)
+The slide titles and bullet text as plain text	以純文字儲存投影片標題及項目符號文字
+PNG Picture (*.png)	PNG 圖片 (*.png)
+The current slide as a picture	將目前投影片儲存為圖片
+JPEG Picture (*.jpg)	JPEG 圖片 (*.jpg)
+The current slide as a compressed picture	將目前投影片儲存為壓縮圖片
+Title	標題
+Add a title	新增標題
+Subject	主題
+Specify the subject	指定主旨
+Tags	標籤
+Add a tag	新增標籤
+Categories	類別
+Add a category	新增類別
+Specify the company	指定公司
+Add comments	新增註解
+Author	作者
+Add an author	新增作者
+Back	返回
+Back (Esc)	返回 (Esc)
+Blank Presentation	空白簡報
+Sample deck: Northern Lights	範例簡報：北極光
+Presentations you open show up here. Use Open to browse for one.	開啟過的簡報會顯示於此。選擇「開啟」以瀏覽簡報。
+No recent presentations match “{}”.	沒有符合「{}」的最近使用簡報。
+Remove from Recent	從最近的檔案中移除
+More themes	其他佈景主題
+Templates	範本
+More templates	其他範本
+Search for a file	搜尋檔案
+More presentations	其他簡報
+Upstream DeckCraft community on Discord	DeckCraft 上游專案的 Discord 社群
+Search for themes and templates	搜尋佈景主題及範本
+No themes or templates match “{}”.	沒有符合「{}」的佈景主題或範本。
+Browse	瀏覽
+Open a presentation from a folder (Ctrl+O)	從資料夾開啟簡報 (Ctrl+O)
+Recover Unsaved Presentations	復原未儲存的簡報
+There are no unsaved presentations to recover	沒有可復原的未儲存簡報
+No presentation is open.	目前未開啟簡報。
+Not saved yet	尚未儲存
+Copy path	複製路徑
+Copied the path	已複製路徑
+Open file location	開啟檔案位置
+Check for Issues	檢查問題
+Before you share it, check the presentation for things people with disabilities might find hard to read.	分享前，請檢查簡報是否有身心障礙使用者難以閱讀的內容。
+There are no unsaved changes.	沒有尚未儲存的變更。
+This presentation has unsaved changes. Revert goes back to the saved file.	這份簡報有尚未儲存的變更。「還原」會回到已儲存的檔案內容。
+This presentation has never been saved.	這份簡報尚未儲存過。
+Manage Presentation	管理簡報
+Slides	投影片
+Hidden slides	隱藏的投影片
+Location	位置
+Save to document center	儲存至文件中心
+Choose a document-center destination	選擇文件中心的儲存位置
+Choose where to save	選擇儲存位置
+DeckCraft prints through a PDF: it opens in your PDF viewer, where you choose the printer.	DeckCraft 會先產生 PDF，再使用 PDF 檢視器選擇印表機列印。
+Save the PDF to the document center, then open it in a PDF viewer to print.	將 PDF 儲存至文件中心，再使用 PDF 檢視器開啟並列印。
+Settings	設定
+Print All Slides	列印所有投影片
+Print Current Slide	列印目前投影片
+Custom Range	自訂範圍
+Slides:	投影片：
+Letter	信函
+Landscape Orientation	橫向
+Portrait Orientation	直向
+Print Hidden Slides	列印隱藏的投影片
+Frame Slides	投影片加框
+Edit Header & Footer	編輯頁首及頁尾
+Nothing to print: every slide in the range is hidden.	沒有可列印的內容，範圍內的投影片皆已隱藏。
+Previous Page	上一頁
+Next Page	下一頁
+Create PDF Document	建立 PDF 文件
+Create Handouts	建立講義
+Change File Type	變更檔案類型
+Create a PDF Document	建立 PDF 文件
+Keeps the layout, fonts and pictures	保留版面配置、字型及圖片
+Opens on any device with a PDF viewer	可在具備 PDF 檢視器的裝置上開啟
+The presentation keeps its own file	簡報仍保留原檔
+Create PDF	建立 PDF
+Several slides on each page of a PDF	在 PDF 每頁排列多張投影片
+Three a page leaves lines for notes	每頁三張投影片，並保留筆記橫線
+Print them for your audience	列印給觀眾使用
+Appearance	外觀
+Dark	深色
+Light	淺色
+User Information	使用者資訊
+DeckCraft has no accounts: there is nothing to sign in to, and your presentations stay on your device.	DeckCraft 無須登入帳號，簡報會保留在你的裝置上。
+Product Information	產品資訊
+Open source under MIT OR Apache-2.0. Not affiliated with Microsoft.	採用 MIT OR Apache-2.0 開源授權，與 Microsoft 無關。
+The version, the people and models who built it, and where to find us.	查看版本、開發貢獻者、使用的模型及聯絡方式。
+File (Alt+F)	檔案 (Alt+F)
+Photo Album options	相簿選項
+Paste Special…	選擇性貼上…
+Rescan Installed Fonts	重新掃描已安裝字型
+Font…	字型…
+Bullets and Numbering…	項目符號及編號…
+Tabs…	定位點…
+Draw Table	繪製表格
+Action Settings…	動作設定…
+Search icons	搜尋圖示
+No icons match.	沒有符合的圖示。
+Ink to Shape: turn drawn lines, rectangles, ovals and triangles into shapes	筆跡轉換成圖案：將手繪線條、矩形、橢圓形及三角形轉為圖案
+Customize Colors…	自訂色彩…
+Customize Fonts…	自訂字型…
+Sound:	音效：
+Other Sound…	其他音效…
+Play this slide's animations on the canvas	在畫布上播放這張投影片的動畫
+Animation Painter (double-click to keep it on)	複製動畫（按兩下可連續使用）
+Open another window on this presentation	以另一個視窗開啟這份簡報
+Transform	轉換
+Follow Path	沿路徑
+Warp	彎曲
+Edit Points	編輯端點
+Size and Position…	大小及位置…
+Recolor	重新著色
+Pixels of this colour become transparent:	將此色彩的像素設為透明：
+Reset Style	重設樣式
+Remove the picture style	移除圖片樣式
+Type and organise the diagram's text	輸入並整理圖表文字
+Put a picture in the selected node's picture placeholder	將圖片放入所選節點的圖片預留位置
+Convert to Text	轉換為文字
+Convert to Shapes	轉換為圖案
+3-D	立體
+Preserve	保留
+Footers	頁尾
+Browse for Themes…	瀏覽佈景主題…
+Smooth Corners	平滑轉角
+Compression options	壓縮選項
+Apply only to this picture	僅套用至這張圖片
+Delete cropped areas of pictures	刪除圖片的裁剪區域
+Resolution	解析度
+Compress	壓縮
+Previous	上一個
+e.g. 1-3, 5	例如 1-3, 5
+Remove from Quick Access Toolbar	從快速存取工具列移除
+Customize Quick Access Toolbar	自訂快速存取工具列
+Right-click any ribbon button to add it.	在功能區按鈕上按右鍵即可加入。
+Reset to Defaults	重設為預設值
+Select a SmartArt graphic to edit its text.	選取 SmartArt 圖形以編輯文字。
+Type your text here	在此輸入文字
+•	•
++ Add	＋ 新增
+Lock aspect ratio	鎖定長寬比
+Picture source	圖片來源
+Insert…	插入…
+Tile picture as texture	將圖片並排為材質
+3-D Format	立體格式
+3-D Rotation	立體旋轉
+Reset 3-D	重設立體效果
+Alignment	對齊方式
+Mirror	鏡射
+Compare this presentation with a revised copy from Review › Compare.	從「校閱 › 比較」選取修訂副本，與這份簡報比較。
+Not a copy of this presentation: slides are matched by position.	這不是目前簡報的副本，將依位置比對投影片。
+No differences left.	沒有剩餘差異。
+End Review	結束校閱
+Accept	接受
+No comments.	沒有註解。
+🗑	🗑
+Pick a design for this slide. Ideas are generated on your device.	為這張投影片選擇設計，構想會在你的裝置上產生。
+Add a title with a picture or some text to get layout ideas.	加入標題及圖片或文字，即可取得版面配置構想。
+Themes (whole presentation)	佈景主題（整份簡報）
+Search for a word	搜尋字詞
+Select a word on the slide, or type one above.	選取投影片上的字詞，或在上方輸入。
+▶	▶
+◀	◀
+A-	A-
+A+	A+
+·	·
+Delete Repeated Word	刪除重複字詞
+(no spelling suggestions)	（沒有拼字建議）
+Ignore All	全部略過
+Add to Dictionary	新增至字典
+Delete Point	刪除端點
+Exit Edit Points	結束編輯端點
+Change Picture…	變更圖片…
+Pictures in album	相簿中的圖片
+No pictures yet	尚無圖片
+Add Pictures…	新增圖片…
+New Text Box	新增文字方塊
+Rotate Left	向左旋轉
+Rotate Right	向右旋轉
+More Brightness	增加亮度
+Less Brightness	降低亮度
+More Contrast	增加對比
+Less Contrast	降低對比
+Picture layout	圖片版面配置
+Frame shape	框架圖案
+Album theme	相簿佈景主題
+Applies to this presentation's theme colours.	套用至這份簡報的佈景主題色彩。
+Heading:	標題：
+Body:	本文：
+Heading and body fonts for this presentation.	這份簡報的標題及本文字型。
+Zoom to	縮放至
+Percent:	百分比：
+%	%
+Orientation:	方向：
+Color:	色彩：
+Remove bullets and numbering	移除項目符號及編號
+This presentation has no custom shows (Slide Show ▸ Custom Slide Show).	這份簡報沒有自訂放映（投影片放映 ▸ 自訂投影片放映）。
+Replace:	取代:
+With:	取代為:
+Font name	字型名稱
+As:	取代為：
+Repeated word	重複字詞
+Change to:	變更為：
+Click to change this one; Shift-click to change all	按一下以變更這一處；按住 Shift 再按一下以變更全部
+Spelling is checked for languages marked (dictionary).	標示「字典」的語言可進行拼字檢查。
+Do not check spelling or grammar	不要檢查拼字或文法
+Correct TWo INitial CApitals	更正前兩個字母連續大寫
+Capitalize first letter of sentences	句首字母大寫
+Capitalize names of days	星期名稱首字母大寫
+Correct accidental use of cAPS LOCK key	修正不小心按下 Caps Lock 所造成的大小寫錯誤
+Replace fractions (1/2) with fraction characters (½)	將分數（1/2）取代為分數字元（½）
+Replace text as you type	輸入時自動取代文字
+Replace	取代
+With	取代為
+Add	新增
+AutoCorrect Options…	自動校正選項…
+From the top-left corner of the slide	從投影片左上角起算
+Available formats:	可用格式：
+Language:	語言：
+Month names and AM/PM are listed for English. Other languages list the numeric date and 24-hour time.	英文提供月份名稱及 AM/PM；其他語言提供數字日期及 24 小時制時間。
+Snap	鎖點
+Display	顯示
+Baseline	基線式
+Spacing	間距
+pt	點
+AaBbCcDd	AaBbCcDd
+Indentation	縮排
+in	放大
+Special	特殊字元
+Line spacing	行距
+Tab stops:	定位停駐點：
+(none)	(無)
+Clear	清除
+Tab stop position (in):	定位停駐點位置（英吋）：
+Alignment:	對齊方式：
+Set	設定
+Clear All	全部清除
+Find Next	尋找下一個
+Replace All	全部取代
+Replace…	取代…
+Size:	大小：
+RRGGBB	RRGGBB
+Eyedropper	滴管
+Click the slide to take the colour under the pointer	按一下投影片以擷取游標所在位置的色彩
+Pick	選取
+All slides	所有投影片
