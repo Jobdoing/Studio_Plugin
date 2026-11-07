@@ -9,12 +9,15 @@ archive, compiled = Path(sys.argv[1]).resolve(), Path(sys.argv[2]).resolve()
 suite = Path(__file__).resolve().parents[1]
 ui = Path("crates/ui-egui/src")
 paths = [ui / f"{name}.rs" for name in [
-    "lib", "editing", "files", "create_ui", "measure_ui", "print_ui",
-    "create_multiple_ui", "export_ui", "actions_ui", "ocr_ui", "content_ui",
-    "stamps_ui", "fill_sign", "widgets", "edit_text_ui", "comments", "comments_panel", "commands",
+    "lib", "app", "app/files", "i18n/tests", "canvas/tests", "editing", "editing/save", "editing/close", "editing/tests",
+    "workflows/files", "workflows/create_ui", "tools/measure_ui", "workflows/print_ui",
+    "workflows/create_multiple_ui", "workflows/export_ui", "workflows/actions_ui", "workflows/ocr_ui",
+    "workflows/ocr_verify", "tools/content_ui", "tools/stamps_ui", "tools/fill_sign", "widgets",
+    "tools/edit_text_ui", "tools/comments", "tools/comments/paint", "tools/comments/composer",
+    "panels/comments_panel", "commands",
 ]]
-paths += [Path(name) for name in ["crates/fonts/build.rs", "crates/fonts/src/craft.rs", "apps/pdfcraft-web/src/main.rs"]]
-scratch = Path("/Volumes/Vibe-Temp/Studio5/craft-plugins/checks")
+paths += [Path(name) for name in ["crates/fonts/build.rs", "apps/pdfcraft-web/src/main.rs"]]
+scratch = Path("/Volumes/Vibe-Temp/Craft/tmp/pdf-checks")
 scratch.mkdir(parents=True, exist_ok=True)
 with tempfile.TemporaryDirectory(prefix="pdf-prepare-", dir=scratch) as temporary:
     fresh = Path(temporary) / compiled.name
@@ -24,6 +27,9 @@ with tempfile.TemporaryDirectory(prefix="pdf-prepare-", dir=scratch) as temporar
             destination.parent.mkdir(parents=True, exist_ok=True)
             destination.write_bytes(upstream.read(f"{compiled.name}/{path}"))
     result = subprocess.run([sys.executable, str(suite / "scripts/prepare-pdfcraft.py"), str(fresh)], capture_output=True, text=True)
+    if result.returncode:
+        raise RuntimeError(result.stderr)
+    result = subprocess.run([sys.executable, str(suite / "scripts/prepare-file-access.py"), "pdfcraft", str(fresh)], capture_output=True, text=True)
     if result.returncode:
         raise RuntimeError(result.stderr)
     paths += [ui / "studio.rs", ui / "studio_io.rs", ui / "studio_drafts.rs"]

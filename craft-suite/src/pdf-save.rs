@@ -61,8 +61,8 @@ pub(crate) fn poll(app: &mut PdfCraftApp) {
         match result {
             None => app.studio_pending_writes.push(write),
             Some(Ok(())) => (write.after)(app),
-            Some(Err(error)) if error == "CANCELLED" => {},
-            Some(Err(error)) => app.notify_error(error),
+            Some(Err(error)) if error == "CANCELLED" => (write.failed)(app),
+            Some(Err(error)) => { (write.failed)(app); app.notify_error(error); },
         }
     }
     let result = app.studio_pending_save.as_ref().and_then(|pending| {
@@ -122,12 +122,21 @@ pub(crate) fn read(
 
 pub(crate) struct PendingWrite {
     after: Box<dyn FnOnce(&mut PdfCraftApp) + Send>,
+    failed: Box<dyn FnOnce(&mut PdfCraftApp) + Send>,
     result: Arc<Mutex<Option<Result<(), String>>>>,
 }
 
 pub(crate) fn write(
     app: &mut PdfCraftApp, files: Vec<(String, Arc<Vec<u8>>)>,
     after: impl FnOnce(&mut PdfCraftApp) + Send + 'static,
+) {
+    write_or_else(app, files, after, |_| {});
+}
+
+pub(crate) fn write_or_else(
+    app: &mut PdfCraftApp, files: Vec<(String, Arc<Vec<u8>>)>,
+    after: impl FnOnce(&mut PdfCraftApp) + Send + 'static,
+    failed: impl FnOnce(&mut PdfCraftApp) + Send + 'static,
 ) {
     if files.is_empty() { return; }
     // NOTE(ceiling): A batch holds all output bytes; large jobs need streamed per-file receipts.
@@ -139,5 +148,5 @@ pub(crate) fn write(
         *done.lock().unwrap_or_else(std::sync::PoisonError::into_inner) = Some(outcome);
         if let Some(ctx) = ctx { ctx.request_repaint(); }
     });
-    app.studio_pending_writes.push(PendingWrite { after: Box::new(after), result });
+    app.studio_pending_writes.push(PendingWrite { after: Box::new(after), failed: Box::new(failed), result });
 }

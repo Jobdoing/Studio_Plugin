@@ -133,5 +133,31 @@ mod adapter {
             *app.studio_pending_writes[0].result.lock().unwrap() = Some(Ok(()));
             poll(&mut app); assert_eq!(app.continuations, 1); assert!(app.session.dirty); assert_eq!(app.session.marks, 0);
         }
+        #[test] fn failed_output_restores_review_once_without_finishing_it() {
+            for error in ["CANCELLED", "ACCESS_DENIED"] {
+                let mut app = PdfCraftApp::new();
+                write_or_else(&mut app, vec![("ocr.pdf".into(), Arc::new(vec![1]))],
+                    |app| app.continuations += 1, |app| app.typed = true);
+                poll(&mut app);
+                assert!(!app.typed, "review stays in Saving while delivery is pending");
+                *app.studio_pending_writes[0].result.lock().unwrap() = Some(Err(error.into()));
+                poll(&mut app);
+                assert!(app.typed, "failed or cancelled output must restore the review");
+                unchanged(&app);
+                app.typed = false;
+                poll(&mut app);
+                assert!(!app.typed, "the failure callback runs once");
+            }
+        }
+        #[test] fn acknowledged_output_finishes_review_without_failure_callback() {
+            let mut app = PdfCraftApp::new();
+            write_or_else(&mut app, vec![("ocr.pdf".into(), Arc::new(vec![1]))],
+                |app| app.continuations += 1, |app| app.typed = true);
+            *app.studio_pending_writes[0].result.lock().unwrap() = Some(Ok(()));
+            poll(&mut app);
+            assert_eq!(app.continuations, 1);
+            assert!(!app.typed);
+            assert!(app.session.dirty);
+        }
     }
 }
