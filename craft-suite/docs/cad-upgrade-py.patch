@@ -1,0 +1,227 @@
+--- a/scripts/upgrade.py
++++ b/scripts/upgrade.py
+@@ -8,21 +8,15 @@
+ import shutil
+ import subprocess
+ import sys
+-import tarfile
+ import tempfile
+ from datetime import datetime, timezone
+ 
+ ROOT = Path(__file__).resolve().parents[1]
+ SUITE = ROOT / 'source/craft-suite'
+-CAD_REPO = Path('/Volumes/AI-Model/jobdone-drawings')
+-CAD_CACHE = Path('/Volumes/Vibe-Temp/cadcraft-integration')
+ TOOLS = Path('/Volumes/Vibe-Temp/Studio5/craft-plugins/tools')
+ FONTS = Path('/Volumes/Vibe-Temp/Studio5/craft-plugins/fonts')
+ IDS = ('wordcraft', 'deckcraft', 'gridcraft', 'pdfcraft', 'cad-viewer')
+ I18N_REPO = 'https://github.com/storytold/craft-i18n.git'
+-# NOTE(ceiling): CAD's 0.6.2 adapters and PR 529 remain version-specific; migrate them through reviewed source changes before newer engines can pass.
+-CAD_PIN = '00c7613f1af3c73f7157fa91d9fe2635c6f23c06'
+-CAD_TRANSLATION = '6f79ef7782de76d5ac9f3ef9f3a3c02070219aa5'
+ 
+ 
+ def cache_root():
+@@ -101,27 +95,15 @@
+             raise ValueError('Incorrect changed flag in plan')
+         if not re.fullmatch(r'\d+\.\d+\.\d+', row['candidate_version']):
+             raise ValueError('Invalid candidate version')
+-    catalog = json.loads((ROOT / 'marketplace/catalog.json').read_text())
+-    canonical = next(row['source'] for row in catalog if row['id'] == 'cad-viewer')
+-    if plan['cad_source'] != canonical:
+-        raise ValueError('CAD source differs from canonical marketplace catalog')
++    pins = json.loads((SUITE / 'upstream.json').read_text())
++    for row in plan['plugins']:
++        editor = 'cadcraft' if row['id'] == 'cad-viewer' else row['id']
++        if row['current'] != pins[editor]:
++            raise ValueError('Current upstream pin differs from the reviewed suite registry')
+ 
+ 
+-def canonical_cad_repo(canonical):
+-    for repo in (ROOT / 'cad-source', CAD_REPO):
+-        if not repo.is_dir():
+-            continue
+-        result = subprocess.run(['git', '-C', str(repo), 'cat-file', '-e', canonical['ref'] + '^{commit}'],
+-                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+-        if result.returncode == 0:
+-            return repo
+-    raise ValueError('Canonical CAD commit unavailable locally; fetch it into Craft/cad-source before retrying')
+-
+-
+ def discover(only):
+     pins = json.loads((SUITE / 'upstream.json').read_text())
+-    catalog = json.loads((ROOT / 'marketplace/catalog.json').read_text())
+-    cad = next(row['source'] for row in catalog if row['id'] == 'cad-viewer')
+     live = json.loads(run(['curl', '-fsSL', 'https://www.jobdoing.cc/api/public/studio-plugins/index.json']))
+     rows = []
+     for editor in only:
+@@ -129,19 +111,7 @@
+         repo = f'https://github.com/storytold/{name}.git'
+         tags = stable_tags(run(['git', 'ls-remote', '--tags', repo]))
+         target = newest(tags)
+-        current = pins.get(editor)
+-        if editor == 'cad-viewer':
+-            canonical_repo = canonical_cad_repo(cad)
+-            metadata = subprocess.run(['git', '-C', str(canonical_repo), 'show',
+-                                       f'{cad["ref"]}:{cad["path"]}/upstream.json'], capture_output=True, text=True)
+-            if metadata.returncode == 0:
+-                current = json.loads(metadata.stdout)
+-            else:
+-                rebuild = run(['git', 'show', f'{cad["ref"]}:{cad["path"]}/checks/rebuild_files.py'], canonical_repo)
+-                match = re.search(r"^revision = '([a-f0-9]{40})'", rebuild, re.M)
+-                if not match or match[1] != CAD_PIN:
+-                    raise ValueError('CAD upstream pin changed without explicit upstream.json; review canonical source')
+-                current = {'tag': 'v0.6.2', 'commit': CAD_PIN}
++        current = pins[name]
+         public = next(row['version'] for row in live['plugins'] if row['id'] == editor)
+         major, minor, patch = map(int, public.split('.'))
+         row = {'id': editor, 'repo': repo, 'current': current, 'target': target,
+@@ -151,7 +121,7 @@
+         print(f"{editor}: {current['tag']} -> {target['tag']} ({target['commit'][:12]}); market {public}")
+     plan = {'created_at': datetime.now(timezone.utc).isoformat(), 'plugins': rows,
+             'suite_revision': run(['git', 'rev-parse', 'HEAD'], ROOT / 'source').strip(),
+-            'cad_source': cad, 'installed_state': 'not_inspected'}
++            'installed_state': 'not_inspected'}
+     output = ROOT / 'docs/upgrades' / datetime.now().strftime('%Y%m%d-%H%M%S') / 'plan.json'
+     write_json(output, plan)
+     print(f'Plan: {output}\nSHA-256: {digest(output)}')
+@@ -208,7 +178,7 @@
+ 
+ 
+ def editor_candidate(row, source, suite, work, env, log, probe=False):
+-    editor = row['id']
++    editor = 'cadcraft' if row['id'] == 'cad-viewer' else row['id']
+     scripts = suite / 'scripts'
+     command = [sys.executable, scripts / f'prepare-{editor}.py', source]
+     if editor == 'gridcraft':
+@@ -225,7 +195,7 @@
+         run(['git', 'checkout', '--detach', '-q', 'FETCH_HEAD'], catalogs, log=log)
+         env = dict(env, CRAFT_I18N_DIR=str(catalogs), CRAFT_I18N_REQUIRED='1')
+     run([sys.executable, scripts / 'prepare-file-access.py', editor, source], env=env, log=log)
+-    if editor in ('gridcraft', 'deckcraft'):
++    if editor in ('gridcraft', 'deckcraft', 'cadcraft'):
+         run([sys.executable, scripts / 'prepare-localization.py', editor, source], env=env, log=log)
+     checks = run(['cargo', 'test', '--locked', '-p', f'{editor}-ui-egui', '--lib'], source, env, log)
+     summaries = [line for line in checks.splitlines() if line.startswith('test result:')]
+@@ -243,52 +213,6 @@
+     metadata.write_text(run(['cargo', 'metadata', '--locked', '--format-version=1',
+                              '--filter-platform', 'wasm32-unknown-unknown'], source, env, log, merge=False))
+     run([sys.executable, scripts / 'collect-licenses.py', metadata, f'{editor}-web',
+-         candidate / 'licenses/rust'], env=env, log=log)
+-    return candidate, summaries
+-
+-
+-def cad_candidate(row, source, plan, work, env, log, probe=False):
+-    canonical = plan['cad_source']
+-    # Export the catalog's canonical commit; the dirty default checkout is never copied.
+-    archive = work / 'cad-wrapper.tar'
+-    archive.write_bytes(subprocess.check_output(['git', '-C', str(canonical_cad_repo(canonical)), 'archive',
+-                                                canonical['ref'], canonical['path']]))
+-    with tarfile.open(archive) as stream:
+-        stream.extractall(work / 'wrapper', filter='data')
+-    plugin = work / 'wrapper' / canonical['path']
+-    env = dict(env, CADCRAFT_SOURCE=str(source), CADCRAFT_BUILD_ROOT=str(work), CADCRAFT_RECEIPTS='1')
+-    run(['git', 'fetch', '--depth=1', row['repo'], CAD_TRANSLATION], source, log=log)
+-    for name in ('apply_reader.py', 'apply_localization.py', 'apply_start_typography.py'):
+-        run([sys.executable, '-I', plugin / 'checks' / name], env=env, log=log)
+-        if probe:
+-            return None, ['Compatibility probe only: reader adapter applied; remaining stages not run']
+-    run([sys.executable, '-I', plugin / 'checks/apply_files.py', source], env=env, log=log)
+-    font = CAD_CACHE / 'fonts/ibm-plex-sans-tc-1.1.1/IBMPlexSansTC-Light.ttf'
+-    env['CADCRAFT_UI_FONT'] = str(font)
+-    tests = run(['cargo', 'test', '--locked', '-p', 'cadcraft-ui-egui', '--lib'], source, env, log)
+-    summaries = [line for line in tests.splitlines() if line.startswith('test result:')]
+-    if not summaries or not any(re.search(r'\b[1-9]\d* passed', line) for line in summaries):
+-        raise ValueError('CAD test runner did not execute tests')
+-    run([sys.executable, '-I', plugin / 'checks/build_reader.py'], env=env, log=log)
+-    run([sys.executable, '-I', plugin / 'checks/prepare_vendor.py'], env=env, log=log)
+-    run(['npm', 'ci', '--ignore-scripts', '--no-audit', '--no-fund'], plugin, env, log)
+-    run(['npm', 'test'], plugin, env, log)
+-    run(['npm', 'run', 'build'], plugin, env, log)
+-    for name in ('plugin.json', 'package.json'):
+-        path = plugin / name
+-        data = json.loads(path.read_text())
+-        data['version'] = row['candidate_version']
+-        write_json(path, data)
+-    run([sys.executable, '-I', plugin / 'checks/package_plugin.py'], env=env, log=log)
+-    candidate = work / 'package/cad-viewer'
+-    # CAD's canonical catalog distributes its wrapper source as well as runtime assets.
+-    shutil.copytree(plugin, candidate, dirs_exist_ok=True,
+-                    ignore=shutil.ignore_patterns('node_modules', 'cadcraft', '__pycache__'))
+-    write_json(candidate / 'upstream.json', row['target'])
+-    metadata = work / 'metadata.json'
+-    metadata.write_text(run(['cargo', 'metadata', '--locked', '--format-version=1',
+-                             '--filter-platform', 'wasm32-unknown-unknown'], source, env, log, merge=False))
+-    run([sys.executable, SUITE / 'scripts/collect-licenses.py', metadata, 'cadcraft-web',
+          candidate / 'licenses/rust'], env=env, log=log)
+     return candidate, summaries
+ 
+@@ -335,13 +259,10 @@
+                     suite = work / 'suite'
+                     shutil.copytree(SUITE, suite, ignore=shutil.ignore_patterns('plugin', '__pycache__'))
+                     pins = json.loads((suite / 'upstream.json').read_text())
+-                    if row['id'] != 'cad-viewer':
+-                        pins[row['id']] = {**row['target'], 'plugin_version': row['candidate_version']}
+-                        write_json(suite / 'upstream.json', pins)
+-                    if row['id'] == 'cad-viewer':
+-                        candidate, summaries = cad_candidate(row, work / 'upstream', plan, work, env, log, probe)
+-                    else:
+-                        candidate, summaries = editor_candidate(row, work / 'upstream', suite, work, env, log, probe)
++                    editor = 'cadcraft' if row['id'] == 'cad-viewer' else row['id']
++                    pins[editor] = {**row['target'], 'plugin_version': row['candidate_version']}
++                    write_json(suite / 'upstream.json', pins)
++                    candidate, summaries = editor_candidate(row, work / 'upstream', suite, work, env, log, probe)
+                     if probe:
+                         entry.update(status='probe_only', tests=summaries)
+                         print(f'{row["id"]}: first adapter compatible; no candidate built')
+@@ -395,27 +316,14 @@
+         raise ValueError('Source has uncommitted work; adoption will not overwrite it')
+     if run(['git', 'rev-parse', 'HEAD'], ROOT / 'source').strip() != plan['suite_revision']:
+         raise ValueError('Source changed since candidate preparation')
+-    if any(row['id'] == 'cad-viewer' for row in candidates):
+-        cad = ROOT / 'cad-source'
+-        canonical = plan['cad_source']
+-        if not cad.exists():
+-            run(['git', 'clone', '--filter=blob:none', '--no-checkout', canonical['repo'], cad])
+-            run(['git', 'sparse-checkout', 'set', canonical['path']], cad)
+-            run(['git', 'checkout', '-b', 'craft-upgrades', canonical['ref']], cad)
+-        if run(['git', 'status', '--porcelain'], cad).strip():
+-            raise ValueError('CAD source has uncommitted work')
+-        if run(['git', 'rev-parse', 'HEAD'], cad).strip() != canonical['ref']:
+-            raise ValueError('CAD canonical source changed; rediscover before adoption')
+     pins = json.loads((SUITE / 'upstream.json').read_text())
+     staged = []
+     for row in candidates:
+         selected = next(item for item in plan['plugins'] if item['id'] == row['id'])
+         source = ROOT / row['candidate']
+-        if row['id'] == 'cad-viewer':
+-            target = ROOT / 'cad-source' / plan['cad_source']['path']
+-        else:
+-            target = SUITE / 'plugin' / row['id']
+-            pins[row['id']] = {**selected['target'], 'plugin_version': selected['candidate_version']}
++        target = SUITE / 'plugin' / row['id']
++        editor = 'cadcraft' if row['id'] == 'cad-viewer' else row['id']
++        pins[editor] = {**selected['target'], 'plugin_version': selected['candidate_version']}
+         staged.append((source, target))
+     replace_candidates(staged, SUITE / 'upstream.json', pins)
+     adoption = {'result_sha256': reviewed, 'ids': [row['id'] for row in candidates],
+@@ -440,7 +348,8 @@
+             else:
+                 shutil.copytree(source, stage / 'new')
+         for target, stage in prepared:
+-            target.rename(stage / 'old')
++            if target.exists():
++                target.rename(stage / 'old')
+             applied.append((target, stage))
+             (stage / 'new').rename(target)
+     except Exception:
+@@ -451,7 +360,8 @@
+                         shutil.rmtree(target)
+                     else:
+                         target.unlink()
+-                (stage / 'old').rename(target)
++                if (stage / 'old').exists():
++                    (stage / 'old').rename(target)
+         except Exception:
+             keep_backups = True
+             print(f'Rollback failed; preserve backups: {[str(stage) for _, stage in prepared]}', file=sys.stderr)

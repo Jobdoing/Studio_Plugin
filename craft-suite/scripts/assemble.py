@@ -3,14 +3,24 @@ import gzip
 import json
 import shutil
 import sys
+import tomllib
 from pathlib import Path
 
 editor = sys.argv[1]
 source, build, output, font_dir = (Path(p).resolve() for p in sys.argv[2:])
 suite = Path(__file__).resolve().parents[1]
-upstream = json.loads((suite / "upstream.json").read_text())[editor]
-title = {"wordcraft": "WordCraft", "deckcraft": "DeckCraft", "gridcraft": "GridCraft", "pdfcraft": "PdfCraft"}[editor]
-language = {"wordcraft": "zh-Hant", "deckcraft": "zh-Hant", "gridcraft": "zh-Hant", "pdfcraft": "zh-Hant"}[editor]
+pins = json.loads((suite / "upstream.json").read_text())
+if editor == "cadcraft" and editor not in pins:
+    # NOTE(ceiling): Bootstrap only v0.18.0/0.5.8 here; future releases must use the pipeline's registry pin.
+    assert tomllib.loads((source / "Cargo.toml").read_text())["workspace"]["package"]["version"] == "0.18.0"
+    import subprocess
+    commit = "32238e83c2c8bf643994132883e94bc96961f649"
+    assert subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=source, text=True).strip() == commit
+    upstream = {"tag": "v0.18.0", "commit": commit, "plugin_version": "0.5.8"}
+else:
+    upstream = pins[editor]
+title = {"wordcraft": "WordCraft", "deckcraft": "DeckCraft", "gridcraft": "GridCraft", "pdfcraft": "PdfCraft", "cadcraft": "CADCraft"}[editor]
+language = {"wordcraft": "zh-Hant", "deckcraft": "zh-Hant", "gridcraft": "zh-Hant", "pdfcraft": "zh-Hant", "cadcraft": "zh-Hant"}[editor]
 canvas_id = "pdfcraft" if editor == "pdfcraft" else f"{editor}_canvas"
 loading = "" if editor == "pdfcraft" else f'<div id="{editor}_loading">Loading {title}…</div>'
 if output.exists():
@@ -32,7 +42,7 @@ const bytes = await new Response(response.body.pipeThrough(new DecompressionStre
 await init({{ module_or_path: bytes }});
 ''')
 (output / "plugin.json").write_text(json.dumps({
-    "id": editor, "title": title, "kind": "app", "scope": "project", "desktop_only": True,
+    "id": "cad-viewer" if editor == "cadcraft" else editor, "title": title, "kind": "app", "scope": "project", "desktop_only": True,
     "version": upstream.get("plugin_version", upstream["tag"].removeprefix("v")), "uses": {"studio-docs": {"access": "write"}},
 }, indent=2) + "\n")
 (output / "index.html").write_text(f'''<!doctype html>

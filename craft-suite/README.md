@@ -1,7 +1,7 @@
 # Craft editors for Studio
 
-Four independent project plugins adapt the upstream WordCraft, DeckCraft,
-GridCraft and PdfCraft web editors to Studio's document center and local files. They are modified
+Five independent project plugins adapt the upstream WordCraft, DeckCraft,
+GridCraft, PdfCraft and CADCraft web editors to Studio's document center and local files. They are modified
 distributions, with no endorsement implied by the upstream authors.
 
 ## File access
@@ -31,7 +31,7 @@ continuation. Later edits remain unsaved. Batch outputs acknowledge every file;
 a partial batch reports the exact completed count and keeps its continuation
 blocked. The iframe sandbox is unchanged; dropped files remain disabled.
 
-WordCraft, PdfCraft, GridCraft and DeckCraft default to Traditional Chinese.
+WordCraft, PdfCraft, GridCraft, DeckCraft and CADCraft default to Traditional Chinese.
 GridCraft retains its Simplified Chinese option. DeckCraft's display translation
 boundaries are adapted from upstream PR 34; its engine stays at the pinned version.
 The licensed Noto Sans CJK TC font is bundled for Chinese rendering.
@@ -53,7 +53,7 @@ refuse to reapply over already modified files.
    `scripts/prepare-file-access.py <editor> <prepared-checkout>`. The second pass
    copies the current shared Rust and editor save/web adapters. Both passes require their
    expected pinned input and refuse to reapply over modified files.
-   For GridCraft and DeckCraft, also run `scripts/prepare-localization.py <editor>
+   For GridCraft, DeckCraft and CADCraft, also run `scripts/prepare-localization.py <editor>
    <prepared-checkout>` after those two passes. This preserves the existing Studio
    save adapters and adds only the reviewed interface localization patch/catalogs.
 4. In the upstream `apps/<editor>-web` directory, run Trunk's release build with
@@ -86,6 +86,18 @@ replace it. See `docs/design.md` for the recorded evidence and remaining gates.
 
 Publishing uses Studio's existing owner signing and marketplace channel tools.
 The source repository does not contain signing keys or deployment credentials.
+
+CADCraft uses the internal editor key `cadcraft` and Studio plugin ID `cad-viewer`.
+The adapter requires `CRAFT_FONTS_DIR` with the existing pinned Noto Sans CJK TC
+face. `scripts/check-cad-localization.py <upstream>` checks every Simplified
+Chinese catalog key against `src/cad-zh-hant.tsv`, including placeholders and
+plural forms. `scripts/convert-cad-catalog.py <upstream>` regenerates the catalog
+with OpenCC and the reviewed Taiwan terminology. After preparation, run
+`scripts/check-cad-save.py <prepared-upstream> <external-log-directory>` for save
+receipt mutation checks. See `docs/cadcraft-v018-integration.md` for acceptance
+and the upstream WASM DWG limitation. The CAD bootstrap pin in `assemble.py`
+only covers v0.18.0 / plugin 0.5.8; the release pipeline must record later pins
+in `upstream.json`.
 
 PdfCraft Save includes pending page text, paragraph text and formatting, comment
 and reply drafts, form/fill text, and bookmark titles on their original document.

@@ -6,10 +6,10 @@ import sys
 import tomllib
 
 editor, directory = sys.argv[1:]
-assert editor in ('gridcraft', 'deckcraft'), 'Only GridCraft and DeckCraft need this pass'
+assert editor in ('gridcraft', 'deckcraft', 'cadcraft'), 'Unsupported localization editor'
 source = Path(directory).resolve()
 suite = Path(__file__).resolve().parents[1]
-expected = {'gridcraft': '0.9.0', 'deckcraft': '0.16.0'}[editor]
+expected = {'gridcraft': '0.9.0', 'deckcraft': '0.16.0', 'cadcraft': '0.18.0'}[editor]
 actual = tomllib.loads((source / 'Cargo.toml').read_text())['workspace']['package']['version']
 if actual != expected:
     raise RuntimeError(f'Expected {editor} {expected}; got {actual}')
@@ -20,9 +20,12 @@ ui = source / 'crates/ui-egui/src'
 files = {
     'gridcraft': [('grid-zh-hant.rs', 'i18n/zh_hant.rs'), ('grid-zh-hant-tests.rs', 'studio_zh_hant_tests.rs')],
     'deckcraft': [('deck-i18n.rs', 'i18n.rs'), ('deck-zh-hant.tsv', 'i18n/zh-hant.tsv'), ('deck-zh-hant-tests.rs', 'studio_zh_hant_tests.rs')],
+    'cadcraft': [('cad-zh-hant.tsv', 'i18n/zh-hant.tsv')],
 }
 for original, target in files[editor]:
     output = ui / target
     output.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(suite / 'src' / original, output)
+if editor == 'cadcraft':
+    subprocess.run([sys.executable, suite / 'scripts/check-cad-localization.py', source], check=True)
 print(f'Applied Traditional Chinese interface to {editor} {actual}')
