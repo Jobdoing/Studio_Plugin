@@ -128,10 +128,10 @@ pub fn poll(app: &mut SlideApp, ctx: &egui::Context) {
                     newer_edits = app.session.documents().iter().any(|d| d.uid == uid && d.is_dirty());
                 }
                 app.set_status(if newer_edits {
-                    format!("Saved {name}; newer changes remain unsaved")
-                } else { format!("Saved {name} to the document center") });
+                    crate::i18n::format("Saved {name}; newer changes remain unsaved", std::slice::from_ref(&name))
+                } else { crate::i18n::format("Saved {name} to the document center", std::slice::from_ref(&name)) });
             }
-            Err(e) => app.set_status(format!("Document-center save was not confirmed: {e}")),
+            Err(e) => app.set_status(crate::i18n::format("Document-center save was not confirmed: {e}", &[e.to_string()])),
         }
     }
     if !ACTIVE.with_borrow(|a| *a) {
