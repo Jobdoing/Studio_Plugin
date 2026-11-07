@@ -50,11 +50,13 @@ text = text[:start] + '''fn download(saves: &AsyncSaves, ctx: &egui::Context, pa
 ''' + text[end:]
 replace_once('use std::cell::{Cell, RefCell};', 'use std::cell::Cell;\n#[allow(dead_code)]\n#[path = "studio.rs"]\nmod studio;')
 replace_once('on_dirty: Some(Box::new(move |d| dirty.set(d))),', 'on_dirty: Some(Box::new(move |d| { dirty.set(d); studio::dirty(d); })),')
-replace_once('        self.app.logic(ctx);', '        self.app.logic(ctx);\n        studio::dirty(self.app.session.dirty);')
-replace_once('                    app.autosave = false;', '                    app.ui.language = "zh-hant".into();\n                    app.autosave = false;')
-start = text.index('        let dropped = ctx.input_mut(|i| std::mem::take(&mut i.raw.dropped_files));')
-end = text.index('        let msgs = ', start)
-text = text[:start] + '        ctx.input_mut(|i| i.raw.dropped_files.clear());\n' + text[end:]
+# Upstream logic and UI now both call report_dirty; no second active-only report.
+replace_once('                    crate::prefs::restore(&mut app, stored.as_deref());', '                    crate::prefs::restore(&mut app, stored.as_deref());\n                    app.ui.language = "zh-hant".into();')
+# Studio owns document permissions and receipts; the upstream host only posts bytes.
+replace_once('        let bridge = crate::host::Bridge::detect(&canvas);', '        let bridge: Option<crate::host::Bridge> = None;')
+start = text.index('        if ui.ctx().current_pass_index() == 0 {')
+end = text.index('        self.app.ui(ui);', start)
+text = text[:start] + '        ui.ctx().input_mut(|i| i.raw.dropped_files.clear());\n' + text[end:]
 # The document center is the source for images/fonts too; local paste/font access is disabled.
 replace_once('                    app.services.pasted = Some(pasted);', '                    app.services.pasted = None;')
 replace_once('        load_system_fonts: Some(Box::new(move || {\n            load_system_fonts(font_ctx.clone(), font_messages.clone());\n        })),', '        load_system_fonts: None,')
@@ -65,15 +67,17 @@ text = text[:start] + text[end:]
 start = text.index('/// Largest picture pasted from the browser')
 end = text.index('/// `dirty` is the flag', start)
 text = text[:start] + text[end:]
-start = text.index('/// Most local fonts one Load System Installed Fonts installs')
+start = text.index('/// Most files one multi-select pick (Add Font) reads.')
 end = text.index('/// Whether the system has animation effects', start)
 text = text[:start] + text[end:]
 start = text.index('fn mime_for(')
 text = text[:start]
-text = '\n'.join(line for line in text.split('\n') if not line.startswith(('const DOC_EXTS:', 'const IMAGE_EXTS:', 'const RECIPIENT_EXTS:')))
+start = text.index('const DOC_EXTS:')
+end = text.index('mod font_store;', start)
+text = text[:start] + text[end:]
 replace_once('                    let messages = Rc::new(RefCell::new(Vec::new()));\n', '')
-replace_once('services(inbox.clone(), cc.egui_ctx.clone(), dirty, saves.clone(), messages.clone())', 'services(inbox, cc.egui_ctx.clone(), dirty, saves.clone())')
-replace_once('WebShell { app, inbox, messages }', 'WebShell { app }')
+replace_once('services(inbox.clone(), cc.egui_ctx.clone(), dirty, saves.clone(), messages.clone())', 'services(inbox.clone(), cc.egui_ctx.clone(), dirty, saves.clone())')
+replace_once('WebShell { app, inbox, messages, prefs }', 'WebShell { app, prefs }')
 replace_once('    inbox: Inbox,\n    messages: Rc<RefCell<Vec<String>>>,\n', '')
 start = text.index('        let msgs = std::mem::take(')
 end = text.index('        self.app.logic(ctx);', start)
@@ -104,7 +108,7 @@ async_text = async_text.replace(old, '''    /// Record the document center's ack
 
 ''' + old)
 async_saves.write_text(async_text)
-ui = source / "crates/ui-egui/src/lib.rs"
+ui = source / "crates/ui-egui/src/app/files.rs"
 ui_text = ui.read_text()
 old = '        for (ticket, outcome) in saves.take_finished() {\n'
 assert ui_text.count(old) == 1
@@ -119,14 +123,17 @@ ui_text = ui_text.replace(old, '''                    async_saves::SaveOutcome::
                         }
                         log::info!("saved {} through the save picker", save.name);
                     },''')
-test_anchor = '    const UNSAVED: &str = "My unsaved novel chapter";'
+ui.write_text(ui_text)
+ui = source / "crates/ui-egui/src/tests.rs"
+ui_text = ui.read_text()
+test_anchor = 'const UNSAVED: &str = "My unsaved novel chapter";'
 assert ui_text.count(test_anchor) == 1
 ui_text = ui_text.replace(test_anchor, (suite / "src/word-save-tests.rs").read_text() + '\n' + test_anchor)
 ui.write_text(ui_text)
 fonts = source / "crates/fonts/build.rs"
 font_source = fonts.read_text()
-old = 'if wasm && !(*family == "BIZ UDPGothic" && *style == "Regular") {'
+old = 'if wasm && !small_ui_face {'
 if font_source.count(old) != 1:
     raise RuntimeError("Upstream font build changed")
-fonts.write_text(font_source.replace(old, 'if wasm && !(["BIZ UDPGothic", "Noto Sans CJK TC"].contains(family) && *style == "Regular") {'))
+fonts.write_text(font_source.replace(old, 'if wasm && !small_ui_face && !(["BIZ UDPGothic", "Noto Sans CJK TC"].contains(family) && *style == "Regular") {'))
 print("WordCraft Studio source adapter applied")
