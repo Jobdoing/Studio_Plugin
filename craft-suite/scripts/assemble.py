@@ -1,6 +1,7 @@
 """Assemble a modified editor web build; this does not sign or publish it."""
 import gzip
 import json
+import re
 import shutil
 import sys
 from pathlib import Path
@@ -19,10 +20,18 @@ output.mkdir(parents=True)
 for path in build.iterdir():
     if path.suffix == ".js":
         shutil.copyfile(path, output / path.name)
+# wasm-bindgen inline JS (e.g. eframe's text agent) that the bindings import.
+if (build / "snippets").is_dir():
+    shutil.copytree(build / "snippets", output / "snippets")
 for name in ("documents.mjs", "picker.mjs", "runtime.mjs"):
     shutil.copyfile(suite / "src" / name, output / name)
 js, = build.glob("*.js")
 wasm, = build.glob("*.wasm")
+# A missing relative import leaves the editor on its loading screen; fail here instead.
+for script in output.rglob("*.js"):
+    for target in re.findall(r"""(?:from|import)\s*\(?\s*['"](\.{1,2}/[^'"]+)['"]""", script.read_text()):
+        if not (script.parent / target).resolve().is_file():
+            raise RuntimeError(f"{script.relative_to(output)} imports missing {target}")
 (output / (wasm.name + ".gz")).write_bytes(gzip.compress(wasm.read_bytes(), mtime=0))
 (output / "boot.mjs").write_text(f'''import './runtime.mjs';
 import init from './{js.name}';
