@@ -29,7 +29,7 @@ check("baseline")
 mutations = [
     ("all-documents", "crates/ui-egui/src/studio_io.rs",
      'save(app, "deckcraft", false);', 'save(app, "deckcraft", false);\n        break;', 1),
-    ("fill-target", "crates/ui-egui/src/panes.rs",
+    ("fill-target", "crates/ui-egui/src/panels/format_shape.rs",
      'app.pick_and_run("picture", "shape.fill", &json!({"ids": ids}))',
      'app.pick_and_run("picture", "shape.fill", &json!({}))', 1),
     ("macro-rejection", "crates/pptx/src/opc.rs",

@@ -10,10 +10,10 @@ env['RUSTC'] = subprocess.check_output(['rustup', 'which', 'rustc'], text=True).
 mutations = [
     ('gridcraft', 'crates/ui-egui/src/i18n.rs', 'return Some(Self::ZhHant);', 'return Some(Self::Zh);', 'traditional_chinese_locales'),
     ('gridcraft', 'crates/ui-egui/src/i18n.rs', 'Self::ZhHant => zh_hant::translate(text)', 'Self::ZhHant => zh::translate(text)', 'traditional_chinese_locales'),
-    ('deckcraft', 'crates/ui-egui/src/lib.rs', '"zh-hant" | "zh-Hant" | "zh-TW" => i18n::Language::ZhHant', '"zh-hant" | "zh-Hant" | "zh-TW" => i18n::Language::En', 'language_changes_preserve'),
+    ('deckcraft', 'crates/ui-egui/src/app/commands.rs', '"zh-hant" | "zh-Hant" | "zh-TW" => i18n::Language::ZhHant', '"zh-hant" | "zh-Hant" | "zh-TW" => i18n::Language::En', 'language_changes_preserve'),
     ('deckcraft', 'crates/ui-egui/src/theme.rs', 'f.family == "Noto Sans CJK TC" &&', 'f.family == "missing TC face" &&', 'bundled_interface_fonts_cover'),
     ('deckcraft', 'crates/ui-egui/src/ribbon.rs', 'let label = crate::i18n::tr("File");', 'let label = "File";', 'rendered_file_tab'),
-    ('deckcraft', 'crates/ui-egui/src/status.rs', 'left_rect.max.x + 12.0', 'rect.min.x + 120.0', 'rendered_file_tab'),
+    ('deckcraft', 'crates/ui-egui/src/status.rs', 'sr.max.x + 16.0', 'rect.min.x + 120.0', 'rendered_file_tab'),
 ]
 for index, (editor, name, before, after, test) in enumerate(mutations, 1):
     path = cache / editor / name

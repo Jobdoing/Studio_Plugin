@@ -1,19 +1,35 @@
 fn services(inbox: Inbox, ctx: egui::Context) -> Services {
     let open_inbox = inbox.clone();
+    let presenter = match crate::presenter::BrowserHost::new(ctx.clone()) {
+        Ok(host) => Some(Box::new(host) as Box<dyn deckcraft_ui_egui::presenter::Host>),
+        Err(error) => {
+            log::error!("Presenter window: {error}");
+            None
+        }
+    };
     Services {
+        presenter,
         open_async: Some(Box::new(move |purpose: &str, request: u64| {
             let inbox = open_inbox.clone();
             let ctx = ctx.clone();
-            let purpose = match purpose { "open" => "presentation", "theme" => "deck-theme", other => other }.to_owned();
+            let purpose = match purpose {
+                "open" => "presentation",
+                "theme" => "deck-theme",
+                other => other,
+            }
+            .to_owned();
             wasm_bindgen_futures::spawn_local(async move {
                 if purpose == "presentation" {
                     let event = match studio::open_document(&purpose).await {
                         Ok(Some((name, bytes, token))) => {
                             deckcraft_ui_egui::studio_io::remember_open(request, token);
                             InboxEvent::File(InboxFile { id: request, name, bytes })
-                        },
+                        }
                         Ok(None) => InboxEvent::Cancelled { id: request },
-                        Err(error) => { log::error!("Open failed: {error}"); InboxEvent::Cancelled { id: request } },
+                        Err(error) => {
+                            log::error!("Open failed: {error}");
+                            InboxEvent::Cancelled { id: request }
+                        }
                     };
                     push_inbox(&inbox, event);
                     ctx.request_repaint();

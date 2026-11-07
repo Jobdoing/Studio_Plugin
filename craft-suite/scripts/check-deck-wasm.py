@@ -5,7 +5,7 @@ import sys
 
 source = Path(sys.argv[1]).resolve()
 text = (source / "crates/engine/src/recovery.rs").read_text()
-body = text.split("pub fn instance_id() -> u64 {", 1)[1].split("fn lock_path", 1)[0]
+body = re.sub(r"//.*", "", text.split("pub fn instance_id() -> u64 {", 1)[1].split("fn lock_path", 1)[0])
 guarded = re.compile(r'#\[cfg\(not\(target_arch = "wasm32"\)\)\]\s*h\.write_u32\(std::process::id\(\)\);')
 assert len(guarded.findall(body)) == 1, "The instance PID call must be native-only"
 assert "std::process::id()" not in guarded.sub("", body), "An unguarded PID call would panic in the browser"
