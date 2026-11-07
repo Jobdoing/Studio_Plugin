@@ -6,104 +6,1013 @@
 +<html lang="zh-Hant">
  <head>
    <meta charset="utf-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
 --- a/apps/gridcraft-web/src/web.rs
 +++ b/apps/gridcraft-web/src/web.rs
-@@ -46,7 +46,7 @@
+@@ -70,7 +70,7 @@
+                             _ => {}
+                         }
                      }
-                     let mut app = SheetApp::new(session, services);
-                     app.ui.system_theme = true;
 -                    app.ui.language = gridcraft_ui_egui::i18n::Language::Zh;
 +                    app.ui.language = gridcraft_ui_egui::i18n::Language::ZhHant;
-                     SheetApp::setup_context_for_language(&cc.egui_ctx, false, app.ui.language);
-                     Ok(Box::new(WebShell { app, bridge: app_bridge }))
-                 }),
-@@ -64,7 +64,6 @@
- fn query() -> String {
-     web_sys::window().and_then(|w| w.location().search().ok()).unwrap_or_default()
- }
--
- 
- struct WebShell {
-     app: SheetApp,
-@@ -183,4 +182,3 @@
-     iframe.set_src(&url);
-     Ok(())
- }
--
---- a/crates/ui-egui/src/ribbon.rs
-+++ b/crates/ui-egui/src/ribbon.rs
-@@ -52,15 +52,19 @@
-         ui.horizontal_centered(|ui| {
-             ui.add_space(TITLE_LEFT_PAD);
-             // AutoSave toggle (saves after each change when the workbook has a file).
--            ui.label(egui::RichText::new("AutoSave").font(theme::ui_font(12.5)).color(t.text_dim));
-+            ui.label(egui::RichText::new(app.ui.language.tr("AutoSave")).font(theme::ui_font(12.5)).color(t.text_dim));
-             let on = app.grid.autosave();
-             let (r, resp) = ui.allocate_exact_size(vec2(30.0, 16.0), Sense::click());
-             ui.painter().rect_filled(r, 8.0, if on { t.accent } else { Color32::TRANSPARENT });
-             ui.painter().rect_stroke(r, 8.0, Stroke::new(1.0, if on { t.accent } else { t.text_dim }), StrokeKind::Inside);
-             let knob = if on { pos2(r.right() - 8.0, r.center().y) } else { pos2(r.left() + 8.0, r.center().y) };
-             ui.painter().circle_filled(knob, 5.0, if on { Color32::WHITE } else { t.text_dim });
--            let tip = if app.services.studio_saves.is_some() { "AutoSave needs a persistent destination. Use Save to choose a document-center destination." } else { "AutoSave: save after every change (workbooks saved to a file)" };
--            if resp.on_hover_text(tip).clicked() && app.services.studio_saves.is_none() {
-+            let tip = if app.services.studio_saves.is_some() {
-+                "AutoSave needs a persistent destination. Use Save to choose a document-center destination."
-+            } else {
-+                "AutoSave: save after every change (workbooks saved to a file)"
-+            };
-+            if resp.on_hover_text(app.ui.language.tr(tip)).clicked() && app.services.studio_saves.is_none() {
-                 app.grid.toggle_autosave();
+                     // Preferences from an earlier visit (#1562), as the desktop app reads `ui.json`
+                     // and `prefs.json`; a saved language replaces the browser's.
+                     let (stored_ui, stored_prefs) = (stored(crate::prefs::UI_KEY), stored(crate::prefs::PREFS_KEY));
+--- a/crates/ui-egui/src/backstage/options.rs
++++ b/crates/ui-egui/src/backstage/options.rs
+@@ -29,7 +29,7 @@
+     section(ui, lang, "Options|Save");
+     let mut autosave = app.ui.autosave;
+     if app.services.studio_saves.is_some() {
+-        ui.label("AutoSave needs a persistent destination. Use Save to choose a document-center destination.");
++        ui.label(lang.tr("AutoSave needs a persistent destination. Use Save to choose a document-center destination."));
+     }
+     if ui.add_enabled(app.services.studio_saves.is_none(), egui::Checkbox::new(&mut autosave, lang.tr("Save .xlsx workbooks automatically after every change"))).changed() {
+         app.toggle_autosave();
+--- a/crates/ui-egui/src/code_editor.rs
++++ b/crates/ui-egui/src/code_editor.rs
+@@ -716,7 +716,8 @@
+     let out = scrolled.inner;
+     // The field has no visible label; name it for screen readers and the strict kittest
+     // accessibility check.
+-    let mut response = out.response.response.accessible_name(options.name);
++    let name = crate::i18n::current(ui.ctx()).tr(options.name);
++    let mut response = out.response.response.accessible_name(name);
+     if edited.is_some() {
+         response.mark_changed();
+     }
+--- a/crates/ui-egui/src/control_ui.rs
++++ b/crates/ui-egui/src/control_ui.rs
+@@ -45,6 +45,7 @@
+ /// Insert › Controls placement: while a kind is armed, a drag on the grid draws the control and a
+ /// click places it at its default size. Escape disarms. True when it used the pointer.
+ pub fn place(app: &mut SheetApp, ui: &Ui, resp: &egui::Response, geo: &Geo, sh: &Sheet) -> bool {
++    let studio_language = crate::i18n::current(ui.ctx());
+     let Some(kind) = app.grid.placing else {
+         app.grid.place_start = None;
+         return false;
+@@ -96,7 +97,7 @@
+                 }
              }
-             ui.add_space(6.0);
+         }
+-        Err(e) => app.message = Some(("Insert Control".into(), crate::clean_error(&e))),
++        Err(e) => app.message = Some((studio_language.tr("Insert Control").into(), crate::clean_error(&e))),
+     }
+     true
+ }
+@@ -163,15 +164,15 @@
+     let bound = press_binding(app, &params);
+     let Err(e) = app.run("control.press", params.clone()) else { return };
+     let (text, choices) = if let Some(q) = approve_text(&e) {
+-        (q, json!([["Run", {"approve": true}]]))
++        (q, json!([[app.ui.language.tr("Run"), {"approve": true}]]))
+     } else if let Some(q) = confirm_text(&e) {
+         let what = q.split_once(" Overwrite them").map_or(q.as_str(), |(a, _)| a).trim_end_matches(['.', ' ']).to_string();
+         (
+-            format!("{what}. Overwrite them, or move the data out of the way?"),
+-            json!([["Overwrite", {"onConflict": "overwrite"}], ["Shift Down", {"onConflict": "shiftDown"}], ["Shift Right", {"onConflict": "shiftRight"}]]),
++            if app.ui.language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("{what}. Overwrite them, or move the data out of the way?", &[("what", format!("{}", what))]) } else { format!("{what}. Overwrite them, or move the data out of the way?") },
++            json!([[app.ui.language.tr("Overwrite"), {"onConflict": "overwrite"}], [app.ui.language.tr("Shift Down"), {"onConflict": "shiftDown"}], [app.ui.language.tr("Shift Right"), {"onConflict": "shiftRight"}]]),
+         )
+     } else {
+-        app.message = Some(("Button".into(), crate::clean_error(&e)));
++        app.message = Some((app.ui.language.tr("Button").into(), crate::clean_error(&e)));
+         return;
+     };
+     app.open_dialog("controlQuestion", json!({"text": text, "params": params, "choices": choices, "bound": bound}));
+@@ -190,6 +191,7 @@
+
+ /// The prompt [`press`] opens: the question, a button per answer, and Cancel.
+ pub fn question_dialog(app: &mut SheetApp, ui: &mut Ui, d: &mut Dialog, open: &mut bool) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     ui.label(val(d, "text"));
+     ui.add_space(8.0);
+     let choices: Vec<(String, Json)> = d
+@@ -219,11 +221,11 @@
+         let now = press_binding(app, &params);
+         if asked.is_none() || asked != now.as_deref() {
+             let why = if now.is_none() {
+-                "The button is gone, so nothing ran."
++                studio_language.tr("The button is gone, so nothing ran.")
+             } else {
+-                "The button changed while the question was open, so nothing ran. Press it again to see what it runs now."
++                studio_language.tr("The button changed while the question was open, so nothing ran. Press it again to see what it runs now.")
+             };
+-            app.message = Some(("Button".into(), why.into()));
++            app.message = Some((studio_language.tr("Button").into(), why.into()));
+             return;
+         }
+         if let (Some(p), Some(x)) = (params.as_object_mut(), extra.as_object()) {
+@@ -272,22 +274,26 @@
+             v["macro"] = json!(macros(app).first().map(|m| m.0.clone()).unwrap_or_default());
+         }
+     }
+-    Some(Dialog::custom("assignAction", &format!("Assign Action: {}", c.display_name()), v))
++    Some(Dialog::custom("assignAction", &if app.ui.language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("Assign Action: {}", &[("0", format!("{}", c.display_name()))]) } else { format!("Assign Action: {}", c.display_name()) }, v))
+ }
+
+ /// The `control.assign` params the dialog describes, or why it can't yet.
+ pub fn assign_params(d: &Dialog) -> Result<Json, String> {
++    assign_params_for_language(d, crate::i18n::Language::En)
++}
++
++fn assign_params_for_language(d: &Dialog, language: crate::i18n::Language) -> Result<Json, String> {
+     let id = d.values.get("id").cloned().unwrap_or(Json::Null);
+     if val(d, "mode") == "command" {
+         let command = val(d, "command");
+         if command.trim().is_empty() {
+-            return Err("Choose a command.".into());
++            return Err(language.tr("Choose a command.").into());
+         }
+         let text = val(d, "params");
+         let params: Json = if text.trim().is_empty() {
+             json!({})
+         } else {
+-            serde_json::from_str(&text).map_err(|e| format!("The parameters aren't valid JSON: {e}"))?
++            serde_json::from_str(&text).map_err(|e| if language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("The parameters aren't valid JSON: {e}", &[("e", format!("{}", e))]) } else { format!("The parameters aren't valid JSON: {e}") })?
+         };
+         if !params.is_object() {
+             return Err("The parameters must be a JSON object, such as {\"range\": \"A1:B2\"}.".into());
+@@ -296,11 +302,11 @@
+     }
+     let name = val(d, "macro");
+     if name.trim().is_empty() {
+-        return Err("Type or choose a macro name.".into());
++        return Err(language.tr("Type or choose a macro name.").into());
+     }
+     let input = if val(d, "input") == "fixed" { val(d, "range") } else { "selection".into() };
+     if input.trim().is_empty() {
+-        return Err("Type the range the macro always runs on.".into());
++        return Err(language.tr("Type the range the macro always runs on.").into());
+     }
+     Ok(json!({"id": id, "macro": name.trim(), "input": input.trim(), "output": val(d, "output").trim()}))
+ }
+@@ -326,24 +332,25 @@
+ }
+
+ pub fn assign_dialog(app: &mut SheetApp, ui: &mut Ui, d: &mut Dialog, open: &mut bool) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     let t = Tokens::get(ui.ctx());
+     let mut mode = val(d, "mode");
+     ui.horizontal(|ui| {
+-        ui.radio_value(&mut mode, "macro".to_string(), "Run a macro");
+-        ui.radio_value(&mut mode, "command".to_string(), "Run a command");
++        ui.radio_value(&mut mode, "macro".to_string(), studio_language.tr("Run a macro"));
++        ui.radio_value(&mut mode, "command".to_string(), studio_language.tr("Run a command"));
+     });
+     d.values.insert("mode".into(), json!(mode));
+     ui.add_space(4.0);
+     if mode == "macro" {
+         let macros = macros(app);
+         let mut name = val(d, "macro");
+-        ui.label("Macro name:");
++        ui.label(studio_language.tr("Macro name:"));
+         ui.add(egui::TextEdit::singleline(&mut name).desired_width(f32::INFINITY).id_salt("assign_macro"));
+         egui::Frame::NONE.fill(t.input_bg).stroke(Stroke::new(1.0, t.input_border)).inner_margin(2.0).show(ui, |ui| {
+             ui.set_min_size(vec2(ui.available_width(), 110.0));
+             egui::ScrollArea::vertical().max_height(110.0).show(ui, |ui| {
+                 if macros.is_empty() {
+-                    ui.label(egui::RichText::new("This workbook has no macros yet.").italics().color(t.text_dim));
++                    ui.label(egui::RichText::new(studio_language.tr("This workbook has no macros yet.")).italics().color(t.text_dim));
+                 }
+                 for (n, desc) in &macros {
+                     let r =
+@@ -358,24 +365,24 @@
+         d.values.insert("macro".into(), json!(name));
+         ui.add_space(4.0);
+         let mut input = val(d, "input");
+-        ui.label("Run it on:");
+-        ui.radio_value(&mut input, "selection".to_string(), "The selection when the button is pressed");
++        ui.label(studio_language.tr("Run it on:"));
++        ui.radio_value(&mut input, "selection".to_string(), studio_language.tr("The selection when the button is pressed"));
+         ui.horizontal(|ui| {
+-            ui.radio_value(&mut input, "fixed".to_string(), "Always this range:");
++            ui.radio_value(&mut input, "fixed".to_string(), studio_language.tr("Always this range:"));
+             if input == "fixed" {
+                 text_field(ui, d, "range", 160.0);
+             }
+         });
+         d.values.insert("input".into(), json!(input));
+         ui.horizontal(|ui| {
+-            ui.label("Output to (optional):");
++            ui.label(studio_language.tr("Output to (optional):"));
+             text_field(ui, d, "output", 120.0);
+         });
+     } else {
+         let mut search = val(d, "search");
+         let command = val(d, "command");
+-        ui.label("Command:");
+-        ui.add(egui::TextEdit::singleline(&mut search).hint_text("Search commands").desired_width(f32::INFINITY).id_salt("assign_search"));
++        ui.label(studio_language.tr("Command:"));
++        ui.add(egui::TextEdit::singleline(&mut search).hint_text(studio_language.tr("Search commands")).desired_width(f32::INFINITY).id_salt("assign_search"));
+         egui::Frame::NONE.fill(t.input_bg).stroke(Stroke::new(1.0, t.input_border)).inner_margin(2.0).show(ui, |ui| {
+             ui.set_min_size(vec2(ui.available_width(), 130.0));
+             egui::ScrollArea::vertical().max_height(130.0).show(ui, |ui| {
+@@ -392,12 +399,12 @@
+         if !doc.is_empty() {
+             ui.label(egui::RichText::new(doc).small().color(t.text_dim));
+         }
+-        ui.label("Parameters (JSON):");
++        ui.label(studio_language.tr("Parameters (JSON):"));
+         let mut params = val(d, "params");
+         ui.add(egui::TextEdit::multiline(&mut params).code_editor().desired_rows(3).desired_width(f32::INFINITY).id_salt("assign_params"));
+         d.values.insert("params".into(), json!(params));
+     }
+-    let problem = assign_params(d).err();
++    let problem = assign_params_for_language(d, app.ui.language).err();
+     if let Some(p) = &problem {
+         ui.label(egui::RichText::new(p).color(t.danger));
+     }
+@@ -422,11 +429,11 @@
+
+ /// Runs `control.assign` from the dialog. False (with the error shown) when it failed.
+ fn assign(app: &mut SheetApp, d: &Dialog) -> bool {
+-    let result = assign_params(d).and_then(|params| app.run("control.assign", params).map_err(|e| crate::clean_error(&e)));
++    let result = assign_params_for_language(d, app.ui.language).and_then(|params| app.run("control.assign", params).map_err(|e| crate::clean_error(&e)));
+     match result {
+         Ok(_) => true,
+         Err(e) => {
+-            app.message = Some(("Assign Action".into(), e));
++            app.message = Some((app.ui.language.tr("Assign Action").into(), e));
+             false
+         }
+     }
+@@ -455,7 +462,7 @@
+         "print": c.print,
+         "locked": c.locked,
+     });
+-    let title = if text_only { "Edit Text".to_string() } else { format!("Format Control: {}", c.display_name()) };
++    let title = if text_only { app.ui.language.tr("Edit Text").to_string() } else { if app.ui.language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("Format Control: {}", &[("0", format!("{}", c.display_name()))]) } else { format!("Format Control: {}", c.display_name()) } };
+     Some(Dialog::custom("formatControl", &title, v))
+ }
+
+@@ -466,8 +473,8 @@
+ /// The `control.format` params the dialog describes, or the first problem with them (the same
+ /// rules the engine checks, so OK is only offered when it will work).
+ pub fn format_params(app: &SheetApp, d: &Dialog) -> Result<Json, String> {
+-    let id = d.values.get("id").and_then(Json::as_u64).and_then(|i| u32::try_from(i).ok()).ok_or("The control is gone.")?;
+-    let c = control(app, id).ok_or("The control is gone.")?;
++    let id = d.values.get("id").and_then(Json::as_u64).and_then(|i| u32::try_from(i).ok()).ok_or(app.ui.language.tr("The control is gone."))?;
++    let c = control(app, id).ok_or(app.ui.language.tr("The control is gone."))?;
+     let flag = |k: &str| d.values.get(k).and_then(Json::as_bool).unwrap_or(false);
+     if d.values.get("textOnly").and_then(Json::as_bool) == Some(true) {
+         return Ok(json!({"id": id, "text": val(d, "text")}));
+@@ -479,21 +486,21 @@
+     }
+     let mut draft = c.clone();
+     for (key, label, slot) in [
+-        ("min", "Minimum value", &mut draft.min),
+-        ("max", "Maximum value", &mut draft.max),
+-        ("step", "Incremental change", &mut draft.step),
+-        ("page", "Page change", &mut draft.page),
++        ("min", app.ui.language.tr("Minimum value"), &mut draft.min),
++        ("max", app.ui.language.tr("Maximum value"), &mut draft.max),
++        ("step", app.ui.language.tr("Incremental change"), &mut draft.step),
++        ("page", app.ui.language.tr("Page change"), &mut draft.page),
+     ] {
+         if key == "page" && c.kind != ControlKind::Slider {
+             continue;
+         }
+-        *slot = whole(&val(d, key)).ok_or_else(|| format!("{label} must be a whole number from 0 to {CONTROL_MAX}."))?;
++        *slot = whole(&val(d, key)).ok_or_else(|| if app.ui.language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("{label} must be a whole number from 0 to {CONTROL_MAX}.", &[("label", format!("{}", label)), ("CONTROL_MAX", format!("{}", CONTROL_MAX))]) } else { format!("{label} must be a whole number from 0 to {CONTROL_MAX}.") })?;
+         out[key] = json!(*slot);
+     }
+     draft.check_numbers()?;
+-    let value = whole(&val(d, "value")).ok_or_else(|| format!("Current value must be a whole number from 0 to {CONTROL_MAX}."))?;
++    let value = whole(&val(d, "value")).ok_or_else(|| if app.ui.language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("Current value must be a whole number from 0 to {CONTROL_MAX}.", &[("CONTROL_MAX", format!("{}", CONTROL_MAX))]) } else { format!("Current value must be a whole number from 0 to {CONTROL_MAX}.") })?;
+     if value < draft.min || value > draft.max {
+-        return Err(format!("Current value must be between {} and {}.", draft.min, draft.max));
++        return Err(if app.ui.language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("Current value must be between {} and {}.", &[("0", format!("{}", draft.min)), ("1", format!("{}", draft.max))]) } else { format!("Current value must be between {} and {}.", draft.min, draft.max) });
+     }
+     out["value"] = json!(value);
+     out["link"] = json!(val(d, "link").trim());
+@@ -504,6 +511,7 @@
+ }
+
+ pub fn format_dialog(app: &mut SheetApp, ui: &mut Ui, d: &mut Dialog, open: &mut bool) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     let t = Tokens::get(ui.ctx());
+     let Some(c) = d.values.get("id").and_then(Json::as_u64).and_then(|i| u32::try_from(i).ok()).and_then(|id| control(app, id)) else {
+         *open = false;
+@@ -512,16 +520,16 @@
+     let text_only = d.values.get("textOnly").and_then(Json::as_bool) == Some(true);
+     if c.kind == ControlKind::Button {
+         let mut text = val(d, "text");
+-        ui.label("Text:");
++        ui.label(studio_language.tr("Text:"));
+         ui.add(egui::TextEdit::multiline(&mut text).desired_rows(2).desired_width(f32::INFINITY).id_salt("control_text"));
+         d.values.insert("text".into(), json!(text));
+     } else {
+         egui::Grid::new("format_control_grid").num_columns(2).spacing([12.0, 6.0]).show(ui, |ui| {
+-            let mut fields = vec![("value", "Current value:"), ("min", "Minimum value:"), ("max", "Maximum value:"), ("step", "Incremental change:")];
++            let mut fields = vec![("value", studio_language.tr("Current value:")), ("min", studio_language.tr("Minimum value:")), ("max", studio_language.tr("Maximum value:")), ("step", studio_language.tr("Incremental change:"))];
+             if c.kind == ControlKind::Slider {
+-                fields.push(("page", "Page change:"));
+-            }
+-            fields.push(("link", "Cell link:"));
++                fields.push(("page", studio_language.tr("Page change:")));
++            }
++            fields.push(("link", studio_language.tr("Cell link:")));
+             for (key, label) in fields {
+                 ui.label(label);
+                 text_field(ui, d, key, if key == "link" { 160.0 } else { 90.0 });
+@@ -531,7 +539,7 @@
+         if c.kind == ControlKind::Slider {
+             let mut h = d.values.get("horizontal").and_then(Json::as_bool).unwrap_or(true);
+             ui.horizontal(|ui| {
+-                ui.label("Orientation:");
++                ui.label(studio_language.tr("Orientation:"));
+                 ui.radio_value(&mut h, true, "Horizontal");
+                 ui.radio_value(&mut h, false, "Vertical");
+             });
+@@ -541,12 +549,12 @@
+     if !text_only {
+         ui.add_space(4.0);
+         ui.horizontal(|ui| {
+-            ui.label("Name:");
++            ui.label(studio_language.tr("Name:"));
+             let mut name = val(d, "name");
+             ui.add(egui::TextEdit::singleline(&mut name).hint_text(c.display_name()).desired_width(200.0).id_salt("control_name"));
+             d.values.insert("name".into(), json!(name));
+         });
+-        for (key, label) in [("locked", "Locked (when the sheet is protected)"), ("print", "Print object")] {
++        for (key, label) in [("locked", studio_language.tr("Locked (when the sheet is protected)")), ("print", studio_language.tr("Print object"))] {
+             let mut on = d.values.get(key).and_then(Json::as_bool).unwrap_or(true);
+             ui.checkbox(&mut on, label);
+             d.values.insert(key.into(), json!(on));
+@@ -563,7 +571,7 @@
+     if ok && let Ok(p) = params {
+         match app.run("control.format", p) {
+             Ok(_) => *open = false,
+-            Err(e) => app.message = Some(("Format Control".into(), crate::clean_error(&e))),
+-        }
+-    }
+-}
++            Err(e) => app.message = Some((studio_language.tr("Format Control").into(), crate::clean_error(&e))),
++        }
++    }
++}
+--- a/crates/ui-egui/src/dialogs/analysis.rs
++++ b/crates/ui-egui/src/dialogs/analysis.rs
+@@ -323,9 +323,10 @@
+ /// Data › Solver › Options: the Solver Options in the Solver Parameters window. OK keeps the
+ /// changes for the next solve; Cancel restores them.
+ fn solver_options(ui: &mut egui::Ui, d: &mut Dialog, edit: impl Fn(&mut egui::Ui, &mut Dialog, &str, f32, &str)) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     let mut done = false;
+     egui::Grid::new("solverOptions").num_columns(2).spacing(vec2(8.0, 6.0)).show(ui, |ui| {
+-        for (title, keys) in [("All Methods", &SOLVER_OPTIONS[..2]), ("Evolutionary", &SOLVER_OPTIONS[2..])] {
++        for (title, keys) in [(studio_language.tr("All Methods"), &SOLVER_OPTIONS[..2]), ("Evolutionary", &SOLVER_OPTIONS[2..])] {
+             ui.label(egui::RichText::new(title).strong());
+             ui.end_row();
+             for (key, label, _) in keys {
+@@ -336,7 +337,7 @@
+         }
+     });
+     let mut bounds = d.values.get("requireBounds").and_then(Json::as_bool).unwrap_or(true);
+-    if ui.checkbox(&mut bounds, "Require Bounds on Variables").changed() {
++    if ui.checkbox(&mut bounds, studio_language.tr("Require Bounds on Variables")).changed() {
+         d.values.insert("requireBounds".into(), json!(bounds));
+     }
+     ui.add_space(8.0);
+@@ -427,7 +428,7 @@
+ fn save_solver_model(app: &mut SheetApp, d: &mut Dialog, range: &str, overwrite: bool) {
+     d.values.remove("askModelOverwrite");
+     let note = match app.run("data.solverSaveModel", json!({"to": range.trim(), "model": build_params(d), "overwrite": overwrite})) {
+-        Ok(r) => format!("The model was saved to {}.", r.get("range").and_then(Json::as_str).unwrap_or("")),
++        Ok(r) => if app.ui.language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("The model was saved to {}.", &[("0", format!("{}", r.get("range").and_then(Json::as_str).unwrap_or("")))]) } else { format!("The model was saved to {}.", r.get("range").and_then(Json::as_str).unwrap_or("")) },
+         Err(e) if !overwrite && e.contains(gridcraft_engine::cmd::analysis::OVERWRITE_ERROR) => {
+             d.values.insert("askModelOverwrite".into(), json!(range.trim()));
+             crate::clean_error(&e)
+@@ -442,7 +443,8 @@
+ /// Load/Save reads or writes the model on cells of the sheet; Options shows the Solver Options
+ /// in the same window.
+ pub(super) fn solver(app: &mut SheetApp, ui: &mut egui::Ui, d: &mut Dialog, confirm: &mut bool, open: &mut bool) {
+-    let lang = crate::i18n::current(ui.ctx());
++    let studio_language = crate::i18n::current(ui.ctx());
++    let lang = studio_language;
+     let text = |d: &Dialog, k: &str| d.values.get(k).map(|v| v.as_str().map(str::to_string).unwrap_or_else(|| v.to_string())).unwrap_or_default();
+     let edit = |ui: &mut egui::Ui, d: &mut Dialog, k: &str, width: f32, label: &str| {
+         let mut t = text(d, k);
+@@ -488,7 +490,7 @@
+         });
+     });
+     ui.horizontal(|ui| {
+-        ref_edit(app, ui, d, "newLhs", RefLabel::Named("Constraint Cell Reference"), 130.0);
++        ref_edit(app, ui, d, "newLhs", RefLabel::Named(studio_language.tr("Constraint Cell Reference")), 130.0);
+         let op = text(d, "newOp");
+         craft_ui::ComboBox::from_id_salt("solverOp")
+             .selected_text(op.clone())
+@@ -503,7 +505,7 @@
+             .response
+             .accessible_name(lang.tr("Constraint Operator"));
+         if !matches!(op.as_str(), "int" | "bin") {
+-            ref_edit(app, ui, d, "newRhs", RefLabel::Named("Constraint Value"), 130.0);
++            ref_edit(app, ui, d, "newRhs", RefLabel::Named(studio_language.tr("Constraint Value")), 130.0);
+         }
+         if ui.button("Add").clicked() {
+             let lhs = text(d, "newLhs");
+@@ -558,7 +560,7 @@
+     );
+     ui.add_space(4.0);
+     ui.horizontal(|ui| {
+-        if ui.button("Reset All").clicked() && at_home(app, d) {
++        if ui.button(studio_language.tr("Reset All")).clicked() && at_home(app, d) {
+             match app.run("data.solverReset", json!({})) {
+                 Ok(_) => {
+                     for (k, v) in [
+@@ -586,7 +588,7 @@
+         let shown = d.values.get("modelArea").and_then(Json::as_bool).unwrap_or(false);
+         // Hiding the area ends picking into Model Range, as a box that is not drawn is no longer
+         // picked into (`ref_edit::window_shown`).
+-        if ui.selectable_label(shown, "Load/Save").clicked() {
++        if ui.selectable_label(shown, studio_language.tr("Load/Save")).clicked() {
+             d.values.insert("modelArea".into(), json!(!shown));
+         }
+         if ui.button("Options").clicked() {
+@@ -595,11 +597,11 @@
+     });
+     if d.values.get("modelArea").and_then(Json::as_bool) == Some(true) {
+         ui.horizontal(|ui| {
+-            let l = ui.label("Model Range:");
++            let l = ui.label(studio_language.tr("Model Range:"));
+             ref_edit(app, ui, d, "modelRange", RefLabel::By(l.id), 170.0);
+             let range = text(d, "modelRange");
+             let ready = !range.trim().is_empty();
+-            if ui.add_enabled(ready, egui::Button::new("Load")).clicked() && at_home(app, d) {
++            if ui.add_enabled(ready, egui::Button::new(studio_language.tr("Load"))).clicked() && at_home(app, d) {
+                 d.values.remove("askModelOverwrite");
+                 match app.run("data.solverLoadModel", json!({"from": range.trim()})) {
+                     Ok(r) => {
+@@ -610,7 +612,7 @@
+                                 d.values.insert(k.clone(), if k == "value" { json!(x.to_string()) } else { x.clone() });
+                             }
+                         }
+-                        d.values.insert("modelNote".into(), json!("The model was loaded."));
++                        d.values.insert("modelNote".into(), json!(studio_language.tr("The model was loaded.")));
+                     }
+                     Err(e) => {
+                         d.values.insert("modelNote".into(), json!(crate::clean_error(&e)));
+@@ -629,11 +631,11 @@
+             d.values.remove("modelNote");
+         } else if let Some(asked) = asked {
+             ui.horizontal_wrapped(|ui| {
+-                ui.label(format!("{asked} already holds data. Replace it with the model?"));
++                ui.label(if studio_language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("{asked} already holds data. Replace it with the model?", &[("asked", format!("{}", asked))]) } else { format!("{asked} already holds data. Replace it with the model?") });
+                 if ui.button("Replace").clicked() && at_home(app, d) {
+                     save_solver_model(app, d, &asked, true);
+                 }
+-                if ui.button("Don't Replace").clicked() {
++                if ui.button(studio_language.tr("Don't Replace")).clicked() {
+                     d.values.remove("askModelOverwrite");
+                     d.values.remove("modelNote");
+                 }
+@@ -664,6 +666,7 @@
+
+ /// Solver Results: the outcome, and keeping or restoring the variable cells.
+ pub(super) fn solver_results(app: &mut SheetApp, ui: &mut egui::Ui, d: &mut Dialog, open: &mut bool) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     let message = d.values.get("message").and_then(Json::as_str).unwrap_or("").to_string();
+     ui.label(message);
+     let changed = d.values.get("changed").and_then(Json::as_bool).unwrap_or(false);
+@@ -686,15 +689,15 @@
+     let optimum = d.values.get("status").and_then(Json::as_str).is_some_and(gridcraft_engine::cmd::solver::sensitivity_status);
+     let sensitivity = model_allows && optimum;
+     let why_not = if model_allows {
+-        "Needs an optimal or converged solution: Solver stopped before reaching one."
++        studio_language.tr("Needs an optimal or converged solution: Solver stopped before reaching one.")
+     } else {
+-        "Needs Simplex LP or GRG Nonlinear, a Max or Min objective and no integer constraints."
++        studio_language.tr("Needs Simplex LP or GRG Nonlinear, a Max or Min objective and no integer constraints.")
+     };
+     let offered = |key: &str| key != "sensitivityReport" || sensitivity;
+     if solved {
+         ui.add_space(4.0);
+         ui.label("Reports:");
+-        for (key, label) in [("answerReport", "Answer"), ("sensitivityReport", "Sensitivity"), ("limitsReport", "Limits")] {
++        for (key, label) in [("answerReport", "Answer"), ("sensitivityReport", studio_language.tr("Sensitivity")), ("limitsReport", "Limits")] {
+             let mut on = offered(key) && d.values.get(key).and_then(Json::as_bool).unwrap_or(false);
+             let check = ui.add_enabled(offered(key), egui::Checkbox::new(&mut on, label)).on_disabled_hover_text(why_not);
+             if check.changed() {
+--- a/crates/ui-egui/src/dialogs/insert_function.rs
++++ b/crates/ui-egui/src/dialogs/insert_function.rs
+@@ -5,6 +5,7 @@
+ /// a category (Most Recently Used, All or one category), then a function; each hit shows its
+ /// category and description. OK starts editing `=NAME(` (or appends to the formula).
+ pub(super) fn insert_function(app: &mut SheetApp, ui: &mut egui::Ui, d: &mut Dialog, confirm: &mut bool) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     use crate::function_library::{self as lib, ALL, MOST_RECENTLY_USED};
+     let language = app.ui.language;
+     ui.horizontal(|ui| {
+@@ -33,7 +34,7 @@
+     // (Enter on a row picks it and closes the menu in this frame).
+     let menu_was_open = egui::Popup::is_any_open(ui.ctx());
+     let picker = ui.horizontal(|ui| {
+-        let label = ui.label(language.tr("Or select a category:"));
++        let label = ui.label(language.tr(studio_language.tr("Or select a category:")));
+         craft_ui::ComboBox::from_id_salt("insertFunctionCategory")
+             .width(220.0)
+             .selected_text(language.tr(&category))
+@@ -78,7 +79,7 @@
+     let name_w = rows.iter().map(|(n, _)| ui.painter().layout_no_wrap(n.to_string(), font.clone(), t.text).size().x).fold(0.0_f32, f32::max);
+     egui::ScrollArea::vertical().max_height(260.0).auto_shrink([false, false]).show(ui, |ui| {
+         if rows.is_empty() {
+-            ui.label(egui::RichText::new(language.tr("No functions match.")).italics());
++            ui.label(egui::RichText::new(language.tr(studio_language.tr("No functions match."))).italics());
+         }
+         let row_h = ui.text_style_height(&egui::TextStyle::Body) + 4.0;
+         for (i, (name, category)) in rows.iter().enumerate() {
+--- a/crates/ui-egui/src/dialogs/ref_edit.rs
++++ b/crates/ui-egui/src/dialogs/ref_edit.rs
+@@ -344,7 +344,8 @@
+ /// A reference box (RefEdit): a text field that the grid selection fills while it is the box
+ /// being picked into, and a button that collapses the dialog to the box or expands it again.
+ pub(super) fn ref_edit(app: &SheetApp, ui: &mut egui::Ui, d: &mut Dialog, key: &str, label: RefLabel<'_>, width: f32) {
+-    let lang = crate::i18n::current(ui.ctx());
++    let studio_language = crate::i18n::current(ui.ctx());
++    let lang = studio_language;
+     let mut s = d.values.get(key).and_then(Json::as_str).unwrap_or("").to_string();
+     let collapsed = d.refs.collapsed.as_deref() == Some(key);
+     ui.horizontal(|ui| {
+@@ -382,7 +383,7 @@
+             }
+         }
+         let t = theme::Tokens::get(ui.ctx());
+-        let (icon, tip) = if collapsed { (Icon::Expand, "Expand dialog") } else { (Icon::Collapse, "Collapse dialog") };
++        let (icon, tip) = if collapsed { (Icon::Expand, studio_language.tr("Expand dialog")) } else { (Icon::Collapse, studio_language.tr("Collapse dialog")) };
+         let b = crate::widgets::icon_button(ui, icon, t.text_dim, tip, vec2(22.0, 20.0));
+         let name = lang.tr(tip).to_string();
+         b.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, true, &name));
+--- a/crates/ui-egui/src/dialogs/show.rs
++++ b/crates/ui-egui/src/dialogs/show.rs
+@@ -528,12 +528,13 @@
+ }
+
+ pub(super) fn ok_cancel(ui: &mut egui::Ui, confirm: &mut bool, open: &mut bool) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     ui.add_space(8.0);
+     // A row as tall as the buttons: a right-to-left layout straight in the window takes all the
+     // height it is offered, which stretched every form dialog to the screen's height.
+     ui.horizontal(|ui| {
+         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+-            let lang = crate::i18n::current(ui.ctx());
++            let lang = studio_language;
+             let t = crate::theme::Tokens::get(ui.ctx());
+             let ok = ui.add(egui::Button::new(egui::RichText::new(format!("   {}   ", lang.tr("OK"))).color(t.on_accent)).fill(t.accent));
+             if ok.clicked() || ui.input(|i| i.key_pressed(Key::Enter)) {
+@@ -594,8 +595,9 @@
+
+ /// Draws a dialog's `fields`, editing its values.
+ pub(super) fn form_fields(app: &SheetApp, ui: &mut egui::Ui, d: &mut Dialog) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     // Field labels, choices and notes are English source strings, translated as they are drawn.
+-    let lang = crate::i18n::current(ui.ctx());
++    let lang = studio_language;
+     egui::Grid::new("form").num_columns(1).spacing(vec2(8.0, 6.0)).show(ui, |ui| {
+         for f in d.fields.clone() {
+             match f {
+--- a/crates/ui-egui/src/dialogs.rs
++++ b/crates/ui-egui/src/dialogs.rs
+@@ -292,15 +292,15 @@
+             ),
+             "arrangeAll" => Dialog::form(
+                 "arrangeAll",
+-                "Arrange Windows",
++                app.ui.language.tr("Arrange Windows"),
+                 "view.arrangeAll",
+                 vec![
+                     Choice {
+                         key: "arrange",
+-                        label: "Arrange",
+-                        options: vec![("tiled", "Tiled"), ("horizontal", "Horizontal"), ("vertical", "Vertical"), ("cascade", "Cascade")],
++                        label: app.ui.language.tr("Arrange"),
++                        options: vec![("tiled", app.ui.language.tr("Tiled")), ("horizontal", "Horizontal"), ("vertical", "Vertical"), ("cascade", app.ui.language.tr("Cascade"))],
+                     },
+-                    Check { key: "activeWorkbook", label: "Windows of active workbook" },
++                    Check { key: "activeWorkbook", label: app.ui.language.tr("Windows of active workbook") },
+                 ],
+                 json!({"arrange": "tiled", "activeWorkbook": false}),
+             ),
+@@ -326,7 +326,7 @@
+                 "rowHeight",
+                 "Row Height",
+                 "home.rowHeight",
+-                vec![Number { key: "points", label: "Row height (points):" }],
++                vec![Number { key: "points", label: app.ui.language.tr("Row height (points):") }],
+                 json!({"points": app.session.active().and_then(|d| d.wb.active().map(|s| s.row_height(d.selection.active.row) as f64 * 0.75)).unwrap_or(15.0)}),
+             ),
+             "columnWidth" => Dialog::form(
+@@ -375,14 +375,14 @@
+                 vec![
+                     Password { key: "password", label: "Password (optional):" },
+                     Note("Allow all users of this sheet to:".into()),
+-                    Check { key: "selectLockedCells", label: "Select locked cells" },
+-                    Check { key: "selectUnlockedCells", label: "Select unlocked cells" },
++                    Check { key: "selectLockedCells", label: app.ui.language.tr("Select locked cells") },
++                    Check { key: "selectUnlockedCells", label: app.ui.language.tr("Select unlocked cells") },
+                     Check { key: "formatCells", label: "Format cells" },
+                     Check { key: "formatColumns", label: "Format columns" },
+                     Check { key: "formatRows", label: "Format rows" },
+-                    Check { key: "insertColumns", label: "Insert columns" },
++                    Check { key: "insertColumns", label: app.ui.language.tr("Insert columns") },
+                     Check { key: "insertRows", label: "Insert rows" },
+-                    Check { key: "deleteColumns", label: "Delete columns" },
++                    Check { key: "deleteColumns", label: app.ui.language.tr("Delete columns") },
+                     Check { key: "deleteRows", label: "Delete rows" },
+                     Check { key: "sort", label: "Sort" },
+                     Check { key: "autofilter", label: "Use AutoFilter" },
+@@ -581,7 +581,7 @@
+                     d.values.insert("tooltip".into(), json!(link.tooltip));
+                     d.original_link_text = Some(text);
+                     // As in Excel, the dialog on a linked cell edits that link.
+-                    d.title = "Edit Hyperlink".into();
++                    d.title = app.ui.language.tr("Edit Hyperlink").into();
+                 }
+                 d
+             }
+@@ -634,8 +634,8 @@
+                         Number { key: "footer", label: "Footer (in):" },
+                         Choice {
+                             key: "pageOrder",
+-                            label: "Page order",
+-                            options: vec![("downThenOver", "Down, then over"), ("overThenDown", "Over, then down")],
++                            label: app.ui.language.tr("Page order"),
++                            options: vec![("downThenOver", app.ui.language.tr("Down, then over")), ("overThenDown", app.ui.language.tr("Over, then down"))],
+                         },
+                     ],
+                     json!({"left": left, "right": right, "top": top, "bottom": bottom, "header": header, "footer": footer, "pageOrder": order.id()}),
+@@ -661,7 +661,7 @@
+                 "Remove Duplicates",
+                 "data.removeDuplicates",
+                 vec![
+-                    Text { key: "range", label: "Range:" },
++                    Text { key: "range", label: app.ui.language.tr("Range:") },
+                     Check { key: "header", label: "My data has headers" },
+                     Text { key: "columnsText", label: "Columns (blank = all, e.g. A,C):" },
+                 ],
+@@ -675,7 +675,7 @@
+                     .unwrap_or(sel.clone());
+                 let mut d = Dialog::form(
+                     "advancedFilter",
+-                    "Advanced Filter",
++                    app.ui.language.tr("Advanced Filter"),
+                     "data.advancedFilter",
+                     vec![],
+                     json!({"action": "inPlace", "range": list, "criteria": "", "copyTo": "", "unique": false}),
+@@ -790,11 +790,11 @@
+                     app.session.active().and_then(|d| d.wb.active().map(|s| (s.summary_below, s.summary_right))).unwrap_or((true, true));
+                 Dialog::form(
+                     "outlineSettings",
+-                    "Settings",
++                    app.ui.language.tr("Settings"),
+                     "data.outlineSettings",
+                     vec![
+-                        Check { key: "summaryBelow", label: "Summary rows below detail" },
+-                        Check { key: "summaryRight", label: "Summary columns to right of detail" },
++                        Check { key: "summaryBelow", label: app.ui.language.tr("Summary rows below detail") },
++                        Check { key: "summaryRight", label: app.ui.language.tr("Summary columns to right of detail") },
+                     ],
+                     json!({"summaryBelow": below, "summaryRight": right}),
+                 )
+@@ -850,9 +850,9 @@
+                     .unwrap_or_default();
+                 Dialog::form(
+                     "tableResize",
+-                    "Resize Table",
++                    app.ui.language.tr("Resize Table"),
+                     "table.resize",
+-                    vec![Text { key: "range", label: "New range for the table:" }],
++                    vec![Text { key: "range", label: app.ui.language.tr("New range for the table:") }],
+                     json!({"table": table, "range": range}),
+                 )
+             }
+@@ -999,7 +999,7 @@
+                     return None;
+                 }
+                 // OK runs `formulas.pasteName` with the selected `name`, so `ui.dialog.confirm` does too.
+-                let mut dialog = Dialog::custom("pasteName", "Paste Name", json!({"name": names.first()}));
++                let mut dialog = Dialog::custom("pasteName", app.ui.language.tr("Paste Name"), json!({"name": names.first()}));
+                 dialog.command = Some("formulas.pasteName");
+                 // Listed once, when the dialog opens.
+                 dialog.result = Some(json!(names));
+--- a/crates/ui-egui/src/equation.rs
++++ b/crates/ui-egui/src/equation.rs
+@@ -75,14 +75,14 @@
+                 .and_then(|doc| doc.wb.active())
+                 .and_then(|sh| sh.shapes.iter().find(|s| s.id as u64 == id && s.kind == ShapeKind::Equation))
+                 .map(|s| s.text.clone())?;
+-            let mut d = Dialog::custom("equation", "Edit Equation", json!({"id": id, "latex": source}));
++            let mut d = Dialog::custom("equation", app.ui.language.tr("Edit Equation"), json!({"id": id, "latex": source}));
+             d.command = Some("equation.edit");
+             d
+         }
+         None => {
+             let at = app.session.active().map(|doc| doc.selection.active.a1()).unwrap_or_default();
+             let latex = params.get("latex").and_then(Json::as_str).unwrap_or("");
+-            let mut d = Dialog::custom("equation", "Insert Equation", json!({"at": at, "latex": latex}));
++            let mut d = Dialog::custom("equation", app.ui.language.tr("Insert Equation"), json!({"at": at, "latex": latex}));
+             d.command = Some("insert.equation");
+             d
+         }
+@@ -132,6 +132,7 @@
+ /// The editor's body: quick-insert buttons, the LaTeX source with its error underlined, a live
+ /// preview on a sheet-coloured card, and OK/Cancel.
+ pub fn editor(app: &mut SheetApp, ui: &mut egui::Ui, d: &mut Dialog, confirm: &mut bool, open: &mut bool) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     let _ = app;
+     let t = Tokens::get(ui.ctx());
+     let edit_id = ui.scope_id().with("equation-source");
+@@ -139,14 +140,14 @@
+     ui.horizontal_wrapped(|ui| {
+         ui.spacing_mut().item_spacing = vec2(3.0, 3.0);
+         for (label, snippet, tip) in QUICK {
+-            let b = ui.add(egui::Button::new(*label).min_size(vec2(30.0, 22.0))).on_hover_text(*tip);
++            let b = ui.add(egui::Button::new(*label).min_size(vec2(30.0, 22.0))).on_hover_text(studio_language.tr(tip));
+             if b.clicked() {
+                 insert_snippet(ui.ctx(), edit_id, &mut text, snippet);
+             }
+         }
+     });
+     ui.add_space(6.0);
+-    ui.label("LaTeX:");
++    ui.label(studio_language.tr("LaTeX:"));
+     let pv = preview(ui.ctx(), ui.scope_id().with("equation-preview"), &text);
+     let mark = pv.result.as_ref().err().and_then(|e| e.span.clone()).or_else(|| pv.result.as_ref().err().map(|_| text.len()..text.len()));
+     let mark = mark.filter(|_| !text.trim().is_empty());
+@@ -165,13 +166,13 @@
+     match &pv.result {
+         Err(e) if !text.trim().is_empty() => {
+             let msg = match e.char_pos(&text) {
+-                Some(p) => format!("Error at character {p}: {}", e.message),
++                Some(p) => if studio_language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("Error at character {p}: {}", &[("p", format!("{}", p)), ("0", format!("{}", e.message))]) } else { format!("Error at character {p}: {}", e.message) },
+                 None => e.message.clone(),
+             };
+             ui.colored_label(t.danger, msg);
+         }
+         _ => {
+-            ui.label(egui::RichText::new("Preview").color(t.text_dim));
++            ui.label(egui::RichText::new(studio_language.tr("Preview")).color(t.text_dim));
+         }
+     }
+     // The preview card is the sheet's colour, with the sheet's ink, in both themes.
+@@ -186,7 +187,7 @@
+             paint_at(&ui.painter().with_clip_rect(card), o, list, t.cell_text, s);
+         }
+         _ => {
+-            let hint = if text.trim().is_empty() { "Type an equation in LaTeX, such as x^2 + y^2 = r^2" } else { "" };
++            let hint = if text.trim().is_empty() { studio_language.tr("Type an equation in LaTeX, such as x^2 + y^2 = r^2") } else { "" };
+             ui.painter().text(card.center(), egui::Align2::CENTER_CENTER, hint, theme::ui_font(12.0), t.sheet_control_text);
+         }
+     }
+@@ -194,15 +195,15 @@
+     let valid = pv.result.as_ref().is_ok_and(|l| !l.items.is_empty());
+     let cmd_enter = ui.input_mut(|i| i.consume_key(egui::Modifiers::COMMAND, Key::Enter));
+     ui.allocate_ui_with_layout(vec2(ui.available_width(), 28.0), egui::Layout::right_to_left(egui::Align::Center), |ui| {
+-        let ok = ui.add_enabled(valid, egui::Button::new(egui::RichText::new("OK").color(t.on_accent)).fill(t.accent).min_size(vec2(64.0, 0.0)));
++        let ok = ui.add_enabled(valid, egui::Button::new(egui::RichText::new(studio_language.tr("OK")).color(t.on_accent)).fill(t.accent).min_size(vec2(64.0, 0.0)));
+         if ok.clicked() || (valid && cmd_enter) {
+             *confirm = true;
+         }
+-        if ui.add(egui::Button::new("Cancel").min_size(vec2(64.0, 0.0))).clicked() {
++        if ui.add(egui::Button::new(studio_language.tr("Cancel")).min_size(vec2(64.0, 0.0))).clicked() {
+             *open = false;
+         }
+-        let verb = if d.command == Some("equation.edit") { "apply" } else { "insert" };
+-        ui.label(egui::RichText::new(format!("\u{2318}/Ctrl+Enter to {verb}")).small().color(t.text_dim));
++        let verb = if d.command == Some("equation.edit") { studio_language.tr("apply") } else { studio_language.tr("insert") };
++        ui.label(egui::RichText::new(if studio_language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("⌘/Ctrl+Enter to {verb}", &[("verb", verb.to_owned())]) } else { format!("\u{2318}/Ctrl+Enter to {verb}") }).small().color(t.text_dim));
+     });
+ }
+
+@@ -215,6 +216,7 @@
+ /// The gallery as menu rows: a name over a preview on a sheet-coloured card. Returns the source
+ /// of the row clicked.
+ pub fn gallery(ui: &mut egui::Ui) -> Option<&'static str> {
++    let studio_language = crate::i18n::current(ui.ctx());
+     let t = Tokens::get(ui.ctx());
+     let mut picked = None;
+     for (name, src, list) in gallery_layouts() {
+@@ -222,7 +224,7 @@
+         if resp.hovered() {
+             ui.painter().rect_filled(r, 4.0, t.hover);
+         }
+-        ui.painter().text(r.left_top() + vec2(6.0, 4.0), egui::Align2::LEFT_TOP, *name, theme::ui_font(12.0), t.text);
++        ui.painter().text(r.left_top() + vec2(6.0, 4.0), egui::Align2::LEFT_TOP, studio_language.tr(name), theme::ui_font(12.0), t.text);
+         let card = Rect::from_min_max(r.left_top() + vec2(6.0, 21.0), r.right_bottom() - vec2(6.0, 3.0));
+         ui.painter().rect_filled(card, 3.0, t.grid_bg);
+         if let Some(list) = list {
+--- a/crates/ui-egui/src/function_library.rs
++++ b/crates/ui-egui/src/function_library.rs
+@@ -154,7 +154,8 @@
+ /// The AutoSum menu, shared by Home › Editing and Formulas › Function Library: a function, or
+ /// the Insert Function dialog.
+ pub fn auto_sum_menu(app: &mut SheetApp, ui: &mut Ui) {
+-    for (label, f) in [("Sum", "SUM"), ("Average", "AVERAGE"), ("Count Numbers", "COUNT"), ("Max", "MAX"), ("Min", "MIN")] {
++    let studio_language = crate::i18n::current(ui.ctx());
++    for (label, f) in [("Sum", "SUM"), ("Average", "AVERAGE"), (studio_language.tr("Count Numbers"), "COUNT"), ("Max", "MAX"), ("Min", "MIN")] {
+         let label = app.ui.language.tr(label);
+         if ui.add(egui::Button::new(label).frame(false).min_size(vec2(160.0, 22.0))).clicked() {
+             app.run_or_alert("formulas.autoSum", json!({"function": f}));
+--- a/crates/ui-egui/src/grid/menus.rs
++++ b/crates/ui-egui/src/grid/menus.rs
+@@ -123,6 +123,7 @@
+
+ /// Draws and dispatches the cell context menu, including Show Details when offered, clipboard and insert/format actions; closes on Esc or an outside press.
+ pub(super) fn context_menu(app: &mut SheetApp, ui: &mut egui::Ui) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     let Some(at) = app.grid.context_menu else { return };
+     let mut close = false;
+     let resp = egui::Area::new(egui::Id::unique("cell_context")).fixed_pos(at).order(egui::Order::Foreground).show(ui.ctx(), |ui| {
+@@ -162,16 +163,16 @@
+             {
+                 items.splice(
+                     i..=i,
+-                    [("Edit Hyperlink…", "ui:insertLink"), ("Open Hyperlink", "ui:openLink"), ("Remove Hyperlink", "edit.clearHyperlinks")],
++                    [(studio_language.tr("Edit Hyperlink…"), "ui:insertLink"), ("Open Hyperlink", "ui:openLink"), (studio_language.tr("Remove Hyperlink"), "edit.clearHyperlinks")],
+                 );
+             }
+             if show_details_offered(app)
+                 && let Some(i) = items.iter().position(|(_, id)| *id == "data.sortDescending")
+             {
+                 items.insert(i + 1, ("-", ""));
+-                items.insert(i + 2, ("Show Details", "pivot.showDetails"));
+-            }
+-            let lang = crate::i18n::current(ui.ctx());
++                items.insert(i + 2, (studio_language.tr("Show Details"), "pivot.showDetails"));
++            }
++            let lang = studio_language;
+             for (label, id) in items {
+                 if label == "-" {
+                     ui.separator();
+@@ -286,6 +287,7 @@
+ /// Fill Years: it undoes the drag's fill, then runs `edit.autoFill` in that mode.
+ /// The button goes away as soon as anything else changes the workbook or the selection moves.
+ pub(super) fn fill_options_tag(app: &mut SheetApp, ui: &mut egui::Ui, geo: &Geo, sh: &Sheet) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     let Some(tag) = app.grid.fill_tag.clone() else { return };
+     let current = app.session.active().is_some_and(|d| {
+         d.uid == tag.uid
+@@ -309,7 +311,7 @@
+     if !geo.mirror_rect(geo.cells).contains_rect(button) {
+         return;
+     }
+-    let lang = crate::i18n::current(ui.ctx());
++    let lang = studio_language;
+     let resp = ui.interact(button, egui::Id::unique("gridcraft.fill_options_tag"), Sense::click()).on_hover_text(lang.tr("Auto Fill Options"));
+     resp.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, true, lang.tr("Auto Fill Options")));
+     let t = Tokens::get(ui.ctx());
+@@ -354,6 +356,7 @@
+
+ /// The menu a right-drag of the fill handle opens on release, as in Excel.
+ pub(super) fn fill_menu(app: &mut SheetApp, ui: &mut egui::Ui, was_open: bool) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     let Some((src, target, at)) = app.grid.fill_menu else { return };
+     let mut close = false;
+     let mut items = fill_modes(app, src);
+@@ -361,7 +364,7 @@
+     let response = egui::Area::new(egui::Id::unique("fill_menu")).fixed_pos(at).order(egui::Order::Foreground).show(ui.ctx(), |ui| {
+         egui::Frame::popup(ui.style()).show(ui, |ui| {
+             ui.set_min_width(190.0);
+-            let lang = crate::i18n::current(ui.ctx());
++            let lang = studio_language;
+             for (label, mode) in items {
+                 if label == "-" {
+                     ui.separator();
+@@ -388,6 +391,7 @@
+ /// The right-click menu of a chart, picture, shape, slicer or form control (Edit Text and Assign
+ /// Action for a button, and Format Control, before Delete).
+ pub(super) fn object_menu(app: &mut SheetApp, ui: &mut egui::Ui) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     let Some((at, kind, id)) = app.grid.object_menu else { return };
+     let mut close = false;
+     let resp = egui::Area::new(egui::Id::unique("object_context")).fixed_pos(at).order(egui::Order::Foreground).show(ui.ctx(), |ui| {
+@@ -396,15 +400,15 @@
+             let mut items = vec![];
+             if kind == "control" {
+                 if crate::control_ui::is_button(app, id) {
+-                    items.extend([("Edit Text", "ui:editText"), ("Assign Action…", "ui:assignAction")]);
+-                }
+-                items.extend([("Format Control…", "ui:formatControl"), ("-", "")]);
++                    items.extend([(studio_language.tr("Edit Text"), "ui:editText"), (studio_language.tr("Assign Action…"), "ui:assignAction")]);
++                }
++                items.extend([(studio_language.tr("Format Control…"), "ui:formatControl"), ("-", "")]);
+             }
+             items.push(("Delete", "object.delete"));
+             if kind == "chart" {
+-                items.extend([("-", ""), ("Select Data…", "ui:selectData"), ("Format Chart Area…", "ui:formatChart")]);
+-            }
+-            let lang = crate::i18n::current(ui.ctx());
++                items.extend([("-", ""), (studio_language.tr("Select Data…"), "ui:selectData"), (studio_language.tr("Format Chart Area…"), "ui:formatChart")]);
++            }
++            let lang = studio_language;
+             for (label, action) in items {
+                 if label == "-" {
+                     ui.separator();
+@@ -441,6 +445,7 @@
+ /// The warning button beside an active cell holding a number stored as text, as in Excel: its
+ /// menu names the problem and offers Convert to Number for the selection (#1994).
+ pub(super) fn error_check_tag(app: &mut SheetApp, ui: &mut egui::Ui, geo: &Geo, sh: &Sheet) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     if app.editor.is_some() || app.dialog.is_some() || sh.show_formulas || app.grid.drag != Drag::None {
+         return;
+     }
+@@ -456,7 +461,7 @@
+     if !geo.cells.intersects(tag) {
+         return;
+     }
+-    let lang = crate::i18n::current(ui.ctx());
++    let lang = studio_language;
+     let resp = ui.interact(tag, egui::Id::unique("gridcraft.error_check_tag"), Sense::click()).on_hover_text(lang.tr("Number Stored as Text"));
+     resp.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, true, lang.tr("Error checking options")));
+     let t = Tokens::get(ui.ctx());
+@@ -484,6 +489,7 @@
+
+ /// Draws row/column header context menus with insert/delete, format, size, hide/unhide and group actions, plus Insert Copied Cells when available.
+ pub(super) fn header_menu(app: &mut SheetApp, ui: &mut egui::Ui, was_open: bool) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     let Some((at, rows)) = app.grid.header_menu else { return };
+     let mut close = false;
+     let response = egui::Area::new(egui::Id::unique("header_menu")).fixed_pos(at).order(egui::Order::Foreground).show(ui.ctx(), |ui| {
+@@ -496,7 +502,7 @@
+                     ("Copy", "edit.copy"),
+                     ("Paste", "edit.paste"),
+                     ("-", ""),
+-                    ("Header Menu|Insert", "home.insertRows"),
++                    (studio_language.tr("Header Menu|Insert"), "home.insertRows"),
+                     ("Delete", "home.deleteRows"),
+                     ("Clear Contents", "edit.clearContents"),
+                     ("-", ""),
+@@ -513,7 +519,7 @@
+                     ("Copy", "edit.copy"),
+                     ("Paste", "edit.paste"),
+                     ("-", ""),
+-                    ("Header Menu|Insert", "home.insertColumns"),
++                    (studio_language.tr("Header Menu|Insert"), "home.insertColumns"),
+                     ("Delete", "home.deleteColumns"),
+                     ("Clear Contents", "edit.clearContents"),
+                     ("-", ""),
+@@ -529,7 +535,7 @@
+             if let Some(item) = insert_copied {
+                 items.insert(5, item);
+             }
+-            let lang = crate::i18n::current(ui.ctx());
++            let lang = studio_language;
+             for (label, id) in items {
+                 if label == "-" {
+                     ui.separator();
 --- a/crates/ui-egui/src/i18n.rs
 +++ b/crates/ui-egui/src/i18n.rs
-@@ -18,6 +18,7 @@
- mod ru;
- mod sr;
+@@ -28,6 +28,8 @@
+ mod uk;
+ mod vi;
  mod zh;
 +mod zh_hant;
- 
++pub(crate) use zh_hant::format as format_traditional;
+
  #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
  #[serde(rename_all = "lowercase")]
-@@ -26,6 +27,8 @@
-     En,
+@@ -37,6 +39,8 @@
      Es,
+     El,
      Zh,
 +    #[serde(rename = "zh-hant", alias = "zh-Hant", alias = "zh-TW")]
 +    ZhHant,
      Ja,
      Ko,
      Ru,
-@@ -38,7 +41,8 @@
+@@ -56,11 +60,12 @@
  }
- 
+
  impl Language {
--    pub const ALL: [Self; 11] = [Self::En, Self::Es, Self::Zh, Self::Ja, Self::Ko, Self::Ru, Self::PtBr, Self::De, Self::Cs, Self::Fr, Self::Sr];
-+    pub const ALL: [Self; 12] =
-+        [Self::En, Self::Es, Self::Zh, Self::ZhHant, Self::Ja, Self::Ko, Self::Ru, Self::PtBr, Self::De, Self::Cs, Self::Fr, Self::Sr];
- 
-     /// The language's own name, shown in the switcher.
-     pub fn name(self) -> &'static str {
-@@ -46,6 +50,7 @@
-             Self::En => "English",
+-    pub const ALL: [Self; 19] = [
++    pub const ALL: [Self; 20] = [
+         Self::En,
+         Self::Es,
+         Self::El,
+         Self::Zh,
++        Self::ZhHant,
+         Self::Ja,
+         Self::Ko,
+         Self::Ru,
+@@ -94,6 +99,7 @@
              Self::Es => "Español",
+             Self::El => "Ελληνικά",
              Self::Zh => "简体中文",
 +            Self::ZhHant => "繁體中文",
              Self::Ja => "日本語",
              Self::Ko => "한국어",
              Self::Ru => "Русский",
-@@ -63,6 +68,7 @@
-             Self::En => "en",
+@@ -119,6 +125,7 @@
              Self::Es => "es",
+             Self::El => "el",
              Self::Zh => "zh",
 +            Self::ZhHant => "zh-hant",
              Self::Ja => "ja",
              Self::Ko => "ko",
              Self::Ru => "ru",
-@@ -79,6 +85,11 @@
+@@ -148,6 +155,11 @@
      }
- 
+
      fn from_tag(tag: &str) -> Option<Self> {
 +        let normalized = tag.trim().to_ascii_lowercase().replace('_', "-");
 +        let parts: Vec<_> = normalized.split(['-', '.', '@']).collect();
@@ -113,19 +1022,1771 @@
          match tag.trim().split(['-', '_']).next()?.to_ascii_lowercase().as_str() {
              "en" => Some(Self::En),
              "es" => Some(Self::Es),
-@@ -122,6 +133,7 @@
-             Self::Es => es::translate(text),
-             Self::Ja => JAPANESE.iter().find(|(english, _)| *english == text).map(|(_, translated)| *translated),
+@@ -200,6 +212,7 @@
+             Self::El => el::translate(text),
+             Self::Ja => ja::translate(text),
              Self::Zh => zh::translate(text),
 +            Self::ZhHant => zh_hant::translate(text),
              Self::Ko => ko::translate(text),
              Self::Ru => ru::translate(text),
              Self::PtBr => pt::translate(text),
-@@ -768,3 +780,7 @@
-         }
+@@ -517,3 +530,7 @@
+         assert_eq!(name_sort_key("Čeština"), "cestina");
      }
  }
 +
 +#[cfg(test)]
 +#[path = "studio_zh_hant_tests.rs"]
 +mod studio_zh_hant_tests;
+--- a/crates/ui-egui/src/macro_editor.rs
++++ b/crates/ui-egui/src/macro_editor.rs
+@@ -291,12 +291,16 @@
+
+ /// A step in one line: "Set D2 to =B2*C2", "Repeat for each row of Input.data".
+ pub fn summary(st: &Step) -> String {
++    summary_for_language(st, crate::i18n::Language::En)
++}
++
++fn summary_for_language(st: &Step, language: crate::i18n::Language) -> String {
+     match &st.kind {
+         StepKind::Command { id, params } => {
+             let p = |k: &str| params.get(k).map(short);
+             match (id.as_str(), p("cell"), p("input"), p("range")) {
+-                ("cell.set", Some(c), Some(i), _) => format!("Set {c} to {i}"),
+-                ("selection.set", _, _, Some(r)) => format!("Select {r}"),
++                ("cell.set", Some(c), Some(i), _) => if language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("Set {c} to {i}", &[("c", format!("{}", c)), ("i", format!("{}", i))]) } else { format!("Set {c} to {i}") },
++                ("selection.set", _, _, Some(r)) => if language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("Select {r}", &[("r", format!("{}", r))]) } else { format!("Select {r}") },
+                 _ => {
+                     let label = command_label(id);
+                     let args: Vec<String> =
+@@ -306,7 +310,7 @@
+             }
+         }
+         StepKind::Repeat { over, of, .. } => {
+-            format!("Repeat for each {} of {}", if *of == RepeatOf::Rows { "row" } else { "column" }, if over.is_empty() { "…" } else { over })
++            if language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("Repeat for each {} of {}", &[("0", format!("{}", if *of == RepeatOf::Rows { language.tr("row") } else { language.tr("column") })), ("1", format!("{}", if over.is_empty() { "…" } else { over }))]) } else { format!("Repeat for each {} of {}", if *of == RepeatOf::Rows { "row" } else { "column" }, if over.is_empty() { "…" } else { over }) }
+         }
+         StepKind::If { cell, op, value, .. } => {
+             let op = match op {
+@@ -316,17 +320,17 @@
+                 CompareOp::Ge => "≥",
+                 CompareOp::Lt => "<",
+                 CompareOp::Le => "≤",
+-                CompareOp::Empty => return format!("If {cell} is empty"),
+-                CompareOp::NotEmpty => return format!("If {cell} isn't empty"),
+-                CompareOp::Contains => "contains",
++                CompareOp::Empty => return if language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("If {cell} is empty", &[("cell", format!("{}", cell))]) } else { format!("If {cell} is empty") },
++                CompareOp::NotEmpty => return if language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("If {cell} isn't empty", &[("cell", format!("{}", cell))]) } else { format!("If {cell} isn't empty") },
++                CompareOp::Contains => language.tr("contains"),
+             };
+-            format!("If {cell} {op} {}", short(value))
++            if language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("If {cell} {op} {}", &[("cell", format!("{}", cell)), ("op", format!("{}", op)), ("0", format!("{}", short(value)))]) } else { format!("If {cell} {op} {}", short(value)) }
+         }
+         StepKind::Stop { message, .. } => {
+             if message.is_empty() {
+                 "Stop".into()
+             } else {
+-                format!("Stop: {message}")
++                if language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("Stop: {message}", &[("message", format!("{}", message))]) } else { format!("Stop: {message}") }
+             }
+         }
+     }
+@@ -357,21 +361,25 @@
+ /// Problems the editor can see without running: an unknown command, one a macro may not run,
+ /// one that needs a permission the macro doesn't list, a Repeat or If with nothing to work on.
+ pub fn static_error(m: &Macro, st: &Step) -> Option<String> {
++    static_error_for_language(m, st, crate::i18n::Language::En)
++}
++
++fn static_error_for_language(m: &Macro, st: &Step, language: crate::i18n::Language) -> Option<String> {
+     match &st.kind {
+         StepKind::Command { id, params } => {
+             if gridcraft_engine::find_command(id).is_none() {
+-                return Some(format!("There is no command “{id}”."));
++                return Some(if language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("There is no command “{id}”.", &[("id", format!("{}", id))]) } else { format!("There is no command “{id}”.") });
+             }
+             match macro_policy(id, params, gridcraft_engine::Trust::Local) {
+-                Policy::Deny(why) => Some(format!("{id} can't run in a macro: {why}.")),
++                Policy::Deny(why) => Some(if language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("{id} can't run in a macro: {why}.", &[("id", format!("{}", id)), ("why", format!("{}", why))]) } else { format!("{id} can't run in a macro: {why}.") }),
+                 Policy::NeedsPermission(what) if !m.permissions.iter().any(|p| p == id) => {
+-                    Some(format!("{id} {what}: the macro must list it in its permissions."))
++                    Some(if language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("{id} {what}: the macro must list it in its permissions.", &[("id", format!("{}", id)), ("what", format!("{}", what))]) } else { format!("{id} {what}: the macro must list it in its permissions.") })
+                 }
+                 _ => None,
+             }
+         }
+-        StepKind::Repeat { over, .. } if over.trim().is_empty() => Some("Choose the range to repeat over.".into()),
+-        StepKind::If { cell, .. } if cell.trim().is_empty() => Some("Choose the cell to test.".into()),
++        StepKind::Repeat { over, .. } if over.trim().is_empty() => Some(language.tr("Choose the range to repeat over.").into()),
++        StepKind::If { cell, .. } if cell.trim().is_empty() => Some(language.tr("Choose the cell to test.").into()),
+         _ => None,
+     }
+ }
+@@ -535,7 +543,7 @@
+     };
+     let example = draft.inputs.first().and_then(|i| i.default_ref.clone()).unwrap_or(selection);
+     let start_debug = params["debug"].as_bool() == Some(true) && saved_as.is_some();
+-    let title = format!("Macro: {}", draft.name);
++    let title = if app.ui.language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("Macro: {}", &[("0", format!("{}", draft.name))]) } else { format!("Macro: {}", draft.name) };
+     let selected = (!draft.steps.is_empty()).then(|| "1".to_string());
+     let doc = doc.uid;
+     app.macros.editor = Some(Editor {
+@@ -576,7 +584,7 @@
+         return true;
+     }
+     let book = home_title(app, ed);
+-    app.message = Some((title.into(), format!("The macro “{}” is in “{book}”. Switch back to it to save, check or run the macro.", ed.draft.name)));
++    app.message = Some((title.into(), if app.ui.language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("The macro “{}” is in “{book}”. Switch back to it to save, check or run the macro.", &[("0", format!("{}", ed.draft.name)), ("book", format!("{}", book))]) } else { format!("The macro “{}” is in “{book}”. Switch back to it to save, check or run the macro.", ed.draft.name) }));
+     false
+ }
+
+@@ -688,11 +696,11 @@
+         Some(pending) if pending.whole == whole => {}
+         Some(pending) => {
+             let what = |whole: bool| if whole { "the workbook" } else { "its window" };
+-            return Some(Err(format!(
++            return Some(Err(if app.ui.language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("The macro step editor is asking whether to save its draft before {} closes. Answer that first, then close {}.", &[("0", format!("{}", what(pending.whole))), ("1", format!("{}", what(whole)))]) } else { format!(
+                 "The macro step editor is asking whether to save its draft before {} closes. Answer that first, then close {}.",
+                 what(pending.whole),
+                 what(whole)
+-            )));
++            ) }));
+         }
+         None => {
+             ed.then_close = Some(PendingClose { window: home, whole, id: id.to_string(), params: params.clone() });
+@@ -740,7 +748,7 @@
+             {
+                 ed.errors.insert(step.to_string(), e.get("message").and_then(Json::as_str).unwrap_or("").to_string());
+             }
+-            ed.outcome = Some(check_text(&v));
++            ed.outcome = Some(check_text(&v, app.ui.language));
+             ed.check = Some(v);
+         }
+         Err(e) => {
+@@ -750,18 +758,18 @@
+     }
+ }
+
+-fn check_text(v: &Json) -> String {
++fn check_text(v: &Json, language: crate::i18n::Language) -> String {
+     if let Some(errors) = v["errors"].as_array().filter(|e| !e.is_empty()) {
+         return errors.iter().filter_map(Json::as_str).collect::<Vec<_>>().join(" ");
+     }
+     if let Some(asks) = v["needsApproval"].as_array() {
+-        return format!("Needs approval before it can run: it {}.", asks.iter().filter_map(Json::as_str).collect::<Vec<_>>().join(", "));
++        return if language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("Needs approval before it can run: it {}.", &[("0", format!("{}", asks.iter().filter_map(Json::as_str).collect::<Vec<_>>().join(", ")))]) } else { format!("Needs approval before it can run: it {}.", asks.iter().filter_map(Json::as_str).collect::<Vec<_>>().join(", ")) };
+     }
+     let cells: u64 = v["footprint"]["sheets"].as_array().into_iter().flatten().filter_map(|s| s["changed"].as_u64()).sum();
+     let conflicts = v["conflicts"].as_u64().unwrap_or(0);
+-    let mut text = format!("Check passed: writes {cells} cell{}", if cells == 1 { "" } else { "s" });
++    let mut text = if language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("Check passed: writes {cells} cell{}", &[("cells", format!("{}", cells)), ("0", format!("{}", if cells == 1 { "" } else { "s" }))]) } else { format!("Check passed: writes {cells} cell{}", if cells == 1 { "" } else { "s" }) };
+     if conflicts > 0 {
+-        text.push_str(&format!(", {conflicts} of them hold data (red)"));
++        text.push_str(&if language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional(", {conflicts} of them hold data (red)", &[("conflicts", format!("{}", conflicts))]) } else { format!(", {conflicts} of them hold data (red)") });
+     } else {
+         text.push_str(", over no data");
+     }
+@@ -780,7 +788,7 @@
+     ed.errors.clear();
+     let name = ed.draft.name.clone();
+     match macro_ui::call(app, "Run Macro", "macro.run", json!({"name": name, "inputs": run_inputs(ed)})) {
+-        Some(v) => ed.outcome = Some(format!("Ran {} step{}.", v["ran"].as_u64().unwrap_or(0), if v["ran"] == 1 { "" } else { "s" })),
++        Some(v) => ed.outcome = Some(if app.ui.language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("Ran {} step{}.", &[("0", format!("{}", v["ran"].as_u64().unwrap_or(0))), ("1", format!("{}", if v["ran"] == 1 { "" } else { "s" }))]) } else { format!("Ran {} step{}.", v["ran"].as_u64().unwrap_or(0), if v["ran"] == 1 { "" } else { "s" }) }),
+         None => {
+             if let Some((_, text)) = app.message.as_ref()
+                 && let Some((path, msg)) = error_step(text)
+@@ -824,7 +832,7 @@
+         let name = ed.draft.name.clone();
+         let p = with(json!({"name": name, "inputs": run_inputs(ed), "action": "start"}), bp_params(ed));
+         let Some(v) = macro_ui::call(app, "Debug Macro", "macro.debug", p) else { return };
+-        apply_debug(ed, &v);
++        apply_debug(ed, &v, app.ui.language);
+         if action == "step" || v["state"] != "paused" {
+             return;
+         }
+@@ -837,19 +845,19 @@
+         other => json!({"action": other}),
+     };
+     if let Some(v) = macro_ui::call(app, "Debug Macro", "macro.debug", with(p, bp_params(ed))) {
+-        apply_debug(ed, &v);
++        apply_debug(ed, &v, app.ui.language);
+     }
+ }
+
+ /// Stop: ends the debugged run, keeping its changes as one undo step or undoing them.
+ pub fn stop(app: &mut SheetApp, ed: &mut Editor, keep: bool) {
+     if let Some(v) = macro_ui::call(app, "Debug Macro", "macro.debug", json!({"action": "stop", "keep": keep})) {
+-        apply_debug(ed, &v);
++        apply_debug(ed, &v, app.ui.language);
+     }
+ }
+
+ /// Takes in a `macro.debug` result: paused (select the current step), or ended (say how).
+-pub fn apply_debug(ed: &mut Editor, v: &Json) {
++pub fn apply_debug(ed: &mut Editor, v: &Json, language: crate::i18n::Language) {
+     match v["state"].as_str() {
+         Some("paused") => {
+             if let Some(step) = v["current"]["step"].as_str() {
+@@ -863,7 +871,7 @@
+             ed.debug = None;
+             let executed = v["executed"].as_u64().unwrap_or(0);
+             ed.outcome = Some(match state {
+-                "finished" => format!("Finished: {executed} step{} ran, one undo step.", if executed == 1 { "" } else { "s" }),
++                "finished" => if language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("Finished: {executed} step{} ran, one undo step.", &[("executed", format!("{}", executed)), ("0", format!("{}", if executed == 1 { "" } else { "s" }))]) } else { format!("Finished: {executed} step{} ran, one undo step.", if executed == 1 { "" } else { "s" }) },
+                 "failed" => {
+                     if let Some(step) = v["error"]["step"].as_str() {
+                         let msg = v["error"]["message"].as_str().unwrap_or("").to_string();
+@@ -872,9 +880,9 @@
+                     }
+                     v["message"].as_str().unwrap_or("The macro failed; nothing was changed.").to_string()
+                 }
+-                _ if v["kept"] == true => format!("Stopped after {executed} step{}; the changes were kept.", if executed == 1 { "" } else { "s" }),
++                _ if v["kept"] == true => if language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("Stopped after {executed} step{}; the changes were kept.", &[("executed", format!("{}", executed)), ("0", format!("{}", if executed == 1 { "" } else { "s" }))]) } else { format!("Stopped after {executed} step{}; the changes were kept.", if executed == 1 { "" } else { "s" }) },
+                 _ => match v["stopped"].as_str() {
+-                    Some(msg) => format!("Stopped: {msg}"),
++                    Some(msg) => if language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("Stopped: {msg}", &[("msg", format!("{}", msg))]) } else { format!("Stopped: {msg}") },
+                     None => "Stopped; the changes were undone.".into(),
+                 },
+             });
+@@ -893,7 +901,7 @@
+     };
+     // A prompt's button re-ran a debugger action (making room for the output, approving).
+     if let Some(v) = app.macros.debug_result.take() {
+-        apply_debug(&mut ed, &v);
++        apply_debug(&mut ed, &v, app.ui.language);
+     }
+     if ed.start_check {
+         ed.start_check = false;
+@@ -919,7 +927,7 @@
+     let fit = (screen.size() - vec2(16.0, 16.0)).max(vec2(240.0, 200.0));
+     let mut win_open = true;
+     ed.refs.drawn = false;
+-    egui::Window::new(format!("Macro: {}{dirty_mark}", ed.draft.name))
++    egui::Window::new(if app.ui.language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("Macro: {}{dirty_mark}", &[("0", format!("{}", ed.draft.name)), ("dirty_mark", format!("{}", dirty_mark))]) } else { format!("Macro: {}{dirty_mark}", ed.draft.name) })
+         .id(Id::unique("gridcraft.macro_editor"))
+         .collapsible(false)
+         .resizable(true)
+@@ -933,7 +941,7 @@
+             if !home {
+                 let t = Tokens::get(ui.ctx());
+                 ui.label(
+-                    egui::RichText::new(format!("This macro is in “{home_title}”. Switch back to it to edit, check or run the macro."))
++                    egui::RichText::new(if app.ui.language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("This macro is in “{home_title}”. Switch back to it to edit, check or run the macro.", &[("home_title", format!("{}", home_title))]) } else { format!("This macro is in “{home_title}”. Switch back to it to edit, check or run the macro.") })
+                         .color(t.danger),
+                 );
+             }
+@@ -1013,7 +1021,7 @@
+         return Err("A macro is being debugged: stop it first (macro.debug {\"action\": \"stop\"}).".into());
+     }
+     if app.macros.editor.as_ref().is_some_and(Editor::has_unsaved_changes) {
+-        return Err("The macro step editor has unsaved steps: save them or close the editor in its window.".into());
++        return Err(app.ui.language.tr("The macro step editor has unsaved steps: save them or close the editor in its window.").into());
+     }
+     if let Some(ed) = app.macros.editor.take()
+         && app.session.active().is_some_and(|d| d.uid == ed.doc)
+@@ -1071,6 +1079,7 @@
+ /// pick target, with a button that collapses the window to just this box and expands it again.
+ /// The text is kept in `d.values[key]`.
+ fn ref_edit(app: &SheetApp, ui: &mut Ui, d: &mut Dialog, refs: &mut RefPick, key: &str, width: f32) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     let mut s = d.values.get(key).and_then(Json::as_str).unwrap_or("").to_string();
+     let sel = selection_ref(app, refs.home.as_ref().map(|h| h.0));
+     let picking = refs.pick.as_deref() == Some(key);
+@@ -1089,7 +1098,7 @@
+         }
+         let collapsed = refs.collapsed.as_deref() == Some(key);
+         let t = Tokens::get(ui.ctx());
+-        let (icon, tip) = if collapsed { (Icon::Expand, "Expand the editor") } else { (Icon::Collapse, "Collapse the editor to this box") };
++        let (icon, tip) = if collapsed { (Icon::Expand, studio_language.tr("Expand the editor")) } else { (Icon::Collapse, studio_language.tr("Collapse the editor to this box")) };
+         if crate::widgets::icon_button(ui, icon, t.text_dim, tip, vec2(22.0, 20.0)).clicked() {
+             refs.collapsed = if collapsed { None } else { Some(key.to_string()) };
+             if !collapsed {
+@@ -1106,17 +1115,17 @@
+         let mut answer: Option<Option<bool>> = None;
+         egui::Modal::new(Id::unique("gridcraft.macro_editor.stop")).show(ctx, |ui| {
+             ui.set_width(360.0);
+-            ui.label(egui::RichText::new("Stop debugging").strong());
+-            ui.label("Keep the changes the macro has made so far? They are one undo step either way.");
++            ui.label(egui::RichText::new(app.ui.language.tr("Stop debugging")).strong());
++            ui.label(app.ui.language.tr("Keep the changes the macro has made so far? They are one undo step either way."));
+             ui.add_space(8.0);
+             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+-                if ui.button("Cancel").clicked() || ui.input(|i| i.key_pressed(egui::Key::Escape)) {
++                if ui.button(app.ui.language.tr("Cancel")).clicked() || ui.input(|i| i.key_pressed(egui::Key::Escape)) {
+                     answer = Some(None);
+                 }
+-                if ui.button("Undo Changes").clicked() {
++                if ui.button(app.ui.language.tr("Undo Changes")).clicked() {
+                     answer = Some(Some(false));
+                 }
+-                if ui.button("Keep Changes").clicked() || ui.input(|i| i.key_pressed(egui::Key::Enter)) {
++                if ui.button(app.ui.language.tr("Keep Changes")).clicked() || ui.input(|i| i.key_pressed(egui::Key::Enter)) {
+                     answer = Some(Some(true));
+                 }
+             });
+@@ -1144,16 +1153,16 @@
+         let mut answer: Option<Option<bool>> = None;
+         egui::Modal::new(Id::unique("gridcraft.macro_editor.close")).show(ctx, |ui| {
+             ui.set_width(360.0);
+-            ui.label(egui::RichText::new(format!("Save changes to macro “{}”?", ed.draft.name)).strong());
++            ui.label(egui::RichText::new(if app.ui.language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("Save changes to macro “{}”?", &[("0", format!("{}", ed.draft.name))]) } else { format!("Save changes to macro “{}”?", ed.draft.name) }).strong());
+             ui.add_space(8.0);
+             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+-                if ui.button("Cancel").clicked() || ui.input(|i| i.key_pressed(egui::Key::Escape)) {
++                if ui.button(app.ui.language.tr("Cancel")).clicked() || ui.input(|i| i.key_pressed(egui::Key::Escape)) {
+                     answer = Some(None);
+                 }
+-                if ui.button("Don't Save").clicked() {
++                if ui.button(app.ui.language.tr("Don't Save")).clicked() {
+                     answer = Some(Some(false));
+                 }
+-                if ui.button("Save").clicked() || ui.input(|i| i.key_pressed(egui::Key::Enter)) {
++                if ui.button(app.ui.language.tr("Save")).clicked() || ui.input(|i| i.key_pressed(egui::Key::Enter)) {
+                     answer = Some(Some(true));
+                 }
+             });
+@@ -1185,14 +1194,15 @@
+ }
+
+ fn body(app: &mut SheetApp, ui: &mut Ui, d: &mut Dialog, ed: &mut Editor) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     let t = Tokens::get(ui.ctx());
+     let debugging = app.session.macro_debug.is_some();
+     // Name, description, Save; they wrap in a narrow window.
+     ui.horizontal_wrapped(|ui| {
+-        let label = ui.label("Name:");
++        let label = ui.label(studio_language.tr("Name:"));
+         let name =
+             ui.add_enabled(!debugging, egui::TextEdit::singleline(&mut ed.draft.name).desired_width(180.0).id_salt("me_name")).labelled_by(label.id);
+-        let label = ui.label("Description:");
++        let label = ui.label(studio_language.tr("Description:"));
+         let desc = ui
+             .add_enabled(
+                 !debugging,
+@@ -1202,7 +1212,7 @@
+         if name.changed() || desc.changed() {
+             ed.dirty = true;
+         }
+-        if ui.add_enabled(ed.dirty && !debugging, egui::Button::new("Save")).clicked() {
++        if ui.add_enabled(ed.dirty && !debugging, egui::Button::new(studio_language.tr("Save"))).clicked() {
+             save(app, ed);
+         }
+     });
+@@ -1232,50 +1242,51 @@
+ }
+
+ fn toolbar(app: &mut SheetApp, ui: &mut Ui, ed: &mut Editor, debugging: bool) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     let t = Tokens::get(ui.ctx());
+     // The buttons wrap onto a second row in a narrow window.
+     ui.horizontal_wrapped(|ui| {
+         ui.spacing_mut().item_spacing.x = 2.0;
+         let editing = !debugging;
+-        if ui.add_enabled(editing, |ui: &mut Ui| small_button(ui, Icon::Plus, "Add Step", "Add a step after the selected one", false)).clicked() {
++        if ui.add_enabled(editing, |ui: &mut Ui| small_button(ui, Icon::Plus, studio_language.tr("Add Step"), studio_language.tr("Add a step after the selected one"), false)).clicked() {
+             ed.picker = Some(Picker::default());
+         }
+         let has_step = ed.selected.as_deref().and_then(split_path).is_some();
+         if ui
+-            .add_enabled(editing && has_step, |ui: &mut Ui| small_button(ui, Icon::Copy, "Duplicate", "Duplicate the selected step", false))
++            .add_enabled(editing && has_step, |ui: &mut Ui| small_button(ui, Icon::Copy, "Duplicate", studio_language.tr("Duplicate the selected step"), false))
+             .clicked()
+         {
+             duplicate(ed);
+         }
+-        if ui.add_enabled(editing && has_step, |ui: &mut Ui| small_button(ui, Icon::Delete, "Delete", "Delete the selected step", false)).clicked() {
++        if ui.add_enabled(editing && has_step, |ui: &mut Ui| small_button(ui, Icon::Delete, "Delete", studio_language.tr("Delete the selected step"), false)).clicked() {
+             delete(ed);
+         }
+         sep(ui, &t);
+         if ui
+             .add_enabled(editing, |ui: &mut Ui| {
+-                small_button(ui, Icon::Check, "Check", "Check the inputs and show on the grid what the macro would change", false)
++                small_button(ui, Icon::Check, studio_language.tr("Check"), studio_language.tr("Check the inputs and show on the grid what the macro would change"), false)
+             })
+             .clicked()
+         {
+             check(app, ed);
+         }
+-        if ui.add_enabled(editing, |ui: &mut Ui| small_button(ui, Icon::Play, "Run", "Run the macro as one undo step", false)).clicked() {
++        if ui.add_enabled(editing, |ui: &mut Ui| small_button(ui, Icon::Play, studio_language.tr("Run"), studio_language.tr("Run the macro as one undo step"), false)).clicked() {
+             run(app, ed);
+         }
+         sep(ui, &t);
+-        if small_button(ui, Icon::Step, "Step", if debugging { "Run the current step" } else { "Start debugging: stop before the first step" }, false)
++        if small_button(ui, Icon::Step, studio_language.tr("Step"), if debugging { studio_language.tr("Run the current step") } else { studio_language.tr("Start debugging: stop before the first step") }, false)
+             .clicked()
+         {
+             debug_action(app, ed, "step");
+         }
+-        if small_button(ui, Icon::Continue, "Continue", "Run to the next breakpoint or the end", false).clicked() {
++        if small_button(ui, Icon::Continue, studio_language.tr("Continue"), studio_language.tr("Run to the next breakpoint or the end"), false).clicked() {
+             debug_action(app, ed, "continue");
+         }
+         let can_run_to = ed.selected.as_deref().and_then(split_path).is_some();
+-        if ui.add_enabled(can_run_to, |ui: &mut Ui| small_button(ui, Icon::RunTo, "Run to Here", "Run until the selected step", false)).clicked() {
++        if ui.add_enabled(can_run_to, |ui: &mut Ui| small_button(ui, Icon::RunTo, studio_language.tr("Run to Here"), studio_language.tr("Run until the selected step"), false)).clicked() {
+             debug_action(app, ed, "runTo");
+         }
+-        if ui.add_enabled(debugging, |ui: &mut Ui| small_button(ui, Icon::StopSquare, "Stop", "Stop debugging", false)).clicked() {
++        if ui.add_enabled(debugging, |ui: &mut Ui| small_button(ui, Icon::StopSquare, "Stop", studio_language.tr("Stop debugging"), false)).clicked() {
+             ed.ask_stop = true;
+         }
+     });
+@@ -1289,6 +1300,7 @@
+ /// Where the run is (while debugging) or what the last check, run or debug session said, with
+ /// the overlay legend.
+ fn status_line(app: &SheetApp, ui: &mut Ui, ed: &Editor, t: &Tokens) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     if let Some(st) = &ed.debug {
+         let cur = &st["current"];
+         let step = cur["step"].as_str().unwrap_or("");
+@@ -1297,18 +1309,18 @@
+             Some(k) => k.to_string(),
+             None => String::new(),
+         };
+-        let mut head = format!("Paused before step {step} · {what}");
++        let mut head = if studio_language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("Paused before step {step} · {what}", &[("step", format!("{}", step)), ("what", format!("{}", what))]) } else { format!("Paused before step {step} · {what}") };
+         if let (Some(at), Some(of)) = (cur["iteration"]["at"].as_u64(), cur["iteration"]["of"].as_u64()) {
+-            head.push_str(&format!(" · pass {at} of {of}"));
++            head.push_str(&if studio_language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional(" · pass {at} of {of}", &[("at", format!("{}", at)), ("of", format!("{}", of))]) } else { format!(" · pass {at} of {of}") });
+         }
+         if st["atBreakpoint"] == true {
+-            head.push_str(" · at a breakpoint");
++            head.push_str(studio_language.tr(" · at a breakpoint"));
+         }
+         ui.label(egui::RichText::new(head).strong().color(t.text));
+         let resolved = cur.get("params").or(cur.get("over")).or(cur.get("cell")).map(|p| p.to_string());
+         if let Some(p) = resolved {
+             ui.horizontal(|ui| {
+-                ui.label(egui::RichText::new("Runs with:").color(t.text_dim));
++                ui.label(egui::RichText::new(studio_language.tr("Runs with:")).color(t.text_dim));
+                 ui.add(egui::Label::new(egui::RichText::new(p).monospace().color(t.text)).truncate());
+             });
+         } else if let Some(e) = cur["paramsError"].as_str() {
+@@ -1316,7 +1328,7 @@
+         }
+         let changed: Vec<&str> = st["changed"].as_array().into_iter().flatten().filter_map(Json::as_str).take(6).collect();
+         ui.label(
+-            egui::RichText::new(format!("Changed so far: {}", if changed.is_empty() { "nothing".into() } else { changed.join(", ") }))
++            egui::RichText::new(if studio_language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("Changed so far: {}", &[("0", format!("{}", if changed.is_empty() { "nothing".into() } else { changed.join(", ") }))]) } else { format!("Changed so far: {}", if changed.is_empty() { "nothing".into() } else { changed.join(", ") }) })
+                 .color(t.text_dim),
+         );
+     } else if let Some(text) = &ed.outcome {
+@@ -1324,17 +1336,17 @@
+         ui.add(egui::Label::new(egui::RichText::new(text).color(if bad { t.danger } else { t.text })).wrap());
+     } else {
+         ui.label(
+-            egui::RichText::new("Check shows on the grid what the macro reads and writes. Click a step's gutter to set a breakpoint.")
++            egui::RichText::new(studio_language.tr("Check shows on the grid what the macro reads and writes. Click a step's gutter to set a breakpoint."))
+                 .color(t.text_dim),
+         );
+     }
+     if app.grid.macro_overlay.is_some() {
+         ui.horizontal(|ui| {
+             for (label, c) in [
+-                ("Inputs", t.sheet_macro_input),
+-                ("Writes", t.sheet_macro_footprint),
+-                ("Writes over data", t.sheet_macro_conflict),
+-                ("Current step", t.sheet_macro_target),
++                (studio_language.tr("Inputs"), t.sheet_macro_input),
++                (studio_language.tr("Writes"), t.sheet_macro_footprint),
++                (studio_language.tr("Writes over data"), t.sheet_macro_conflict),
++                (studio_language.tr("Current step"), t.sheet_macro_target),
+             ] {
+                 let (r, _) = ui.allocate_exact_size(vec2(12.0, 12.0), Sense::hover());
+                 ui.painter().rect_filled(r, 2.0, c);
+@@ -1356,12 +1368,13 @@
+ }
+
+ fn step_list(app: &mut SheetApp, ui: &mut Ui, ed: &mut Editor, debugging: bool) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     let t = Tokens::get(ui.ctx());
+     let mut list = Vec::new();
+     rows(&ed.draft.steps, "", 0, &mut list);
+     if list.is_empty() {
+         ui.add_space(8.0);
+-        ui.label(egui::RichText::new("No steps yet. Add Step picks a command, or record one with Automate › Record Macro.").color(t.text_dim));
++        ui.label(egui::RichText::new(studio_language.tr("No steps yet. Add Step picks a command, or record one with Automate › Record Macro.")).color(t.text_dim));
+         return;
+     }
+     let current = ed.debug.as_ref().and_then(|s| s["current"]["step"].as_str().map(str::to_string));
+@@ -1390,8 +1403,8 @@
+             }
+             let indent = row.depth as f32 * 16.0;
+             if let Some(label) = row.branch {
+-                p.text(pos2(rect.left() + 58.0 + indent, rect.center().y), egui::Align2::LEFT_CENTER, label, theme::ui_bold(12.0), t.text_dim);
+-                resp.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, true, format!("{label} branch {}", row.parent)));
++                p.text(pos2(rect.left() + 58.0 + indent, rect.center().y), egui::Align2::LEFT_CENTER, app.ui.language.tr(label), theme::ui_bold(12.0), t.text_dim);
++                resp.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, true, if studio_language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("{label} branch {}", &[("label", format!("{}", label)), ("0", format!("{}", row.parent))]) } else { format!("{label} branch {}", row.parent) }));
+                 continue;
+             }
+             let Some(st) = step_at(&ed.draft.steps, &row.key) else { continue };
+@@ -1407,8 +1420,8 @@
+                 let c = pos2(gutter.right() + 1.0, gutter.center().y);
+                 p.add(egui::Shape::convex_polygon(vec![c + vec2(-6.0, -5.0), c + vec2(1.0, 0.0), c + vec2(-6.0, 5.0)], t.accent, Stroke::NONE));
+             }
+-            g.widget_info(|| egui::WidgetInfo::selected(egui::Role::CheckBox, true, st.breakpoint, format!("Breakpoint {}", row.key)));
+-            if g.on_hover_text("Breakpoint: the debugger stops before this step").clicked()
++            g.widget_info(|| egui::WidgetInfo::selected(egui::Role::CheckBox, true, st.breakpoint, if studio_language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("Breakpoint {}", &[("0", format!("{}", row.key))]) } else { format!("Breakpoint {}", row.key) }));
++            if g.on_hover_text(studio_language.tr("Breakpoint: the debugger stops before this step")).clicked()
+                 && let Some(s) = step_mut(&mut ed.draft.steps, &row.key)
+             {
+                 s.breakpoint = !s.breakpoint;
+@@ -1417,14 +1430,14 @@
+             p.text(pos2(rect.left() + 48.0, rect.center().y), egui::Align2::RIGHT_CENTER, &row.key, theme::ui_font(11.5), t.text_dim);
+             let (icon, cat) = category(&st);
+             icons::paint(p, Rect::from_center_size(pos2(rect.left() + 62.0 + indent, rect.center().y), vec2(16.0, 16.0)), icon, t.cat(cat));
+-            let text = summary(&st);
++            let text = summary_for_language(&st, app.ui.language);
+             let text_color = if st.enabled { t.text } else { t.text_disabled };
+             let text_left = rect.left() + 76.0 + indent;
+             let text_clip = Rect::from_min_max(pos2(text_left, rect.top()), pos2(rect.right() - 46.0, rect.bottom()));
+             p.with_clip_rect(text_clip).text(pos2(text_left, rect.center().y), egui::Align2::LEFT_CENTER, &text, theme::ui_font(12.5), text_color);
+-            resp.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, true, format!("Step {}: {text}", row.key)));
++            resp.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, true, if studio_language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("Step {}: {text}", &[("0", format!("{}", row.key)), ("text", format!("{}", text))]) } else { format!("Step {}: {text}", row.key) }));
+             // Error marker.
+-            let error = ed.errors.get(&row.key).cloned().or_else(|| static_error(&ed.draft, &st));
++            let error = ed.errors.get(&row.key).cloned().or_else(|| static_error_for_language(&ed.draft, &st, app.ui.language));
+             if let Some(err) = error {
+                 let c = pos2(rect.right() - 36.0, rect.center().y);
+                 p.circle_filled(c, 7.0, t.danger);
+@@ -1435,7 +1448,7 @@
+             let mut on = st.enabled;
+             let cb =
+                 ui.put(Rect::from_center_size(pos2(rect.right() - 12.0, rect.center().y), vec2(18.0, 18.0)), egui::Checkbox::without_text(&mut on));
+-            if cb.on_hover_text("Run this step (a disabled step is skipped)").changed()
++            if cb.on_hover_text(studio_language.tr("Run this step (a disabled step is skipped)")).changed()
+                 && let Some(s) = step_mut(&mut ed.draft.steps, &row.key)
+             {
+                 s.enabled = on;
+@@ -1578,11 +1591,12 @@
+ }
+
+ fn picker(ui: &mut Ui, ed: &mut Editor) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     let Some(pk) = ed.picker.as_mut() else { return };
+     let t = Tokens::get(ui.ctx());
+     ui.horizontal(|ui| {
+-        ui.label(egui::RichText::new(if pk.replace.is_some() { "Change the command" } else { "Add a step" }).strong());
+-        if ui.small_button("Cancel").clicked() {
++        ui.label(egui::RichText::new(if pk.replace.is_some() { studio_language.tr("Change the command") } else { studio_language.tr("Add a step") }).strong());
++        if ui.small_button(studio_language.tr("Cancel")).clicked() {
+             pk.search = "\u{1}".into();
+         }
+     });
+@@ -1592,7 +1606,7 @@
+     }
+     let r = ui.add(
+         egui::TextEdit::singleline(&mut pk.search)
+-            .hint_text("Search commands, e.g. bold, sort, set…")
++            .hint_text(studio_language.tr("Search commands, e.g. bold, sort, set…"))
+             .desired_width(f32::INFINITY)
+             .id_salt("me_pick"),
+     );
+@@ -1614,14 +1628,14 @@
+     let mut chosen = ui.input(|i| i.key_pressed(egui::Key::Enter)).then_some(pk.index);
+     egui::ScrollArea::vertical().id_salt("me_pick_list").auto_shrink([false, false]).show(ui, |ui| {
+         for (i, (id, label, menu)) in items.iter().enumerate() {
+-            let r = ui.add(egui::Button::selectable(i == pk.index, label.as_str()).min_size(vec2(ui.available_width(), 20.0)));
++            let r = ui.add(egui::Button::selectable(i == pk.index, studio_language.tr(label.as_str())).min_size(vec2(ui.available_width(), 20.0)));
+             if r.clicked() {
+                 chosen = Some(i);
+             }
+-            r.on_hover_text(format!("{id}  {menu}"));
++            r.on_hover_text(format!("{id}  {}", studio_language.tr(menu)));
+         }
+         if items.is_empty() {
+-            ui.label(egui::RichText::new("No command matches.").color(t.text_dim));
++            ui.label(egui::RichText::new(studio_language.tr("No command matches.")).color(t.text_dim));
+         }
+     });
+     let Some(item) = chosen.and_then(|i| items.get(i)).map(|x| x.0.clone()) else { return };
+@@ -1642,8 +1656,9 @@
+ // ---------------------------------------------------------------- the inspector
+
+ fn inspector(app: &mut SheetApp, ui: &mut Ui, d: &mut Dialog, ed: &mut Editor, debugging: bool) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     ui.horizontal_wrapped(|ui| {
+-        for (tab, label) in [(Tab::Step, "Details"), (Tab::Inputs, "Inputs"), (Tab::Output, "Output")] {
++        for (tab, label) in [(Tab::Step, studio_language.tr("Details")), (Tab::Inputs, studio_language.tr("Inputs")), (Tab::Output, "Output")] {
+             if ui.selectable_label(ed.tab == tab, label).clicked() {
+                 ed.tab = tab;
+             }
+@@ -1717,6 +1732,7 @@
+
+ /// A reference box: RefEdit (type, or select on the grid), Relative/Absolute, and suggestions.
+ fn ref_field(app: &mut SheetApp, ui: &mut Ui, d: &mut Dialog, ed: &mut Editor, (path, field): (&str, &str), value: &str, in_repeat: bool) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     let key = ref_key(path, field);
+     if ed.refs.pick.as_deref() != Some(key.as_str()) || d.values.get(&key).is_none() {
+         d.values.insert(key.clone(), json!(value));
+@@ -1732,7 +1748,7 @@
+         let env = Env { wb: &wb, active_sheet: wb.active_sheet(), inputs: &inputs, output: None, item: None };
+         let relative = !current.trim().is_empty() && resolve::is_token(&current, &env);
+         if path != "@example" {
+-            if ui.selectable_label(relative, "Rel").on_hover_text("Relative: a token that follows the input the macro runs on").clicked() && !relative
++            if ui.selectable_label(relative, studio_language.tr("Rel")).on_hover_text(studio_language.tr("Relative: a token that follows the input the macro runs on")).clicked() && !relative
+             {
+                 let place = resolve::resolve_ref(&current, &env).ok();
+                 if let (Some(p), Some((name, input, _))) = (place, inputs.first())
+@@ -1744,7 +1760,7 @@
+                     ed.dirty = true;
+                 }
+             }
+-            if ui.selectable_label(!relative && !current.trim().is_empty(), "Abs").on_hover_text("Absolute: always these cells").clicked()
++            if ui.selectable_label(!relative && !current.trim().is_empty(), studio_language.tr("Abs")).on_hover_text(studio_language.tr("Absolute: always these cells")).clicked()
+                 && relative
+                 && let Ok(p) = resolve::resolve_ref(&current, &env)
+             {
+@@ -1753,7 +1769,7 @@
+                 d.values.insert(key.clone(), json!(a));
+                 ed.dirty = true;
+             }
+-            let menu = ui.button("▾").on_hover_text("Tokens");
++            let menu = ui.button("▾").on_hover_text(studio_language.tr("Tokens"));
+             egui::Popup::menu(&menu).show(|ui| {
+                 ui.set_max_height(300.0);
+                 egui::ScrollArea::vertical().show(ui, |ui| {
+@@ -1779,7 +1795,7 @@
+         if !current.trim().is_empty() && resolve::is_token(&current, &env) && !current.starts_with("Row") && !current.starts_with("Output") {
+             let t = Tokens::get(ui.ctx());
+             match resolve::resolve_ref(&current, &env) {
+-                Ok(p) => ui.label(egui::RichText::new(format!("= {} on the example", resolve::a1(p, &env))).small().color(t.text_dim)),
++                Ok(p) => ui.label(egui::RichText::new(if studio_language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("= {} on the example", &[("0", format!("{}", resolve::a1(p, &env)))]) } else { format!("= {} on the example", resolve::a1(p, &env)) }).small().color(t.text_dim)),
+                 Err(e) => ui.label(egui::RichText::new(e.message()).small().color(t.danger)),
+             };
+         }
+@@ -1787,17 +1803,18 @@
+ }
+
+ fn step_tab(app: &mut SheetApp, ui: &mut Ui, d: &mut Dialog, ed: &mut Editor) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     let t = Tokens::get(ui.ctx());
+     let Some(path) = ed.selected.clone() else {
+-        ui.label(egui::RichText::new("Select a step to see its settings.").color(t.text_dim));
++        ui.label(egui::RichText::new(studio_language.tr("Select a step to see its settings.")).color(t.text_dim));
+         return;
+     };
+     let Some(st) = step_at(&ed.draft.steps, &path) else {
+         ui.label(
+-            egui::RichText::new(format!(
++            egui::RichText::new(if studio_language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("Steps here run when the If is {}. Add Step puts a step in this branch.", &[("0", format!("{}", if path.ends_with("then") { "true" } else { "false" }))]) } else { format!(
+                 "Steps here run when the If is {}. Add Step puts a step in this branch.",
+                 if path.ends_with("then") { "true" } else { "false" }
+-            ))
++            ) })
+             .color(t.text_dim),
+         );
+         return;
+@@ -1809,14 +1826,14 @@
+         icons::paint(ui.painter(), r, icon, t.cat(cat));
+         let title = match &st.kind {
+             StepKind::Command { id, .. } => command_label(id),
+-            StepKind::Repeat { .. } => "Repeat".into(),
+-            StepKind::If { .. } => "If".into(),
++            StepKind::Repeat { .. } => studio_language.tr("Repeat").into(),
++            StepKind::If { .. } => studio_language.tr("If").into(),
+             StepKind::Stop { .. } => "Stop".into(),
+         };
+-        ui.label(egui::RichText::new(format!("Step {path} · {title}")).strong());
++        ui.label(egui::RichText::new(if studio_language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("Step {path} · {title}", &[("path", format!("{}", path)), ("title", format!("{}", title))]) } else { format!("Step {path} · {title}") }).strong());
+         if let StepKind::Command { id, .. } = &st.kind {
+             ui.label(egui::RichText::new(id).monospace().color(t.text_dim));
+-            if ui.small_button("Change…").clicked() {
++            if ui.small_button(studio_language.tr("Change…")).clicked() {
+                 ed.picker = Some(Picker { replace: Some(path.clone()), ..Default::default() });
+             }
+         }
+@@ -1824,8 +1841,8 @@
+     let mut enabled = st.enabled;
+     let mut bp = st.breakpoint;
+     ui.horizontal(|ui| {
+-        let a = ui.checkbox(&mut enabled, "Enabled").changed();
+-        let b = ui.checkbox(&mut bp, "Breakpoint").changed();
++        let a = ui.checkbox(&mut enabled, studio_language.tr("Enabled")).changed();
++        let b = ui.checkbox(&mut bp, studio_language.tr("Breakpoint")).changed();
+         if (a || b)
+             && let Some(s) = step_mut(&mut ed.draft.steps, &path)
+         {
+@@ -1834,14 +1851,14 @@
+             ed.dirty = true;
+         }
+     });
+-    if let Some(e) = ed.errors.get(&path).cloned().or_else(|| static_error(&ed.draft, &st)) {
++    if let Some(e) = ed.errors.get(&path).cloned().or_else(|| static_error_for_language(&ed.draft, &st, app.ui.language)) {
+         ui.label(egui::RichText::new(e).color(t.danger));
+     }
+     ui.add_space(4.0);
+     match st.kind.clone() {
+         StepKind::Command { id, params } => command_fields(app, ui, d, ed, &path, &id, &params, in_repeat),
+         StepKind::Repeat { over, of, max, .. } => {
+-            ui.label("For each");
++            ui.label(studio_language.tr("For each"));
+             let mut of2 = of;
+             ui.horizontal(|ui| {
+                 ui.radio_value(&mut of2, RepeatOf::Rows, "row");
+@@ -1851,7 +1868,7 @@
+             ref_field(app, ui, d, ed, (&path, "over"), &over, in_repeat);
+             let mut max2 = max;
+             ui.horizontal(|ui| {
+-                ui.label("At most");
++                ui.label(studio_language.tr("At most"));
+                 ui.add(egui::DragValue::new(&mut max2).range(1..=100_000));
+                 ui.label("times");
+             });
+@@ -1862,21 +1879,21 @@
+                 *max = max2;
+                 ed.dirty = true;
+             }
+-            ui.label(egui::RichText::new("Inside, Row (or Column) stands for the current one, e.g. Row.right.").small().color(t.text_dim));
++            ui.label(egui::RichText::new(studio_language.tr("Inside, Row (or Column) stands for the current one, e.g. Row.right.")).small().color(t.text_dim));
+         }
+         StepKind::If { cell, op, value, .. } => {
+-            ui.label("If cell");
++            ui.label(studio_language.tr("If cell"));
+             ref_field(app, ui, d, ed, (&path, "cell"), &cell, in_repeat);
+             let mut op2 = op;
+             let ops = [
+                 (CompareOp::Eq, "equals"),
+-                (CompareOp::Ne, "doesn't equal"),
+-                (CompareOp::Gt, "is greater than"),
+-                (CompareOp::Ge, "is at least"),
+-                (CompareOp::Lt, "is less than"),
+-                (CompareOp::Le, "is at most"),
+-                (CompareOp::Empty, "is empty"),
+-                (CompareOp::NotEmpty, "isn't empty"),
++                (CompareOp::Ne, studio_language.tr("doesn't equal")),
++                (CompareOp::Gt, studio_language.tr("is greater than")),
++                (CompareOp::Ge, studio_language.tr("is at least")),
++                (CompareOp::Lt, studio_language.tr("is less than")),
++                (CompareOp::Le, studio_language.tr("is at most")),
++                (CompareOp::Empty, studio_language.tr("is empty")),
++                (CompareOp::NotEmpty, studio_language.tr("isn't empty")),
+                 (CompareOp::Contains, "contains"),
+             ];
+             let label = ops.iter().find(|(o, _)| *o == op).map_or("", |x| x.1);
+@@ -1907,9 +1924,9 @@
+         }
+         StepKind::Stop { message, rollback } => {
+             let (mut m, mut rb) = (message.clone(), rollback);
+-            ui.label("Message:");
++            ui.label(studio_language.tr("Message:"));
+             let a = ui.add(egui::TextEdit::singleline(&mut m).desired_width(f32::INFINITY).id_salt(("me_stop", &path))).changed();
+-            let b = ui.checkbox(&mut rb, "Undo what the macro did before stopping").changed();
++            let b = ui.checkbox(&mut rb, studio_language.tr("Undo what the macro did before stopping")).changed();
+             if (a || b)
+                 && let Some(StepKind::Stop { message, rollback }) = step_mut(&mut ed.draft.steps, &path).map(|s| &mut s.kind)
+             {
+@@ -1920,7 +1937,7 @@
+         }
+     }
+     ui.add_space(6.0);
+-    ui.label("Note:");
++    ui.label(studio_language.tr("Note:"));
+     let mut note = st.note.clone();
+     if ui.add(egui::TextEdit::multiline(&mut note).desired_rows(2).desired_width(f32::INFINITY).id_salt(("me_note", &path))).changed()
+         && let Some(s) = step_mut(&mut ed.draft.steps, &path)
+@@ -1947,6 +1964,7 @@
+
+ #[allow(clippy::too_many_arguments)]
+ fn command_fields(app: &mut SheetApp, ui: &mut Ui, d: &mut Dialog, ed: &mut Editor, path: &str, id: &str, params: &Json, in_repeat: bool) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     let t = Tokens::get(ui.ctx());
+     let fields: Vec<(String, Json)> = params.as_object().map(|o| o.iter().map(|(k, v)| (k.clone(), v.clone())).collect()).unwrap_or_default();
+     let mut remove: Option<String> = None;
+@@ -1995,7 +2013,7 @@
+                     }
+                 }
+             }
+-            if crate::widgets::icon_button(ui, Icon::Close, t.text_dim, "Remove this parameter", vec2(18.0, 18.0)).clicked() {
++            if crate::widgets::icon_button(ui, Icon::Close, t.text_dim, studio_language.tr("Remove this parameter"), vec2(18.0, 18.0)).clicked() {
+                 remove = Some(k.clone());
+             }
+             ui.end_row();
+@@ -2020,7 +2038,7 @@
+         ui.add(egui::TextEdit::singleline(&mut ed.new_param.0).hint_text("parameter").desired_width(90.0).id_salt("me_np_k"));
+         ui.add(egui::TextEdit::singleline(&mut ed.new_param.1).hint_text("value").desired_width(140.0).id_salt("me_np_v"));
+         let key = ed.new_param.0.trim().to_string();
+-        if ui.add_enabled(!key.is_empty(), egui::Button::new("Add")).clicked() {
++        if ui.add_enabled(!key.is_empty(), egui::Button::new(studio_language.tr("Add"))).clicked() {
+             let raw = ed.new_param.1.clone();
+             let v = serde_json::from_str::<Json>(&raw).unwrap_or(Json::String(raw));
+             if let Some(StepKind::Command { params, .. }) = step_mut(&mut ed.draft.steps, path).map(|s| &mut s.kind)
+@@ -2041,21 +2059,22 @@
+ }
+
+ fn inputs_tab(app: &mut SheetApp, ui: &mut Ui, d: &mut Dialog, ed: &mut Editor) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     let t = Tokens::get(ui.ctx());
+-    ui.label(egui::RichText::new("The ranges the macro works on. Each is checked before the macro runs.").small().color(t.text_dim));
++    ui.label(egui::RichText::new(studio_language.tr("The ranges the macro works on. Each is checked before the macro runs.")).small().color(t.text_dim));
+     ui.horizontal_wrapped(|ui| {
+         for (k, i) in ed.draft.inputs.iter().enumerate() {
+             if ui.selectable_label(ed.input == k, i.name.as_str()).clicked() {
+                 ed.input = k;
+             }
+         }
+-        if ui.small_button("Add").clicked() && ed.draft.inputs.len() < 64 {
++        if ui.small_button(studio_language.tr("Add")).clicked() && ed.draft.inputs.len() < 64 {
+             let n = (2..).map(|k| format!("Input{k}")).find(|n| !ed.draft.inputs.iter().any(|i| i.name.eq_ignore_ascii_case(n))).unwrap_or_default();
+             ed.draft.inputs.push(NamedInput { name: n, ..Default::default() });
+             ed.input = ed.draft.inputs.len() - 1;
+             ed.dirty = true;
+         }
+-        if ui.add_enabled(!ed.draft.inputs.is_empty(), egui::Button::new("Remove").small()).clicked() && ed.input < ed.draft.inputs.len() {
++        if ui.add_enabled(!ed.draft.inputs.is_empty(), egui::Button::new(studio_language.tr("Remove")).small()).clicked() && ed.input < ed.draft.inputs.len() {
+             ed.draft.inputs.remove(ed.input);
+             ed.input = ed.input.saturating_sub(1);
+             ed.dirty = true;
+@@ -2063,60 +2082,60 @@
+     });
+     let k = ed.input;
+     let Some(mut i) = ed.draft.inputs.get(k).cloned() else {
+-        ui.label(egui::RichText::new("No inputs: the macro works on fixed cells only.").color(t.text_dim));
++        ui.label(egui::RichText::new(studio_language.tr("No inputs: the macro works on fixed cells only.")).color(t.text_dim));
+         return;
+     };
+     let before = i.clone();
+     ui.separator();
+     egui::Grid::new("me_input").num_columns(2).spacing(vec2(8.0, 4.0)).show(ui, |ui| {
+-        ui.label("Name:");
++        ui.label(studio_language.tr("Name:"));
+         ui.add(egui::TextEdit::singleline(&mut i.name).desired_width(140.0).id_salt("me_in_name"));
+         ui.end_row();
+-        ui.label("Shape:");
++        ui.label(studio_language.tr("Shape:"));
+         ui.horizontal(|ui| {
+             ui.radio_value(&mut i.kind, InputKind::Range, "range");
+-            ui.radio_value(&mut i.kind, InputKind::Cell, "single cell");
++            ui.radio_value(&mut i.kind, InputKind::Cell, studio_language.tr("single cell"));
+         });
+         ui.end_row();
+         if i.kind == InputKind::Range {
+-            ui.label("Data rows:");
++            ui.label(studio_language.tr("Data rows:"));
+             ui.horizontal(|ui| {
+-                ui.add(egui::DragValue::new(&mut i.rows[0]).range(0..=1_048_576).prefix("at least "));
++                ui.add(egui::DragValue::new(&mut i.rows[0]).range(0..=1_048_576).prefix(studio_language.tr("at least ")));
+                 ui.add(
+                     egui::DragValue::new(&mut i.rows[1])
+                         .range(0..=1_048_576)
+-                        .prefix("at most ")
++                        .prefix(studio_language.tr("at most "))
+                         .custom_formatter(|v, _| if v == 0.0 { "any".into() } else { format!("{v}") }),
+                 );
+             });
+             ui.end_row();
+-            ui.label("Columns:");
++            ui.label(studio_language.tr("Columns:"));
+             ui.horizontal(|ui| {
+-                ui.add(egui::DragValue::new(&mut i.cols[0]).range(0..=16_384).prefix("at least "));
++                ui.add(egui::DragValue::new(&mut i.cols[0]).range(0..=16_384).prefix(studio_language.tr("at least ")));
+                 ui.add(
+                     egui::DragValue::new(&mut i.cols[1])
+                         .range(0..=16_384)
+-                        .prefix("at most ")
++                        .prefix(studio_language.tr("at most "))
+                         .custom_formatter(|v, _| if v == 0.0 { "any".into() } else { format!("{v}") }),
+                 );
+             });
+             ui.end_row();
+             ui.label("");
+-            ui.checkbox(&mut i.header, "First row holds column names");
++            ui.checkbox(&mut i.header, studio_language.tr("First row holds column names"));
+             ui.end_row();
+         }
+         ui.label("");
+-        ui.checkbox(&mut i.non_empty, "Every cell must hold something");
++        ui.checkbox(&mut i.non_empty, studio_language.tr("Every cell must hold something"));
+         ui.end_row();
+     });
+     // Column types, one per column of the example (or of the list so far).
+     let ncols = if k == 0 { parse_refs(&ed.example).first().map_or(0, |(_, r)| r.width() as usize) } else { 0 }.max(i.col_types.len()).min(16);
+     if i.kind == InputKind::Range && ncols > 0 {
+-        ui.label("Each column must hold:");
++        ui.label(studio_language.tr("Each column must hold:"));
+         let headers = if k == 0 { example_headers(app, &ed.example, i.header) } else { vec![] };
+         egui::Grid::new("me_types").num_columns(2).show(ui, |ui| {
+             for c in 0..ncols {
+-                let label = headers.get(c).filter(|h| !h.is_empty()).cloned().unwrap_or_else(|| format!("Column {}", c + 1));
++                let label = headers.get(c).filter(|h| !h.is_empty()).cloned().unwrap_or_else(|| if studio_language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("Column {}", &[("0", format!("{}", c + 1))]) } else { format!("Column {}", c + 1) });
+                 ui.label(label);
+                 let mut ty = i.col_types.get(c).copied().unwrap_or(ColType::Any);
+                 let before_ty = ty;
+@@ -2146,15 +2165,15 @@
+     }
+     if k == 0 {
+         ui.separator();
+-        ui.label("Example (what Check, Run and Debug use here):");
++        ui.label(studio_language.tr("Example (what Check, Run and Debug use here):"));
+         let example = ed.example.clone();
+         ref_field(app, ui, d, ed, ("@example", "example"), &example, false);
+         ui.horizontal(|ui| {
+-            if ui.button("Use current selection as example").clicked() {
++            if ui.button(studio_language.tr("Use current selection as example")).clicked() {
+                 use_selection_as_example(app, ed);
+             }
+             let mut fixed = ed.draft.inputs.first().is_some_and(|i| i.default_ref.is_some());
+-            if ui.checkbox(&mut fixed, "Always run on this range").on_hover_text("Otherwise the macro runs on the selection").changed()
++            if ui.checkbox(&mut fixed, studio_language.tr("Always run on this range")).on_hover_text(studio_language.tr("Otherwise the macro runs on the selection")).changed()
+                 && let Some(first) = ed.draft.inputs.first_mut()
+             {
+                 first.default_ref = fixed.then(|| ed.example.clone());
+@@ -2267,24 +2286,25 @@
+ }
+
+ fn output_tab(app: &mut SheetApp, ui: &mut Ui, d: &mut Dialog, ed: &mut Editor) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     let t = Tokens::get(ui.ctx());
+-    ui.label("Output anchor (what the Output token stands for):");
++    ui.label(studio_language.tr("Output anchor (what the Output token stands for):"));
+     let anchor = ed.draft.output.anchor.clone().unwrap_or_default();
+     ref_field(app, ui, d, ed, ("@output", "anchor"), &anchor, false);
+     ui.label(
+-        egui::RichText::new("Leave it empty when no step uses Output. A token such as Input.right keeps it beside the data.")
++        egui::RichText::new(studio_language.tr("Leave it empty when no step uses Output. A token such as Input.right keeps it beside the data."))
+             .small()
+             .color(t.text_dim),
+     );
+     ui.add_space(6.0);
+-    ui.label("When results would land on cells that hold data:");
++    ui.label(studio_language.tr("When results would land on cells that hold data:"));
+     let mut rule = ed.draft.output.on_conflict;
+     for (r, label) in [
+-        (OnConflict::Ask, "Ask (overwrite, shift down or shift right)"),
+-        (OnConflict::Fail, "Don't run"),
+-        (OnConflict::Overwrite, "Overwrite the data"),
+-        (OnConflict::ShiftDown, "Shift the data down"),
+-        (OnConflict::ShiftRight, "Shift the data right"),
++        (OnConflict::Ask, studio_language.tr("Ask (overwrite, shift down or shift right)")),
++        (OnConflict::Fail, studio_language.tr("Don't run")),
++        (OnConflict::Overwrite, studio_language.tr("Overwrite the data")),
++        (OnConflict::ShiftDown, studio_language.tr("Shift the data down")),
++        (OnConflict::ShiftRight, studio_language.tr("Shift the data right")),
+     ] {
+         ui.radio_value(&mut rule, r, label);
+     }
+@@ -2292,10 +2312,10 @@
+         ed.draft.output.on_conflict = rule;
+         ed.dirty = true;
+     }
+-    ui.label(egui::RichText::new("Agents and other programs that run the macro get an error instead of the question.").small().color(t.text_dim));
++    ui.label(egui::RichText::new(studio_language.tr("Agents and other programs that run the macro get an error instead of the question.")).small().color(t.text_dim));
+     if !ed.draft.permissions.is_empty() {
+         ui.add_space(6.0);
+-        ui.label(format!("May use files through: {}", ed.draft.permissions.join(", ")));
++        ui.label(if studio_language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("May use files through: {}", &[("0", format!("{}", ed.draft.permissions.join(", ")))]) } else { format!("May use files through: {}", ed.draft.permissions.join(", ")) });
+     }
+ }
+
+--- a/crates/ui-egui/src/macro_ui.rs
++++ b/crates/ui-egui/src/macro_ui.rs
+@@ -89,21 +89,21 @@
+             Some(name) => {
+                 let steps = v["steps"].as_u64().unwrap_or(0);
+                 app.macros.note_recent(name);
+-                let mut text = format!("Saved macro “{name}” ({steps} step{})", if steps == 1 { "" } else { "s" });
++                let mut text = if app.ui.language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("Saved macro “{name}” ({steps} step{})", &[("name", format!("{}", name)), ("steps", format!("{}", steps)), ("0", format!("{}", if steps == 1 { "" } else { "s" }))]) } else { format!("Saved macro “{name}” ({steps} step{})", if steps == 1 { "" } else { "s" }) };
+                 if let Some(k) = v["shortcutDropped"].as_str() {
+-                    text.push_str(&format!(" without {k}: another macro took it while recording"));
++                    text.push_str(&if app.ui.language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional(" without {k}: another macro took it while recording", &[("k", format!("{}", k))]) } else { format!(" without {k}: another macro took it while recording") });
+                 }
+                 app.toast = Some((text, crate::now_ms()));
+             }
+-            None => app.toast = Some(("Recording stopped".into(), crate::now_ms())),
++            None => app.toast = Some((app.ui.language.tr("Recording stopped").into(), crate::now_ms())),
+         },
+-        Err(e) => app.message = Some(("Record Macro".into(), crate::clean_error(&e))),
++        Err(e) => app.message = Some((app.ui.language.tr("Record Macro").into(), crate::clean_error(&e))),
+     }
+ }
+
+ /// Runs macro `name` on the selection; its questions (approve, make room) become a prompt.
+ pub fn run_macro(app: &mut SheetApp, name: &str) {
+-    call(app, "Run Macro", "macro.run", json!({"name": name}));
++    call(app, app.ui.language.tr("Run Macro"), "macro.run", json!({"name": name}));
+ }
+
+ /// Runs a macro command. Errors are shown; a question (approve it, overwrite or move the data in
+@@ -134,17 +134,17 @@
+ /// on data; OK (`overwrite: true`) for anything else. False when `e` is not a question.
+ pub fn ask(app: &mut SheetApp, title: &str, id: &str, params: &Json, e: &str) -> bool {
+     let (text, choices) = if let Some(q) = question_text(e, "approve: ") {
+-        (q, vec![("Run".to_string(), json!({"approve": true}))])
++        (q, vec![(app.ui.language.tr("Run").to_string(), json!({"approve": true}))])
+     } else if let Some(q) = question_text(e, "confirm: ") {
+         if id.starts_with("macro.") {
+             // The engine's hint for programs ("run again with onConflict …") becomes the buttons.
+             let what = q.split_once(" Overwrite them").map(|(a, _)| a).unwrap_or(&q).trim_end_matches(['.', ' ']);
+             (
+-                format!("{what}. Overwrite them, or move the data out of the way?"),
++                if app.ui.language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("{what}. Overwrite them, or move the data out of the way?", &[("what", format!("{}", what))]) } else { format!("{what}. Overwrite them, or move the data out of the way?") },
+                 vec![
+-                    ("Overwrite".to_string(), json!({"onConflict": "overwrite"})),
+-                    ("Shift Down".to_string(), json!({"onConflict": "shiftDown"})),
+-                    ("Shift Right".to_string(), json!({"onConflict": "shiftRight"})),
++                    (app.ui.language.tr("Overwrite").to_string(), json!({"onConflict": "overwrite"})),
++                    (app.ui.language.tr("Shift Down").to_string(), json!({"onConflict": "shiftDown"})),
++                    (app.ui.language.tr("Shift Right").to_string(), json!({"onConflict": "shiftRight"})),
+                 ],
+             )
+         } else {
+@@ -175,8 +175,8 @@
+     app.macros.note_recent(&name);
+     let ran = v["ran"].as_u64().unwrap_or(0);
+     let text = match v["stopped"].as_str() {
+-        Some(msg) => format!("Macro “{name}” stopped: {msg}"),
+-        None => format!("Ran macro “{name}” ({ran} step{})", if ran == 1 { "" } else { "s" }),
++        Some(msg) => if app.ui.language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("Macro “{name}” stopped: {msg}", &[("name", format!("{}", name)), ("msg", format!("{}", msg))]) } else { format!("Macro “{name}” stopped: {msg}") },
++        None => if app.ui.language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("Ran macro “{name}” ({ran} step{})", &[("name", format!("{}", name)), ("ran", format!("{}", ran)), ("0", format!("{}", if ran == 1 { "" } else { "s" }))]) } else { format!("Ran macro “{name}” ({ran} step{})", if ran == 1 { "" } else { "s" }) },
+     };
+     app.toast = Some((text, crate::now_ms()));
+ }
+@@ -209,7 +209,7 @@
+         ui.add(egui::Label::new(&q.text).wrap());
+         ui.add_space(8.0);
+         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+-            if ui.button("Cancel").clicked() || ui.input(|i| i.key_pressed(egui::Key::Escape)) {
++            if ui.button(app.ui.language.tr("Cancel")).clicked() || ui.input(|i| i.key_pressed(egui::Key::Escape)) {
+                 answer = Some(None);
+             }
+             // Right to left: list the choices reversed, so the first one ends up next to Cancel
+@@ -229,7 +229,7 @@
+             app.macros.question = None;
+             let book = app.session.documents().iter().find(|d| d.uid == q.doc).map(|d| d.display_title()).unwrap_or_default();
+             app.message =
+-                Some((q.title.clone(), format!("The question was about “{book}”, which is no longer the active workbook, so nothing was done.")));
++                Some((q.title.clone(), if app.ui.language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("The question was about “{book}”, which is no longer the active workbook, so nothing was done.", &[("book", format!("{}", book))]) } else { format!("The question was about “{book}”, which is no longer the active workbook, so nothing was done.") }));
+         }
+         Some(Some(extra)) => {
+             app.macros.question = None;
+@@ -248,16 +248,17 @@
+ /// The status bar while a macro is debugged ("Debugging “Name”", with Show when the editor is
+ /// closed) and while recording (a red dot, "Recording · 7 steps" and Stop).
+ pub fn status(app: &mut SheetApp, ui: &mut Ui) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     let t = Tokens::get(ui.ctx());
+     if let Some(name) = app.session.macro_debug.as_ref().map(|d| d.name.clone()) {
+         ui.add_space(12.0);
+         let (r, _) = ui.allocate_exact_size(vec2(10.0, 10.0), Sense::hover());
+         ui.painter().circle_filled(r.center(), 4.5, t.breakpoint);
+-        ui.label(egui::RichText::new(format!("Debugging “{name}”")).font(theme::ui_font(12.5)).color(t.text));
++        ui.label(egui::RichText::new(if studio_language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("Debugging “{name}”", &[("name", format!("{}", name))]) } else { format!("Debugging “{name}”") }).font(theme::ui_font(12.5)).color(t.text));
+         if app.macros.editor.is_none() {
+             let show =
+                 ui.add(egui::Button::new(egui::RichText::new(app.ui.language.tr("Show")).font(theme::ui_font(12.0))).min_size(vec2(40.0, 18.0)));
+-            if show.on_hover_text("Open the macro in the step editor").clicked() {
++            if show.on_hover_text(studio_language.tr("Open the macro in the step editor")).clicked() {
+                 app.open_dialog("macroEditor", json!({"macro": name}));
+             }
+         }
+@@ -269,7 +270,7 @@
+     let text = format!("{} · {n} step{}", app.ui.language.tr("Recording"), if n == 1 { "" } else { "s" });
+     ui.label(egui::RichText::new(text).font(theme::ui_font(12.5)).color(t.text));
+     let stop = ui.add(egui::Button::new(egui::RichText::new(app.ui.language.tr("Stop")).font(theme::ui_font(12.0))).min_size(vec2(40.0, 18.0)));
+-    if stop.on_hover_text("Stop recording and save the macro").clicked() {
++    if stop.on_hover_text(studio_language.tr("Stop recording and save the macro")).clicked() {
+         stop_recording(app);
+     }
+ }
+@@ -371,6 +372,7 @@
+ /// The Macros dialog's body: the name box and the list on the left, the buttons on the right, the
+ /// description under them; Options… switches to the shortcut and description of one macro.
+ pub fn macros_dialog(app: &mut SheetApp, ui: &mut Ui, d: &mut Dialog, open: &mut bool) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     // Its rows and the Options pane are the workbook's it opened on: another workbook becoming
+     // active (an agent) closes it rather than run, delete or change a macro of the same name there.
+     let active = app.session.active().map(|doc| doc.uid);
+@@ -396,8 +398,8 @@
+         .is_some_and(|items| items.iter().any(|it| it.get("trusted").and_then(Json::as_bool) == Some(false)));
+     if untrusted {
+         ui.horizontal(|ui| {
+-            ui.weak("Scripts in this workbook came from a file and are disabled.");
+-            if ui.button("Trust Scripts").on_hover_text("Let this workbook's scripts run for the rest of this session").clicked() {
++            ui.weak(studio_language.tr("Scripts in this workbook came from a file and are disabled."));
++            if ui.button(studio_language.tr("Trust Scripts")).on_hover_text(studio_language.tr("Let this workbook's scripts run for the rest of this session")).clicked() {
+                 let _ = app.run("automate.trustScripts", json!({"trusted": true}));
+                 d.result = app.session.run("view.macros", json!({})).ok();
+             }
+@@ -411,7 +413,7 @@
+     ui.horizontal_top(|ui| {
+         ui.vertical(|ui| {
+             ui.set_width(330.0);
+-            let label = ui.label("Macro name:");
++            let label = ui.label(studio_language.tr("Macro name:"));
+             if ui.add(egui::TextEdit::singleline(&mut name).desired_width(330.0).id_salt("macro_name")).labelled_by(label.id).changed() {
+                 kind = Kind::Macro;
+             }
+@@ -419,7 +421,7 @@
+                 ui.set_min_size(vec2(326.0, 200.0));
+                 egui::ScrollArea::vertical().max_height(200.0).show(ui, |ui| {
+                     if list.is_empty() {
+-                        ui.label(egui::RichText::new("This workbook has no scripts or macros.").italics().color(t.text_dim));
++                        ui.label(egui::RichText::new(studio_language.tr("This workbook has no scripts or macros.")).italics().color(t.text_dim));
+                     }
+                     for e in &list {
+                         let label = match (e.kind, &e.shortcut) {
+@@ -447,46 +449,46 @@
+             let target = name.trim().to_string();
+             let found = list.iter().find(|e| e.kind == kind && e.name.eq_ignore_ascii_case(&target)).cloned();
+             let is_macro = found.as_ref().is_some_and(|e| e.kind == Kind::Macro);
+-            if ui.add_enabled(found.is_some(), egui::Button::new("Run").min_size(w)).clicked()
++            if ui.add_enabled(found.is_some(), egui::Button::new(studio_language.tr("Run")).min_size(w)).clicked()
+                 && let Some(e) = &found
+             {
+                 *open = false;
+                 run_entry(app, e);
+             }
+             if ui
+-                .add_enabled(is_macro, egui::Button::new("Step Into").min_size(w))
+-                .on_hover_text("Open the macro in the step editor and stop before its first step")
++                .add_enabled(is_macro, egui::Button::new(studio_language.tr("Step Into")).min_size(w))
++                .on_hover_text(studio_language.tr("Open the macro in the step editor and stop before its first step"))
+                 .clicked()
+             {
+                 *open = false;
+                 app.open_dialog("macroEditor", json!({"macro": target, "debug": true}));
+             }
+-            if ui.add_enabled(is_macro, egui::Button::new("Edit").min_size(w)).clicked() {
++            if ui.add_enabled(is_macro, egui::Button::new(studio_language.tr("Edit")).min_size(w)).clicked() {
+                 *open = false;
+                 app.open_dialog("macroEditor", json!({"macro": target}));
+             }
+             let free = !target.is_empty() && !list.iter().any(|e| e.kind == Kind::Macro && e.name.eq_ignore_ascii_case(&target));
+-            if ui.add_enabled(free, egui::Button::new("Create").min_size(w)).on_hover_text("Write a new macro with this name").clicked() {
++            if ui.add_enabled(free, egui::Button::new(studio_language.tr("Create")).min_size(w)).on_hover_text(studio_language.tr("Write a new macro with this name")).clicked() {
+                 *open = false;
+                 app.open_dialog("macroEditor", json!({"new": target}));
+             }
+-            if ui.add_enabled(found.is_some(), egui::Button::new("Delete").min_size(w)).clicked()
++            if ui.add_enabled(found.is_some(), egui::Button::new(studio_language.tr("Delete")).min_size(w)).clicked()
+                 && let Some(e) = &found
+             {
+                 let (title, command, what) = match e.kind {
+-                    Kind::Macro => ("Delete Macro", "macro.delete", "macro"),
+-                    Kind::Script => ("Delete Script", "automate.deleteScript", "script"),
++                    Kind::Macro => (studio_language.tr("Delete Macro"), "macro.delete", "macro"),
++                    Kind::Script => (studio_language.tr("Delete Script"), "automate.deleteScript", "script"),
+                 };
+                 app.macros.question = Some(Question {
+                     doc: app.session.active().map_or(0, |d| d.uid),
+                     title: title.into(),
+-                    text: format!("Do you want to delete {what} “{}”?", e.name),
++                    text: if studio_language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("Do you want to delete {what} “{}”?", &[("what", format!("{}", what)), ("0", format!("{}", e.name))]) } else { format!("Do you want to delete {what} “{}”?", e.name) },
+                     command: command.into(),
+                     params: json!({"name": e.name}),
+                     choices: vec![("Delete".into(), json!({}))],
+                 });
+             }
+-            if ui.add_enabled(is_macro, egui::Button::new("Options…").min_size(w)).clicked()
++            if ui.add_enabled(is_macro, egui::Button::new(studio_language.tr("Options…")).min_size(w)).clicked()
+                 && let Some(e) = &found
+             {
+                 let key = e.shortcut.as_deref().and_then(parse_shortcut).map(String::from).unwrap_or_default();
+@@ -495,19 +497,19 @@
+                 d.values.insert("description".into(), json!(e.description));
+             }
+             ui.add_space(12.0);
+-            if ui.add(egui::Button::new("Cancel").min_size(w)).clicked() {
++            if ui.add(egui::Button::new(studio_language.tr("Cancel")).min_size(w)).clicked() {
+                 *open = false;
+             }
+         });
+     });
+     ui.add_space(6.0);
+-    ui.label("Description");
++    ui.label(studio_language.tr("Description"));
+     let desc = list.iter().find(|e| e.kind == kind && e.name.eq_ignore_ascii_case(name.trim())).map(|e| e.description.clone()).unwrap_or_default();
+     ui.label(egui::RichText::new(if desc.is_empty() { " ".to_string() } else { desc }).color(t.text_dim));
+     if vba {
+         ui.add_space(6.0);
+         ui.label(
+-            egui::RichText::new("This workbook also has a VBA project. GridCraft keeps it when you save but does not run it.").color(t.text_dim),
++            egui::RichText::new(studio_language.tr("This workbook also has a VBA project. GridCraft keeps it when you save but does not run it.")).color(t.text_dim),
+         );
+     }
+     d.values.insert("name".into(), json!(name));
+@@ -519,23 +521,24 @@
+     match e.kind {
+         Kind::Macro => run_macro(app, &e.name),
+         Kind::Script => {
+-            call(app, "Run Script", "automate.runScript", json!({"name": e.name}));
++            call(app, app.ui.language.tr("Run Script"), "automate.runScript", json!({"name": e.name}));
+         }
+     }
+ }
+
+ /// Macro Options: the shortcut letter and the description of the selected macro.
+ fn options(app: &mut SheetApp, ui: &mut Ui, d: &mut Dialog) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     let name = d.values.get("name").and_then(Json::as_str).unwrap_or("").trim().to_string();
+-    ui.label(egui::RichText::new(format!("Macro name: {name}")).strong());
++    ui.label(egui::RichText::new(if studio_language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("Macro name: {name}", &[("name", format!("{}", name))]) } else { format!("Macro name: {name}") }).strong());
+     ui.add_space(4.0);
+-    ui.label("Shortcut key:");
++    ui.label(studio_language.tr("Shortcut key:"));
+     let mut key = d.values.get("shortcut").and_then(Json::as_str).unwrap_or("").to_string();
+     shortcut_field(ui, &mut key, "macro_shortcut");
+     let letter = parse_shortcut(&key);
+     let conflict = match (key.trim().is_empty(), letter, app.session.active()) {
+         (true, ..) => None,
+-        (false, None, _) => Some("Use a letter from A to Z.".to_string()),
++        (false, None, _) => Some(studio_language.tr("Use a letter from A to Z.").to_string()),
+         (false, Some(c), Some(doc)) => shortcut_conflict(&doc.wb, &name, c),
+         (false, Some(_), None) => None,
+     };
+@@ -543,16 +546,16 @@
+         ui.label(egui::RichText::new(c).color(Tokens::get(ui.ctx()).danger));
+     }
+     ui.add_space(4.0);
+-    let label = ui.label("Description:");
++    let label = ui.label(studio_language.tr("Description:"));
+     let mut desc = d.values.get("description").and_then(Json::as_str).unwrap_or("").to_string();
+     ui.add(egui::TextEdit::multiline(&mut desc).desired_rows(3).desired_width(f32::INFINITY).id_salt("macro_description")).labelled_by(label.id);
+     ui.add_space(6.0);
+     let mut done = false;
+     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+-        if ui.button("Cancel").clicked() {
++        if ui.button(studio_language.tr("Cancel")).clicked() {
+             done = true;
+         }
+-        if ui.add_enabled(conflict.is_none(), egui::Button::new("OK")).clicked() {
++        if ui.add_enabled(conflict.is_none(), egui::Button::new(studio_language.tr("OK"))).clicked() {
+             done = save_options(app, &name, letter, &desc);
+         }
+     });
+@@ -578,7 +581,7 @@
+         Ok(m) if m.is_object() => m,
+         Ok(_) => return false,
+         Err(e) => {
+-            app.message = Some(("Macro Options".into(), crate::clean_error(&e)));
++            app.message = Some((app.ui.language.tr("Macro Options").into(), crate::clean_error(&e)));
+             return false;
+         }
+     };
+@@ -593,7 +596,7 @@
+     match app.run("macro.save", json!({"macro": m, "replace": true})) {
+         Ok(_) => true,
+         Err(e) => {
+-            app.message = Some(("Macro Options".into(), crate::clean_error(&e)));
++            app.message = Some((app.ui.language.tr("Macro Options").into(), crate::clean_error(&e)));
+             false
+         }
+     }
+@@ -610,7 +613,7 @@
+     }
+     let suggested = app.session.active().map(|d| gridcraft_engine::macros::next_name(&d.wb)).unwrap_or_else(|| "Macro1".into());
+     let name = params["name"].as_str().map(str::to_string).filter(|n| !n.trim().is_empty()).unwrap_or(suggested);
+-    Some(Dialog::custom("recordMacro", "Record Macro", json!({"name": name, "shortcut": "", "description": ""})))
++    Some(Dialog::custom("recordMacro", app.ui.language.tr("Record Macro"), json!({"name": name, "shortcut": "", "description": ""})))
+ }
+
+ /// What is wrong with the Record Macro dialog's name or shortcut, if anything.
+@@ -623,7 +626,7 @@
+         return None;
+     }
+     match parse_shortcut(key) {
+-        None => Some("Use a letter from A to Z for the shortcut.".into()),
++        None => Some(app.ui.language.tr("Use a letter from A to Z for the shortcut.").into()),
+         Some(c) => shortcut_conflict(&doc.wb, name, c),
+     }
+ }
+@@ -631,36 +634,37 @@
+ /// The Record Macro dialog's body. OK starts recording; it stays off while the name or the
+ /// shortcut is not usable, and the reason shows under the fields.
+ pub fn record_dialog(app: &mut SheetApp, ui: &mut Ui, d: &mut Dialog, open: &mut bool) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     let get = |d: &Dialog, k: &str| d.values.get(k).and_then(Json::as_str).unwrap_or("").to_string();
+     let mut name = get(d, "name");
+     let mut key = get(d, "shortcut");
+     let mut desc = get(d, "description");
+-    let label = ui.label("Macro name:");
++    let label = ui.label(studio_language.tr("Macro name:"));
+     ui.add(egui::TextEdit::singleline(&mut name).desired_width(f32::INFINITY).id_salt("record_name")).labelled_by(label.id);
+     ui.add_space(4.0);
+-    ui.label("Shortcut key:");
++    ui.label(studio_language.tr("Shortcut key:"));
+     shortcut_field(ui, &mut key, "record_shortcut");
+     ui.add_space(4.0);
+-    let label = ui.label("Description:");
++    let label = ui.label(studio_language.tr("Description:"));
+     ui.add(egui::TextEdit::multiline(&mut desc).desired_rows(3).desired_width(f32::INFINITY).id_salt("record_description")).labelled_by(label.id);
+-    ui.checkbox(&mut app.macros.relative, "Use Relative References");
++    ui.checkbox(&mut app.macros.relative, studio_language.tr("Use Relative References"));
+     let problem = record_problem(app, &name, &key);
+     if let Some(p) = &problem {
+         ui.label(egui::RichText::new(p).color(Tokens::get(ui.ctx()).danger));
+     }
+     ui.add_space(6.0);
+     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+-        if ui.button("Cancel").clicked() {
++        if ui.button(studio_language.tr("Cancel")).clicked() {
+             *open = false;
+         }
+-        if ui.add_enabled(problem.is_none(), egui::Button::new("OK")).clicked() {
++        if ui.add_enabled(problem.is_none(), egui::Button::new(studio_language.tr("OK"))).clicked() {
+             let mut p = json!({"name": name.trim(), "description": desc, "relative": app.macros.relative});
+             if !key.trim().is_empty() {
+                 p["shortcut"] = json!(key.trim());
+             }
+             match app.run("macro.record", p) {
+                 Ok(_) => *open = false,
+-                Err(e) => app.message = Some(("Record Macro".into(), crate::clean_error(&e))),
++                Err(e) => app.message = Some((studio_language.tr("Record Macro").into(), crate::clean_error(&e))),
+             }
+         }
+     });
+--- a/crates/ui-egui/src/panes.rs
++++ b/crates/ui-egui/src/panes.rs
+@@ -169,6 +169,7 @@
+
+ /// Draws the chart format pane: title, type, legend, elements/axis titles, series colors, palettes/layouts and size.
+ fn format_chart(app: &mut SheetApp, ui: &mut Ui) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     let Some(id) = app.selected_chart() else {
+         ui.label(egui::RichText::new("Select a chart to format it.").italics());
+         return;
+@@ -178,7 +179,7 @@
+         return;
+     };
+     let theme = app.session.active().map(|d| d.wb.theme.clone()).unwrap_or_default();
+-    let lang = crate::i18n::current(ui.ctx());
++    let lang = studio_language;
+     ui.collapsing("Chart Title", |ui| {
+         let field = egui::Id::unique(("gridcraft.chart_title", id));
+         if let Some(title) = crate::widgets::committed_text(ui, field, chart.title.as_deref().unwrap_or(""), None) {
+@@ -198,7 +199,7 @@
+                 ("Stacked Line", "line", "stacked"),
+                 ("Area", "area", ""),
+                 ("Stacked Area", "area", "stacked"),
+-                ("100% Stacked Area", "area", "stacked100"),
++                (studio_language.tr("100% Stacked Area"), "area", "stacked100"),
+                 ("Pie", "pie", ""),
+                 ("Doughnut", "doughnut", ""),
+                 ("Scatter", "scatter", ""),
+@@ -259,20 +260,20 @@
+             }
+         });
+     });
+-    ui.collapsing("Data Table", |ui| {
++    ui.collapsing(studio_language.tr("Data Table"), |ui| {
+         let supported = chart.supports_data_table();
+         let mut on = chart.data_table.is_some();
+-        if ui.add_enabled(supported, egui::Checkbox::new(&mut on, "Show Data Table")).changed() {
++        if ui.add_enabled(supported, egui::Checkbox::new(&mut on, studio_language.tr("Show Data Table"))).changed() {
+             app.run_or_alert("chart.set", json!({"chart": id, "dataTable": on}));
+         }
+         if !supported {
+-            ui.label("Available for column, bar, line, area and compatible combo charts.");
++            ui.label(studio_language.tr("Available for column, bar, line, area and compatible combo charts."));
+         }
+         if let Some(table) = &chart.data_table {
+             for (label, key, mut value) in [
+-                ("Show Legend Keys", "dataTableKeys", table.show_keys),
+-                ("Horizontal Borders", "dataTableHorizontalBorder", table.horizontal_border),
+-                ("Vertical Borders", "dataTableVerticalBorder", table.vertical_border),
++                (studio_language.tr("Show Legend Keys"), "dataTableKeys", table.show_keys),
++                (studio_language.tr("Horizontal Borders"), "dataTableHorizontalBorder", table.horizontal_border),
++                (studio_language.tr("Vertical Borders"), "dataTableVerticalBorder", table.vertical_border),
+                 ("Outline", "dataTableOutline", table.outline),
+             ] {
+                 if ui.checkbox(&mut value, label).changed() {
+--- a/crates/ui-egui/src/ribbon/automate.rs
++++ b/crates/ui-egui/src/ribbon/automate.rs
+@@ -5,6 +5,7 @@
+ use egui::vec2;
+
+ pub(super) fn automate(app: &mut SheetApp, ui: &mut Ui) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     // Macros: the Macros dialog; Record Macro (Stop Recording while recording), Use Relative
+     // References; Run Macro, whose main part runs the last macro and whose menu lists them all.
+     if big_button(ui, Icon::Script, "Macros", "Macros and scripts in this workbook (Alt+F8)", false).clicked() {
+@@ -13,25 +14,25 @@
+     let recording = app.session.is_recording();
+     ui.vertical(|ui| {
+         let (label, tip) =
+-            if recording { ("Stop Recording", "Stop recording and save the macro") } else { ("Record Macro", "Record your actions as a macro") };
++            if recording { (studio_language.tr("Stop Recording"), studio_language.tr("Stop recording and save the macro")) } else { (studio_language.tr("Record Macro"), studio_language.tr("Record your actions as a macro")) };
+         let r = small_button(ui, Icon::Record, label, tip, false);
+         control_keytip(app, ui, &r, "macro.record");
+         if r.clicked() {
+             crate::macro_ui::toggle_recording(app);
+         }
+-        let tip = "Record steps relative to the cells selected when recording starts, so the macro works on other data";
++        let tip = studio_language.tr("Record steps relative to the cells selected when recording starts, so the macro works on other data");
+         let rel = app.macros.relative;
+-        let r = ui.add_enabled_ui(!recording, |ui| small_toggle_button(ui, Icon::Relative, "Use Relative References", tip, rel)).inner;
++        let r = ui.add_enabled_ui(!recording, |ui| small_toggle_button(ui, Icon::Relative, studio_language.tr("Use Relative References"), tip, rel)).inner;
+         if r.clicked() && !recording {
+             app.macros.relative = !rel;
+         }
+-        if small_button(ui, Icon::Macro, "New Macro", "Write a macro step by step", false).clicked() {
++        if small_button(ui, Icon::Macro, studio_language.tr("New Macro"), studio_language.tr("Write a macro step by step"), false).clicked() {
+             app.open_dialog("macroEditor", json!({}));
+         }
+     });
+     let macros = crate::macro_ui::macro_list(app);
+     let recent: Vec<String> = app.macros.recent.iter().filter(|r| macros.iter().any(|(n, ..)| n.eq_ignore_ascii_case(r))).cloned().collect();
+-    let (main, arrow) = big_split_button(ui, Icon::Macro, "Run\nMacro", "Run a macro on the selection");
++    let (main, arrow) = big_split_button(ui, Icon::Macro, studio_language.tr("Run\nMacro"), studio_language.tr("Run a macro on the selection"));
+     control_keytip(app, ui, &arrow, "macro.run");
+     if main.clicked() {
+         // The last macro run, or the only one; otherwise choose in the Macros dialog.
+@@ -55,7 +56,7 @@
+             ui.separator();
+         }
+         if macros.is_empty() {
+-            ui.label(egui::RichText::new("No macros in this workbook").italics().color(t.text_dim));
++            ui.label(egui::RichText::new(studio_language.tr("No macros in this workbook")).italics().color(t.text_dim));
+         }
+         for (n, desc, _) in macros.iter().take(30) {
+             let r = ui.add(egui::Button::new(n.as_str()).frame(false).min_size(vec2(200.0, 22.0)));
+@@ -85,7 +86,7 @@
+     if __k.clicked() {
+         app.open_dialog("journal", json!({}));
+     }
+-    let __k = big_button(ui, Icon::Script, "Check for\nUpdates…", "Look for a newer GridCraft release", false);
++    let __k = big_button(ui, Icon::Script, studio_language.tr("Check for\nUpdates…"), studio_language.tr("Look for a newer GridCraft release"), false);
+     control_keytip(app, ui, &__k, "checkForUpdates");
+     if __k.clicked() {
+         app.run_or_alert("app.checkForUpdates", json!({}));
+--- a/crates/ui-egui/src/ribbon/contextual.rs
++++ b/crates/ui-egui/src/ribbon/contextual.rs
+@@ -4,6 +4,7 @@
+
+ /// Draws the Table Design tab: rename, resize, remove duplicates, convert to range, slicer, table options and the style strip.
+ pub(super) fn table_design(app: &mut SheetApp, ui: &mut Ui) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     let Some((tname, header, totals, banded, banded_c, first, last, filter, style)) = app.session.active().and_then(|d| {
+         let sh = d.wb.active()?;
+         let t = sh.table_at(d.selection.active)?;
+@@ -20,7 +21,7 @@
+             act(app, "table.rename", json!({"table": tname, "name": name}));
+         }
+     });
+-    let __k = big_button(ui, Icon::Table, "Resize\nTable", "Resize Table", false);
++    let __k = big_button(ui, Icon::Table, studio_language.tr("Resize\nTable"), studio_language.tr("Resize Table"), false);
+     control_keytip(app, ui, &__k, "dialog:tableResize");
+     if __k.clicked() {
+         app.open_dialog("tableResize", json!({}));
+@@ -75,6 +76,7 @@
+     ["TableStyleLight1", "TableStyleLight2", "TableStyleLight3", "TableStyleLight4", "TableStyleLight5", "TableStyleLight6", "TableStyleLight7"];
+
+ fn table_style_strip(app: &mut SheetApp, ui: &mut Ui, tname: &str, current: &str) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     let t = Tokens::get(ui.ctx());
+     ui.add_space(12.0);
+     ui.horizontal(|ui| {
+@@ -102,13 +104,14 @@
+         if let Some(name) = clicked {
+             act(app, "table.style", json!({"table": tname, "style": name}));
+         }
+-        let more = icon_button(ui, Icon::Chevron, t.text_dim, "More Table Styles", vec2(18.0, 40.0));
++        let more = icon_button(ui, Icon::Chevron, t.text_dim, studio_language.tr("More Table Styles"), vec2(18.0, 40.0));
+         anchor_keytip(app, ui, &more, &["table.style"]);
+         egui::Popup::menu(&more).show(|ui| table_gallery(app, ui, "table.style"));
+     });
+ }
+
+ pub(super) fn chart_design(app: &mut SheetApp, ui: &mut Ui) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     let Some(id) = app.selected_chart() else { return };
+     let ae = big_button(ui, Icon::Chart, "Add Chart\nElement", "Add Chart Element", true);
+     for sequence in keytip_table::group_extension(app.keytips.prefix().unwrap_or_default(), &["chart.set"]) {
+@@ -126,9 +129,9 @@
+                 ("-", "", json!(null)),
+                 ("Data Labels: Show", "chart.set", json!({"chart": id, "dataLabels": true})),
+                 ("Data Labels: None", "chart.set", json!({"chart": id, "dataLabels": false})),
+-                ("Data Table: With Legend Keys", "chart.addElement", json!({"chart": id, "element": "dataTable", "dataTableKeys": true})),
+-                ("Data Table: No Legend Keys", "chart.addElement", json!({"chart": id, "element": "dataTable", "dataTableKeys": false})),
+-                ("Data Table: None", "chart.addElement", json!({"chart": id, "element": "dataTable", "on": false})),
++                (studio_language.tr("Data Table: With Legend Keys"), "chart.addElement", json!({"chart": id, "element": "dataTable", "dataTableKeys": true})),
++                (studio_language.tr("Data Table: No Legend Keys"), "chart.addElement", json!({"chart": id, "element": "dataTable", "dataTableKeys": false})),
++                (studio_language.tr("Data Table: None"), "chart.addElement", json!({"chart": id, "element": "dataTable", "on": false})),
+                 ("Gridlines: Show", "chart.set", json!({"chart": id, "gridlines": true})),
+                 ("Gridlines: None", "chart.set", json!({"chart": id, "gridlines": false})),
+             ],
+--- a/crates/ui-egui/src/ribbon/data.rs
++++ b/crates/ui-egui/src/ribbon/data.rs
+@@ -2,6 +2,7 @@
+ use super::{Icon, SheetApp, Ui, big_button, json, keytip_table, small_button};
+
+ pub(super) fn data(app: &mut SheetApp, ui: &mut Ui) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     let gd = big_button(ui, Icon::Folder, "Get Data\n(Text/CSV)", "Import a text or CSV file", false);
+     control_keytip(app, ui, &gd, "data.getData");
+     if gd.clicked() {
+@@ -41,7 +42,7 @@
+         if __k.clicked() {
+             act(app, "data.reapply", json!({}));
+         }
+-        let __k = small_button(ui, Icon::Filter, "Advanced", "Advanced Filter", false);
++        let __k = small_button(ui, Icon::Filter, studio_language.tr("Advanced"), studio_language.tr("Advanced Filter"), false);
+         control_keytip(app, ui, &__k, "dialog:advancedFilter");
+         if __k.clicked() {
+             app.open_dialog("advancedFilter", json!({}));
+@@ -124,7 +125,7 @@
+         if small_button(ui, Icon::Minus, "Hide Detail", "Hide Detail", false).clicked() {
+             act(app, "data.hideDetail", json!({}));
+         }
+-        if small_button(ui, Icon::Settings, "Settings", "Outline Settings", false).clicked() {
++        if small_button(ui, Icon::Settings, studio_language.tr("Settings"), studio_language.tr("Outline Settings"), false).clicked() {
+             app.open_dialog("outlineSettings", json!({}));
+         }
+     });
+--- a/crates/ui-egui/src/ribbon/home.rs
++++ b/crates/ui-egui/src/ribbon/home.rs
+@@ -25,6 +25,7 @@
+
+ /// Draws the Home tab: clipboard/paste menu, font, alignment, number, style, cell and editing commands with keytips.
+ pub(super) fn home(app: &mut SheetApp, ui: &mut Ui) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     let t = Tokens::get(ui.ctx());
+     let st = active_style(app);
+     // Clipboard
+@@ -92,7 +93,7 @@
+         }
+         let fp_on = app.session.format_painter.is_some();
+         let fp = toggle_button(ui, Icon::Brush, fp_on, "Format Painter (double-click to keep it on)");
+-        fp.widget_info(|| egui::WidgetInfo::selected(egui::Role::Button, ui.is_enabled(), fp_on, "Format Painter"));
++        fp.widget_info(|| egui::WidgetInfo::selected(egui::Role::Button, ui.is_enabled(), fp_on, studio_language.tr("Format Painter")));
+         control_keytip(app, ui, &fp, "edit.formatPainter");
+         if fp.double_clicked() {
+             act(app, "edit.formatPainter", json!({"sticky": true}));
+@@ -607,6 +608,7 @@
+ /// Excel's size box: type a size and press Enter to apply exactly that number (the command refuses
+ /// sizes outside 1 to 409), Escape or clicking away reverts; the arrow opens the standard sizes.
+ fn size_combo(app: &mut SheetApp, ui: &mut Ui, st: &Style) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     let t = Tokens::get(ui.ctx());
+     let size = st.font.size;
+     let current = if size.fract() == 0.0 { format!("{}", size as i32) } else { format!("{size}") };
+@@ -657,12 +659,12 @@
+         ui.data_mut(|d| d.remove::<String>(draft));
+     }
+     let mut arrow_ui = ui.new_child(egui::UiBuilder::new().max_rect(arrow_rect));
+-    let arrow = icon_button(&mut arrow_ui, Icon::Chevron, t.text_dim, "Font Size", arrow_rect.size());
++    let arrow = icon_button(&mut arrow_ui, Icon::Chevron, t.text_dim, studio_language.tr("Font Size"), arrow_rect.size());
+     let visuals = ui.style().visuals.clone();
+     let looks = if resp.has_focus() || ui.rect_contains_pointer(frame) { &visuals.widgets.hovered } else { &visuals.widgets.inactive };
+     let stroke = if resp.has_focus() { visuals.selection.stroke } else { looks.bg_stroke };
+     ui.painter().set(bg, egui::epaint::RectShape::new(frame, looks.corner_radius, looks.weak_bg_fill, stroke, egui::StrokeKind::Inside));
+-    arrow.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, ui.is_enabled(), "Font Size"));
++    arrow.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, ui.is_enabled(), studio_language.tr("Font Size")));
+     let sizes = [8.0, 9.0, 10.0, 11.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0, 26.0, 28.0, 36.0, 48.0, 72.0];
+     let labels: Vec<String> = sizes.iter().map(|s| format!("{}", *s as i32)).collect();
+     let items: Vec<(&str, String)> = labels.iter().map(|s| (s.as_str(), s.clone())).collect();
+--- a/crates/ui-egui/src/ribbon/insert.rs
++++ b/crates/ui-egui/src/ribbon/insert.rs
+@@ -5,6 +5,7 @@
+
+ /// Draws the Insert tab: PivotTable, Table, Pictures, Shapes, Icons, charts, slicer, sparklines, form controls (button, slider, spin button), checkbox, links, comments, text box, header/footer and symbols.
+ pub(super) fn insert(app: &mut SheetApp, ui: &mut Ui) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     let __k = big_button(ui, Icon::PivotTable, "PivotTable", "PivotTable", false);
+     control_keytip(app, ui, &__k, "insert.pivotTable");
+     if __k.clicked() {
+@@ -98,7 +99,7 @@
+                         ("Stacked Line", "line", "stacked"),
+                         ("Area", "area", ""),
+                         ("Stacked Area", "area", "stacked"),
+-                        ("100% Stacked Area", "area", "stacked100"),
++                        (studio_language.tr("100% Stacked Area"), "area", "stacked100"),
+                     ],
+                 ),
+                 (Icon::ChartPie, "Pie or Doughnut", "insert.chart.pie", vec![("Pie", "pie", ""), ("Doughnut", "doughnut", "")]),
+@@ -173,9 +174,9 @@
+     let placing = app.grid.placing;
+     ui.vertical(|ui| {
+         for (icon, kind, label, tip, id) in [
+-            (Icon::Button, ControlKind::Button, "Button", "Draw a button that runs a macro or a command", "insert.button"),
+-            (Icon::Slider, ControlKind::Slider, "Slider", "Draw a slider that sets a whole number in a linked cell", "insert.slider"),
+-            (Icon::Spin, ControlKind::Spin, "Spin Button", "Draw a spin button that steps a whole number in a linked cell", "insert.spinButton"),
++            (Icon::Button, ControlKind::Button, studio_language.tr("Button"), studio_language.tr("Draw a button that runs a macro or a command"), "insert.button"),
++            (Icon::Slider, ControlKind::Slider, studio_language.tr("Slider"), studio_language.tr("Draw a slider that sets a whole number in a linked cell"), "insert.slider"),
++            (Icon::Spin, ControlKind::Spin, studio_language.tr("Spin Button"), studio_language.tr("Draw a spin button that steps a whole number in a linked cell"), "insert.spinButton"),
+         ] {
+             let on = placing == Some(kind);
+             let r = small_toggle_button(ui, icon, label, tip, on);
+@@ -192,7 +193,7 @@
+         act(app, "insert.checkbox", json!({}));
+     }
+     sep(ui);
+-    let __k = big_button(ui, Icon::Link, "Link", "Insert Link", false);
++    let __k = big_button(ui, Icon::Link, "Link", studio_language.tr("Insert Link"), false);
+     control_keytip(app, ui, &__k, "dialog:insertLink");
+     if __k.clicked() {
+         app.open_dialog("insertLink", json!({}));
+@@ -216,7 +217,7 @@
+     }
+     // Symbols: Equation, then Symbol.
+     sep(ui);
+-    let (eq, eq_menu) = big_split_button(ui, Icon::Equation, "Equation", "Insert an equation, or pick one from the gallery");
++    let (eq, eq_menu) = big_split_button(ui, Icon::Equation, studio_language.tr("Equation"), studio_language.tr("Insert an equation, or pick one from the gallery"));
+     control_keytip(app, ui, &eq, "dialog:equation");
+     if eq.clicked() {
+         app.open_dialog("equation", json!({}));
+@@ -245,7 +246,7 @@
+                 "✓", "★", "½", "¼",
+             ] {
+                 // No bundled face has ✓: the button paints a code-drawn check instead of a tofu box.
+-                if crate::widgets::glyph_button(ui, ch.chars().next().unwrap_or('?'), &format!("Insert {ch}")).clicked() {
++                if crate::widgets::glyph_button(ui, ch.chars().next().unwrap_or('?'), &if studio_language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("Insert {ch}", &[("ch", format!("{}", ch))]) } else { format!("Insert {ch}") }).clicked() {
+                     act(app, "insert.symbol", json!({"char": ch}));
+                 }
+             }
+--- a/crates/ui-egui/src/ribbon/page_layout.rs
++++ b/crates/ui-egui/src/ribbon/page_layout.rs
+@@ -2,6 +2,7 @@
+ use super::{Color32, Icon, Sense, SheetApp, Tokens, Ui, big_button, json, keytip_table, vec2};
+
+ pub(super) fn page_layout(app: &mut SheetApp, ui: &mut Ui) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     let th = big_button(ui, Icon::Theme, "Themes", "Themes", true);
+     anchor_keytip(app, ui, &th, &["pageLayout.theme"]);
+     egui::Popup::menu(&th).show(|ui| {
+@@ -62,12 +63,12 @@
+             "B4",
+             "B5",
+             "B6",
+-            "Japanese Postcard",
+-            "Japanese Double Postcard",
+-            "Japanese Envelope #3",
+-            "Japanese Envelope #4",
+-            "Japanese Envelope Kaku #2",
+-            "Japanese Envelope Kaku #3",
++            studio_language.tr("Japanese Postcard"),
++            studio_language.tr("Japanese Double Postcard"),
++            studio_language.tr("Japanese Envelope #3"),
++            studio_language.tr("Japanese Envelope #4"),
++            studio_language.tr("Japanese Envelope Kaku #2"),
++            studio_language.tr("Japanese Envelope Kaku #3"),
+             "B4 (ISO)",
+             "B5 (ISO)",
+             "B6 (ISO)",
+@@ -95,7 +96,7 @@
+             app,
+             ui,
+             &[
+-                ("Insert Page Break", "pageLayout.breaks", json!({"insert": true})),
++                ("Insert Page Break", "pageLayout.breaks", json!({studio_language.tr("insert"): true})),
+                 ("Remove Page Break", "pageLayout.breaks", json!({"remove": true})),
+                 ("Reset All Page Breaks", "pageLayout.breaks", json!({"reset": true})),
+             ],
+--- a/crates/ui-egui/src/ribbon/view.rs
++++ b/crates/ui-egui/src/ribbon/view.rs
+@@ -3,6 +3,7 @@
+
+ /// Draws the View tab: view modes, ruler/gridlines/formula-bar/headings toggles, zoom, freeze panes, theme, animations, interface size and language.
+ pub(super) fn view(app: &mut SheetApp, ui: &mut Ui) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     let t = Tokens::get(ui.ctx());
+     let _ = t;
+     for (icon, label, cmd) in [
+@@ -70,12 +71,12 @@
+         act(app, "view.zoomToSelection", json!({"viewWidth": r.width(), "viewHeight": r.height()}));
+     }
+     sep(ui);
+-    let __k = big_button(ui, Icon::NewFile, "New\nWindow", "New Window", false);
++    let __k = big_button(ui, Icon::NewFile, studio_language.tr("New\nWindow"), studio_language.tr("New Window"), false);
+     control_keytip(app, ui, &__k, "view.newWindow");
+     if __k.clicked() {
+         act(app, "view.newWindow", json!({}));
+     }
+-    let __k = big_button(ui, Icon::Table, "Arrange\nAll", "Arrange All", false);
++    let __k = big_button(ui, Icon::Table, studio_language.tr("Arrange\nAll"), studio_language.tr("Arrange All"), false);
+     control_keytip(app, ui, &__k, "view.arrangeAll");
+     if __k.clicked() {
+         app.open_dialog("arrangeAll", json!({}));
+@@ -166,8 +167,9 @@
+ /// View › Switch Windows: the open workbooks, the active one checked and unsaved ones marked;
+ /// choosing one brings it forward.
+ fn switch_windows(app: &mut SheetApp, ui: &mut Ui) {
+-    let anchor = big_button(ui, Icon::Book, "Switch\nWindows", "Switch Windows", true);
+-    anchor.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, ui.is_enabled(), "Switch Windows"));
++    let studio_language = crate::i18n::current(ui.ctx());
++    let anchor = big_button(ui, Icon::Book, studio_language.tr("Switch\nWindows"), studio_language.tr("Switch Windows"), true);
++    anchor.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, ui.is_enabled(), studio_language.tr("Switch Windows")));
+     control_keytip(app, ui, &anchor, "view.switchWindows");
+     let forced = std::mem::take(&mut app.open_switch_windows) | invoke(app, "view.switchWindows");
+     egui::Popup::menu(&anchor).open_memory(popup_command(forced, anchor.clicked())).show(|ui| {
+--- a/crates/ui-egui/src/ribbon.rs
++++ b/crates/ui-egui/src/ribbon.rs
+@@ -205,6 +205,7 @@
+ /// When the tab's groups are wider than the card, arrows at its edges scroll them (horizontal wheel or
+ /// trackpad input over the card still does too).
+ fn scroll_arrows(ui: &mut Ui, t: &Tokens, tab: &str, scroll: egui::scroll_area::ScrollAreaOutput<()>) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     let inner = scroll.inner_rect;
+     let max = (scroll.content_size.x - inner.width()).max(0.0);
+     let overflow = RibbonOverflow {
+@@ -233,9 +234,9 @@
+         ui.painter().rect_filled(r, 4.0, if resp.hovered() { t.hover } else { t.ribbon });
+         ui.painter().rect_stroke(r, 4.0, Stroke::new(1.0, t.ribbon_border), StrokeKind::Inside);
+         icons::paint(ui.painter(), Rect::from_center_size(r.center(), vec2(14.0, 14.0)), if left { Icon::Left } else { Icon::Right }, t.text);
+-        let name = if left { "Scroll ribbon left" } else { "Scroll ribbon right" };
++        let name = if left { studio_language.tr("Scroll ribbon left") } else { studio_language.tr("Scroll ribbon right") };
+         resp.widget_info(|| egui::WidgetInfo::labeled(egui::Role::Button, true, name));
+-        if resp.on_hover_text(crate::i18n::current(ui.ctx()).tr(name)).clicked() {
++        if resp.on_hover_text(studio_language.tr(name)).clicked() {
+             target = Some(if left { overflow.offset - step } else { overflow.offset + step });
+         }
+     }
+--- a/crates/ui-egui/src/tabs.rs
++++ b/crates/ui-egui/src/tabs.rs
+@@ -345,6 +345,7 @@
+
+ /// Draws status mode/messages, zoom controls/view-mode buttons and selection statistics.
+ pub fn status_bar(app: &mut SheetApp, ui: &mut Ui) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     let t = Tokens::get(ui.ctx());
+     egui::Panel::bottom("status_bar").exact_size(26.0).frame(egui::Frame::NONE.fill(t.status_bar).inner_margin(egui::Margin::symmetric(12, 0))).show(
+         ui,
+@@ -378,8 +379,8 @@
+                         ui.add_space(12.0);
+                         // Only a loop on the active sheet is named, so the address needs no sheet.
+                         let label = match d.calc.circular.iter().find(|(si, _)| *si == d.wb.active_sheet()) {
+-                            Some((_, c)) => format!("Circular References: {}", c.a1()),
+-                            None => "Circular References".to_owned(),
++                            Some((_, c)) => if studio_language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("Circular References: {}", &[("0", format!("{}", c.a1()))]) } else { format!("Circular References: {}", c.a1()) },
++                            None => studio_language.tr("Circular References").to_owned(),
+                         };
+                         text(ui, egui::RichText::new(label).font(theme::ui_font(12.5)).color(t.danger));
+                     }
+@@ -487,13 +488,13 @@
+         parts.push(format!("Count: {}", st.count));
+     }
+     if on.numerical_count && st.count > 0 {
+-        parts.push(format!("Numerical Count: {}", st.numeric));
++        parts.push(if app.ui.language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("Numerical Count: {}", &[("0", format!("{}", st.numeric))]) } else { format!("Numerical Count: {}", st.numeric) });
+     }
+     if on.minimum && st.numeric > 0 {
+-        parts.push(format!("Minimum: {}", fmt(st.min)));
++        parts.push(if app.ui.language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("Minimum: {}", &[("0", format!("{}", fmt(st.min)))]) } else { format!("Minimum: {}", fmt(st.min)) });
+     }
+     if on.maximum && st.numeric > 0 {
+-        parts.push(format!("Maximum: {}", fmt(st.max)));
++        parts.push(if app.ui.language == crate::i18n::Language::ZhHant { crate::i18n::format_traditional("Maximum: {}", &[("0", format!("{}", fmt(st.max)))]) } else { format!("Maximum: {}", fmt(st.max)) });
+     }
+     if on.sum && st.numeric > 0 {
+         parts.push(format!("Sum: {}", fmt(st.sum)));
+@@ -503,14 +504,15 @@
+
+ /// The status bar's context menu: a check item for each statistic, each one running `view.statusBar`.
+ fn status_bar_menu(app: &mut SheetApp, ui: &mut Ui) {
++    let studio_language = crate::i18n::current(ui.ctx());
+     ui.set_min_width(180.0);
+     let st = app.session.prefs.status_bar;
+     for (key, label, mut on) in [
+         ("average", "Average", st.average),
+         ("count", "Count", st.count),
+-        ("numericalCount", "Numerical Count", st.numerical_count),
+-        ("minimum", "Minimum", st.minimum),
+-        ("maximum", "Maximum", st.maximum),
++        ("numericalCount", studio_language.tr("Numerical Count"), st.numerical_count),
++        ("minimum", studio_language.tr("Minimum"), st.minimum),
++        ("maximum", studio_language.tr("Maximum"), st.maximum),
+         ("sum", "Sum", st.sum),
+     ] {
+         if ui.checkbox(&mut on, app.ui.language.tr(label)).changed() {

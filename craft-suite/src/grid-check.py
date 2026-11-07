@@ -13,8 +13,6 @@ if harness.read_text() != expected:
 command = ['cargo', 'test', '--manifest-path', str(root / 'Cargo.toml'), '-p',
            'gridcraft-engine', '--test', 'studio_grid_save', '--locked']
 environment = os.environ.copy()
-environment.setdefault('CARGO_HOME', '/Volumes/Vibe-Temp/Studio5/cache/cargo')
-environment.setdefault('CARGO_TARGET_DIR', '/Volumes/Vibe-Temp/Studio5/craft-plugins/target-grid')
 environment['RUSTC'] = subprocess.check_output(['rustup', 'which', 'rustc'], text=True).strip()
 
 
