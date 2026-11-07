@@ -185,6 +185,11 @@ if text.count('WebShell { app, inbox, bridge: app_bridge }') != 1 or text.count(
     raise RuntimeError("Unexpected DeckCraft WebShell structure")
 text = text.replace('WebShell { app, inbox, bridge: app_bridge }', 'WebShell { app, bridge: app_bridge }')
 text = text.replace('    inbox: Inbox,\n', '')
+# Studio owns document permissions and receipts; the upstream host only posts bytes.
+old = '        let bridge = if hosted { crate::host::Bridge::detect(&canvas) } else { None };'
+if text.count(old) != 1:
+    raise RuntimeError("Unexpected DeckCraft host bridge detection")
+text = text.replace(old, '        let bridge: Option<crate::host::Bridge> = None;')
 start = text.index('        for f in std::mem::take(&mut raw.dropped_files) {')
 end = text.index('        self.app.raw_input_hook(ctx, raw);', start)
 text = text[:start] + '        raw.dropped_files.clear();\n' + text[end:]
