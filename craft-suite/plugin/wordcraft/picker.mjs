@@ -2,13 +2,13 @@ export async function chooseLocation(saving) {
   const dialog = document.createElement("dialog");
   dialog.className = "kit-dialog";
   const title = document.createElement("h2");
-  title.textContent = saving ? "Save file" : "Open file";
+  title.textContent = saving ? "儲存檔案" : "開啟檔案";
   const local = document.createElement("button");
-  local.textContent = "This computer";
+  local.textContent = "這部電腦";
   const documents = document.createElement("button");
-  documents.textContent = "Studio documents";
+  documents.textContent = "Studio 文件中心";
   const cancel = document.createElement("button");
-  cancel.textContent = "Cancel";
+  cancel.textContent = "取消";
   dialog.append(title, local, documents, cancel);
   document.body.append(dialog);
   try {
@@ -30,10 +30,10 @@ export async function chooseDocument(io, { saveName, extensions = [], multiple =
   const form = document.createElement("form");
   form.method = "dialog";
   const title = document.createElement("h2");
-  title.textContent = saveName ? "Save to Studio documents" : "Open Studio document";
+  title.textContent = saveName ? "儲存至 Studio 文件中心" : "開啟 Studio 文件";
   const folder = document.createElement("select");
-  folder.setAttribute("aria-label", "Document folder");
-  const folders = saveName ? tree.folders : [{ folder_id: tree.root_id, name: "Project documents" }, ...tree.folders];
+  folder.setAttribute("aria-label", "文件資料夾");
+  const folders = saveName ? tree.folders : [{ folder_id: tree.root_id, name: "案場文件" }, ...tree.folders];
   for (const entry of folders) {
     const option = new Option(entry.name, entry.folder_id);
     option.disabled = Boolean(saveName && !["Manager", "Editor"].includes(entry.effective));
@@ -43,18 +43,18 @@ export async function chooseDocument(io, { saveName, extensions = [], multiple =
   const files = document.createElement("select");
   files.size = 8;
   files.multiple = multiple;
-  files.setAttribute("aria-label", "Document");
+  files.setAttribute("aria-label", "文件");
   const name = document.createElement("input");
   name.value = saveName || "";
-  name.setAttribute("aria-label", "Filename");
+  name.setAttribute("aria-label", "檔案名稱");
   const error = document.createElement("p");
   error.setAttribute("role", "alert");
   const accept = document.createElement("button");
   accept.type = "submit";
-  accept.textContent = saveName ? "Save" : "Open";
+  accept.textContent = saveName ? "儲存" : "開啟";
   const cancel = document.createElement("button");
   cancel.type = "button";
-  cancel.textContent = "Cancel";
+  cancel.textContent = "取消";
   let generation = 0;
   let selected = [];
   async function list() {
@@ -82,11 +82,11 @@ export async function chooseDocument(io, { saveName, extensions = [], multiple =
       dialog.onclose = () => resolve(null);
       form.onsubmit = (event) => {
         event.preventDefault();
-        if (saveName && !name.value.trim()) { error.textContent = "Filename is required"; return; }
+        if (saveName && !name.value.trim()) { error.textContent = "請輸入檔案名稱"; return; }
         if (saveName) {
           const extension = saveName.match(/\.[^.]+$/)?.[0];
           if (extension && !name.value.trim().toLowerCase().endsWith(extension.toLowerCase())) {
-            error.textContent = `Keep the ${extension} extension to match the saved format`;
+            error.textContent = `請保留 ${extension} 副檔名，以符合儲存格式`;
             return;
           }
         }

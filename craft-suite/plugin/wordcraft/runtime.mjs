@@ -29,7 +29,7 @@ async function exclusively(fn) {
 
 async function uploading(fn) {
   const progress = document.createElement("dialog");
-  progress.textContent = "Saving file…";
+  progress.textContent = "正在儲存檔案…";
   progress.oncancel = (event) => event.preventDefault();
   document.body.append(progress);
   progress.showModal();
@@ -64,10 +64,10 @@ window.studioCraftSaveMany = (outputs) => {
         await uploading(() => io.save({ ...file, copy: true, saveAs: true }));
         completed += 1;
       } catch (error) {
-        throw new Error(`Saved ${completed} of ${snapshots.length} files: ${error.message}`);
+        throw new Error(`已儲存 ${completed} 個檔案，共 ${snapshots.length} 個：${error.message}`);
       }
     }
-    window.studio.notify(`Saved ${completed} files`);
+    window.studio.notify(`已儲存 ${completed} 個檔案`);
   });
 };
 window.studio.onCanClose(() => !active && files.canClose());
