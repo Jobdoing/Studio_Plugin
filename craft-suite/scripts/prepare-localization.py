@@ -9,7 +9,7 @@ editor, directory = sys.argv[1:]
 assert editor in ('gridcraft', 'deckcraft'), 'Only GridCraft and DeckCraft need this pass'
 source = Path(directory).resolve()
 suite = Path(__file__).resolve().parents[1]
-expected = {'gridcraft': '0.9.0', 'deckcraft': '0.16.0'}[editor]
+expected = {'gridcraft': '0.17.0', 'deckcraft': '0.16.0'}[editor]
 actual = tomllib.loads((source / 'Cargo.toml').read_text())['workspace']['package']['version']
 if actual != expected:
     raise RuntimeError(f'Expected {editor} {expected}; got {actual}')

@@ -185,7 +185,7 @@ mod tests {
             original
                 .sheets
                 .push(Arc::new(gridcraft_engine::model::Sheet::new("Data")));
-            original.vba_project = Some(sentinel.to_vec());
+            original.vba_project = Some(Arc::new(sentinel.to_vec()));
             let input = gridcraft_engine::io::save_bytes(&original, name).unwrap();
             let mut session = Session::new();
             session.run("file.open", serde_json::json!({"name": name, "base64": gridcraft_engine::io::base64_encode(&input)})).unwrap();
@@ -198,7 +198,7 @@ mod tests {
             assert_eq!(ticket.name, name);
             let (reopened, _) =
                 gridcraft_engine::io::open_bytes(&ticket.name, &ticket.bytes).unwrap();
-            assert_eq!(reopened.vba_project.as_deref(), Some(sentinel.as_slice()));
+            assert_eq!(reopened.vba_project.as_deref().map(Vec::as_slice), Some(sentinel.as_slice()));
             assert_eq!(
                 reopened
                     .active()
@@ -223,7 +223,7 @@ mod tests {
         let mut session = Session::new();
         let _ = request(&mut session, true);
         Arc::make_mut(&mut session.active_mut().unwrap().wb).vba_project =
-            Some(b"VBA source sentinel".to_vec());
+            Some(Arc::new(b"VBA source sentinel".to_vec()));
         let doc = session.active().unwrap();
         assert!(Ticket::for_document(doc, Some("Lossy.xlsx"), true, false).is_err());
         let ticket = Ticket::for_document(doc, Some("Copy.xlsx"), true, true).unwrap();
@@ -237,7 +237,7 @@ mod tests {
         assert_eq!(session.documents().len(), 1);
         assert!(session.active().unwrap().is_dirty());
         assert_eq!(
-            session.active().unwrap().wb.vba_project.as_deref(),
+            session.active().unwrap().wb.vba_project.as_deref().map(Vec::as_slice),
             Some(b"VBA source sentinel".as_slice())
         );
     }
@@ -353,9 +353,7 @@ impl crate::SheetApp {
     pub fn save_to_studio_intent(
         &mut self, name: Option<&str>, close: bool, copy: bool, save_as: bool,
     ) -> Result<serde_json::Value, String> {
-        if !self.commit_edit(0, 0, false, false) {
-            return Err("The current cell could not be committed.".into());
-        }
+        self.settle_drafts()?;
         self.store_view_state();
         let doc = self.session.active().ok_or("No workbook is open.")?;
         if name.is_some_and(|name| extension(name) == "pdf") {
