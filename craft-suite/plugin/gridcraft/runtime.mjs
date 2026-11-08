@@ -8,7 +8,7 @@ const extensions = {
   font: ["ttf", "otf", "ttc", "otc"],
   recipients: ["csv", "tsv", "xlsx"],
   pdf: ["pdf", "png", "jpg", "jpeg", "txt", "md", "html", "htm", "svg"],
-  spreadsheet: ["xlsx", "xlsm", "xltx", "xltm", "xls", "xlsb", "ods", "csv", "tsv", "txt", "json", "scjson"],
+  spreadsheet: ["xlsx", "xlsm", "xltx", "xltm", "xls", "xlsb", "ods", "csv", "tsv", "txt", "slk", "json", "scjson"],
   "pdf-document": ["pdf", "png", "jpg", "jpeg", "tif", "tiff", "gif", "bmp", "jp2", "j2k", "jpx", "txt", "text"],
   "pdf-only": ["pdf"],
   "pdf-data": ["xfdf", "fdf", "xml", "xdp", "csv", "txt", "pdf"],
