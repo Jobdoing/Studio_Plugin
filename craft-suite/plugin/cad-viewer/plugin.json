@@ -1,0 +1,13 @@
+{
+  "id": "cad-viewer",
+  "title": "CADCraft",
+  "kind": "app",
+  "scope": "project",
+  "desktop_only": true,
+  "version": "0.5.8",
+  "uses": {
+    "studio-docs": {
+      "access": "write"
+    }
+  }
+}

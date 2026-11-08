@@ -1,0 +1,268 @@
+Dependency source availability
+
+Full license texts are retained next to this file.
+Registry source archives are the exact published crate versions, without Studio modifications.
+For a dual license offering Apache-2.0 or GPL, this distribution uses Apache-2.0.
+
+acadrust 0.6.6 (MPL-2.0): https://crates.io/api/v1/crates/acadrust/0.6.6/download
+accesskit 0.25.2 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/accesskit/0.25.2/download
+adler2 2.0.1 (0BSD OR MIT OR Apache-2.0): https://crates.io/api/v1/crates/adler2/2.0.1/download
+ahash 0.8.12 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/ahash/0.8.12/download
+anyhow 1.0.104 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/anyhow/1.0.104/download
+arrayref 0.3.9 (BSD-2-Clause): https://crates.io/api/v1/crates/arrayref/0.3.9/download
+arrayvec 0.7.8 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/arrayvec/0.7.8/download
+autocfg 1.5.1 (Apache-2.0 OR MIT): https://crates.io/api/v1/crates/autocfg/1.5.1/download
+base64 0.22.1 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/base64/0.22.1/download
+bit-set 0.10.0 (Apache-2.0 OR MIT): https://crates.io/api/v1/crates/bit-set/0.10.0/download
+bit-vec 0.9.1 (Apache-2.0 OR MIT): https://crates.io/api/v1/crates/bit-vec/0.9.1/download
+bitflags 2.13.2 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/bitflags/2.13.2/download
+bumpalo 3.20.3 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/bumpalo/3.20.3/download
+bytemuck 1.25.2 (Zlib OR Apache-2.0 OR MIT): https://crates.io/api/v1/crates/bytemuck/1.25.2/download
+bytemuck_derive 1.12.1 (Zlib OR Apache-2.0 OR MIT): https://crates.io/api/v1/crates/bytemuck_derive/1.12.1/download
+byteorder 1.5.0 (Unlicense OR MIT): https://crates.io/api/v1/crates/byteorder/1.5.0/download
+byteorder-lite 0.1.0 (Unlicense OR MIT): https://crates.io/api/v1/crates/byteorder-lite/0.1.0/download
+cadcraft-color 0.18.0 (MIT OR Apache-2.0): None
+cadcraft-constraints 0.18.0 (MIT OR Apache-2.0): None
+cadcraft-doc 0.18.0 (MIT OR Apache-2.0): None
+cadcraft-dwg 0.18.0 (MIT OR Apache-2.0): None
+cadcraft-dxf 0.18.0 (MIT OR Apache-2.0): None
+cadcraft-engine 0.18.0 (MIT OR Apache-2.0): None
+cadcraft-fonts 0.18.0 (MIT OR Apache-2.0): None
+cadcraft-geom 0.18.0 (MIT OR Apache-2.0): None
+cadcraft-io 0.18.0 (MIT OR Apache-2.0): None
+cadcraft-render 0.18.0 (MIT OR Apache-2.0): None
+cadcraft-ui-egui 0.18.0 (MIT OR Apache-2.0): None
+cadcraft-web 0.18.0 (MIT OR Apache-2.0): None
+cfg-if 1.0.5 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/cfg-if/1.0.5/download
+cfg_aliases 0.2.2 (MIT): https://crates.io/api/v1/crates/cfg_aliases/0.2.2/download
+chrono 0.4.45 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/chrono/0.4.45/download
+cobs 0.3.0 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/cobs/0.3.0/download
+codespan-reporting 0.13.1 (Apache-2.0): https://crates.io/api/v1/crates/codespan-reporting/0.13.1/download
+color 0.3.3 (Apache-2.0 OR MIT): https://crates.io/api/v1/crates/color/0.3.3/download
+color_quant 1.1.0 (MIT): https://crates.io/api/v1/crates/color_quant/1.1.0/download
+core_maths 0.1.1 (MIT): https://crates.io/api/v1/crates/core_maths/0.1.1/download
+craft-docpath 0.1.0 (MIT OR Apache-2.0): git+https://github.com/storytold/craft-libs?rev=92d392cff132eaf53e13afff77f38b5c11b73aa0#92d392cff132eaf53e13afff77f38b5c11b73aa0
+craft-fonts-build 0.1.0 (MIT OR Apache-2.0): git+https://github.com/storytold/craft-libs?rev=92d392cff132eaf53e13afff77f38b5c11b73aa0#92d392cff132eaf53e13afff77f38b5c11b73aa0
+craft-i18n 0.1.0 (MIT OR Apache-2.0): git+https://github.com/storytold/craft-libs?rev=92d392cff132eaf53e13afff77f38b5c11b73aa0#92d392cff132eaf53e13afff77f38b5c11b73aa0
+craft-pdf 0.1.0 (MIT OR Apache-2.0): git+https://github.com/storytold/craft-libs?rev=92d392cff132eaf53e13afff77f38b5c11b73aa0#92d392cff132eaf53e13afff77f38b5c11b73aa0
+craft-ui 0.1.0 (MIT OR Apache-2.0): git+https://github.com/storytold/craft-libs?rev=92d392cff132eaf53e13afff77f38b5c11b73aa0#92d392cff132eaf53e13afff77f38b5c11b73aa0
+craft-web-host 0.1.0 (MIT OR Apache-2.0): git+https://github.com/storytold/craft-libs?rev=2e2312ddaf21bc3d85cd3395d0955c7d239306f6#2e2312ddaf21bc3d85cd3395d0955c7d239306f6
+craft-window 0.1.0 (MIT OR Apache-2.0): git+https://github.com/storytold/craft-libs?rev=92d392cff132eaf53e13afff77f38b5c11b73aa0#92d392cff132eaf53e13afff77f38b5c11b73aa0
+crc32fast 1.5.3 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/crc32fast/1.5.3/download
+cursor-icon 1.2.0 (MIT OR Apache-2.0 OR Zlib): https://crates.io/api/v1/crates/cursor-icon/1.2.0/download
+displaydoc 0.2.7 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/displaydoc/0.2.7/download
+document-features 0.2.12 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/document-features/0.2.12/download
+dpi 0.1.2 (Apache-2.0 AND MIT): https://crates.io/api/v1/crates/dpi/0.1.2/download
+ecolor 0.37.0 (MIT OR Apache-2.0): git+https://github.com/storytold/egui.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a
+eframe 0.37.0 (MIT OR Apache-2.0): git+https://github.com/storytold/egui.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a
+egui 0.37.0 (MIT OR Apache-2.0): git+https://github.com/storytold/egui.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a
+egui-wgpu 0.37.0 (MIT OR Apache-2.0): git+https://github.com/storytold/egui.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a
+egui_extras 0.37.0 (MIT OR Apache-2.0): git+https://github.com/storytold/egui.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a
+egui_glow 0.37.0 (MIT OR Apache-2.0): git+https://github.com/storytold/egui.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a
+either 1.19.0 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/either/1.19.0/download
+emath 0.37.0 (MIT OR Apache-2.0): git+https://github.com/storytold/egui.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a
+encoding_rs 0.8.42 ((Apache-2.0 OR MIT) AND BSD-3-Clause): https://crates.io/api/v1/crates/encoding_rs/0.8.42/download
+enum-map 3.1.0 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/enum-map/3.1.0/download
+enum-map-derive 1.0.1 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/enum-map-derive/1.0.1/download
+enumn 0.1.14 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/enumn/0.1.14/download
+epaint 0.37.0 (MIT OR Apache-2.0): git+https://github.com/storytold/egui.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a
+epaint_default_fonts 0.37.0 ((MIT OR Apache-2.0) AND OFL-1.1 AND Ubuntu-font-1.0): git+https://github.com/storytold/egui.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a
+equivalent 1.0.3 (Apache-2.0 OR MIT): https://crates.io/api/v1/crates/equivalent/1.0.3/download
+euclid 0.22.14 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/euclid/0.22.14/download
+fax 0.2.7 (MIT): https://crates.io/api/v1/crates/fax/0.2.7/download
+fdeflate 0.3.7 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/fdeflate/0.3.7/download
+fearless_simd 0.4.1 (Apache-2.0 OR MIT): https://crates.io/api/v1/crates/fearless_simd/0.4.1/download
+fixed_decimal 0.7.3 (Unicode-3.0): https://crates.io/api/v1/crates/fixed_decimal/0.7.3/download
+flate2 1.1.10 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/flate2/1.1.10/download
+float-cmp 0.9.0 (MIT): https://crates.io/api/v1/crates/float-cmp/0.9.0/download
+float_next_after 1.0.0 (MIT): https://crates.io/api/v1/crates/float_next_after/1.0.0/download
+foldhash 0.2.0 (Zlib): https://crates.io/api/v1/crates/foldhash/0.2.0/download
+font-types 0.11.3 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/font-types/0.11.3/download
+font-types 0.12.7 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/font-types/0.12.7/download
+futures-core 0.3.34 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/futures-core/0.3.34/download
+futures-macro 0.3.34 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/futures-macro/0.3.34/download
+futures-task 0.3.34 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/futures-task/0.3.34/download
+futures-util 0.3.34 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/futures-util/0.3.34/download
+getrandom 0.3.4 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/getrandom/0.3.4/download
+gif 0.14.2 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/gif/0.14.2/download
+glifo 0.3.0 (Apache-2.0 OR MIT): https://crates.io/api/v1/crates/glifo/0.3.0/download
+glow 0.17.0 (MIT OR Apache-2.0 OR Zlib): https://crates.io/api/v1/crates/glow/0.17.0/download
+guillotiere 0.7.0 (MIT/Apache-2.0): https://crates.io/api/v1/crates/guillotiere/0.7.0/download
+half 2.7.1 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/half/2.7.1/download
+harfrust 0.12.0 (MIT): https://crates.io/api/v1/crates/harfrust/0.12.0/download
+harfrust 0.14.0 (MIT): https://crates.io/api/v1/crates/harfrust/0.14.0/download
+hash32 0.3.1 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/hash32/0.3.1/download
+hashbrown 0.17.1 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/hashbrown/0.17.1/download
+hayro-ccitt 0.3.0 (Apache-2.0 OR MIT): https://crates.io/api/v1/crates/hayro-ccitt/0.3.0/download
+hayro-jbig2 0.3.0 (Apache-2.0 OR MIT): git+https://github.com/storytold/craft-libs?rev=92d392cff132eaf53e13afff77f38b5c11b73aa0#92d392cff132eaf53e13afff77f38b5c11b73aa0
+hayro-jpeg2000 0.3.5 (Apache-2.0 OR MIT): https://crates.io/api/v1/crates/hayro-jpeg2000/0.3.5/download
+hayro-syntax 0.7.2 (Apache-2.0 OR MIT): git+https://github.com/storytold/craft-libs?rev=92d392cff132eaf53e13afff77f38b5c11b73aa0#92d392cff132eaf53e13afff77f38b5c11b73aa0
+heapless 0.8.0 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/heapless/0.8.0/download
+icu_collections 2.3.0 (Unicode-3.0): https://crates.io/api/v1/crates/icu_collections/2.3.0/download
+icu_decimal 2.3.0 (Unicode-3.0): https://crates.io/api/v1/crates/icu_decimal/2.3.0/download
+icu_locale_core 2.3.0 (Unicode-3.0): https://crates.io/api/v1/crates/icu_locale_core/2.3.0/download
+icu_locale_fallback 2.3.0 (Unicode-3.0): https://crates.io/api/v1/crates/icu_locale_fallback/2.3.0/download
+icu_locale_fallback_data 2.3.0 (Unicode-3.0): https://crates.io/api/v1/crates/icu_locale_fallback_data/2.3.0/download
+icu_normalizer 2.3.0 (Unicode-3.0): https://crates.io/api/v1/crates/icu_normalizer/2.3.0/download
+icu_normalizer_data 2.3.0 (Unicode-3.0): https://crates.io/api/v1/crates/icu_normalizer_data/2.3.0/download
+icu_pattern 0.5.1 (Unicode-3.0): https://crates.io/api/v1/crates/icu_pattern/0.5.1/download
+icu_plurals 2.3.0 (Unicode-3.0): https://crates.io/api/v1/crates/icu_plurals/2.3.0/download
+icu_properties 2.3.0 (Unicode-3.0): https://crates.io/api/v1/crates/icu_properties/2.3.0/download
+icu_properties_data 2.3.0 (Unicode-3.0): https://crates.io/api/v1/crates/icu_properties_data/2.3.0/download
+icu_provider 2.3.1 (Unicode-3.0): https://crates.io/api/v1/crates/icu_provider/2.3.1/download
+icu_provider_adapters 2.3.0 (Unicode-3.0): https://crates.io/api/v1/crates/icu_provider_adapters/2.3.0/download
+icu_provider_blob 2.3.0 (Unicode-3.0): https://crates.io/api/v1/crates/icu_provider_blob/2.3.0/download
+icu_segmenter 2.3.0 (Unicode-3.0): https://crates.io/api/v1/crates/icu_segmenter/2.3.0/download
+icu_segmenter_data 2.3.0 (Unicode-3.0): https://crates.io/api/v1/crates/icu_segmenter_data/2.3.0/download
+image 0.25.10 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/image/0.25.10/download
+image-webp 0.2.4 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/image-webp/0.2.4/download
+imagesize 0.14.0 (MIT): https://crates.io/api/v1/crates/imagesize/0.14.0/download
+indexmap 2.14.2 (Apache-2.0 OR MIT): https://crates.io/api/v1/crates/indexmap/2.14.2/download
+itertools 0.15.0 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/itertools/0.15.0/download
+itoa 1.0.18 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/itoa/1.0.18/download
+js-sys 0.3.106 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/js-sys/0.3.106/download
+krilla 0.8.2 (MIT OR Apache-2.0): git+https://github.com/storytold/craft-libs?rev=92d392cff132eaf53e13afff77f38b5c11b73aa0#92d392cff132eaf53e13afff77f38b5c11b73aa0
+kurbo 0.13.1 (Apache-2.0 OR MIT): https://crates.io/api/v1/crates/kurbo/0.13.1/download
+libm 0.2.16 (MIT): https://crates.io/api/v1/crates/libm/0.2.16/download
+linebender_resource_handle 0.1.1 (Apache-2.0 OR MIT): https://crates.io/api/v1/crates/linebender_resource_handle/0.1.1/download
+litemap 0.8.3 (Unicode-3.0): https://crates.io/api/v1/crates/litemap/0.8.3/download
+litrs 1.0.1 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/litrs/1.0.1/download
+lock_api 0.4.14 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/lock_api/0.4.14/download
+log 0.4.34 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/log/0.4.34/download
+lyon_geom 1.0.20 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/lyon_geom/1.0.20/download
+lyon_path 1.0.19 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/lyon_path/1.0.19/download
+lyon_tessellation 1.0.23 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/lyon_tessellation/1.0.23/download
+memchr 2.8.3 (Unlicense OR MIT): https://crates.io/api/v1/crates/memchr/2.8.3/download
+minimal-lexical 0.2.1 (MIT/Apache-2.0): https://crates.io/api/v1/crates/minimal-lexical/0.2.1/download
+miniz_oxide 0.8.9 (MIT OR Zlib OR Apache-2.0): https://crates.io/api/v1/crates/miniz_oxide/0.8.9/download
+miniz_oxide 0.9.1 (MIT OR Zlib OR Apache-2.0): https://crates.io/api/v1/crates/miniz_oxide/0.9.1/download
+moxcms 0.8.1 (BSD-3-Clause OR Apache-2.0): https://crates.io/api/v1/crates/moxcms/0.8.1/download
+multiversion_no_op 1.0.0 (Apache-2.0 OR MIT): https://crates.io/api/v1/crates/multiversion_no_op/1.0.0/download
+naga 30.0.1 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/naga/30.0.1/download
+naga-types 30.0.1 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/naga-types/30.0.1/download
+nohash-hasher 0.2.0 (Apache-2.0 OR MIT): https://crates.io/api/v1/crates/nohash-hasher/0.2.0/download
+nom 7.1.3 (MIT): https://crates.io/api/v1/crates/nom/7.1.3/download
+num-traits 0.2.19 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/num-traits/0.2.19/download
+oem_cp 2.1.2 (MIT): https://crates.io/api/v1/crates/oem_cp/2.1.2/download
+once_cell 1.21.4 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/once_cell/1.21.4/download
+ordered-float 5.5.1 (MIT): https://crates.io/api/v1/crates/ordered-float/5.5.1/download
+parking_lot 0.12.5 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/parking_lot/0.12.5/download
+parking_lot_core 0.9.12 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/parking_lot_core/0.9.12/download
+pdf-writer 0.15.0 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/pdf-writer/0.15.0/download
+peniko 0.6.1 (Apache-2.0 OR MIT): https://crates.io/api/v1/crates/peniko/0.6.1/download
+percent-encoding 2.3.2 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/percent-encoding/2.3.2/download
+phf 0.11.3 (MIT): https://crates.io/api/v1/crates/phf/0.11.3/download
+phf_shared 0.11.3 (MIT): https://crates.io/api/v1/crates/phf_shared/0.11.3/download
+pin-project 1.1.13 (Apache-2.0 OR MIT): https://crates.io/api/v1/crates/pin-project/1.1.13/download
+pin-project-internal 1.1.13 (Apache-2.0 OR MIT): https://crates.io/api/v1/crates/pin-project-internal/1.1.13/download
+pin-project-lite 0.2.17 (Apache-2.0 OR MIT): https://crates.io/api/v1/crates/pin-project-lite/0.2.17/download
+png 0.18.1 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/png/0.18.1/download
+polycool 0.4.0 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/polycool/0.4.0/download
+postcard 1.1.3 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/postcard/1.1.3/download
+potential_utf 0.1.6 (Unicode-3.0): https://crates.io/api/v1/crates/potential_utf/0.1.6/download
+proc-macro2 1.0.107 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/proc-macro2/1.0.107/download
+profiling 1.0.18 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/profiling/1.0.18/download
+pxfm 0.1.30 (BSD-3-Clause OR Apache-2.0): https://crates.io/api/v1/crates/pxfm/0.1.30/download
+quick-error 2.0.1 (MIT/Apache-2.0): https://crates.io/api/v1/crates/quick-error/2.0.1/download
+quick-xml 0.42.0 (MIT): https://crates.io/api/v1/crates/quick-xml/0.42.0/download
+quote 1.0.47 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/quote/1.0.47/download
+raw-window-handle 0.6.2 (MIT OR Apache-2.0 OR Zlib): https://crates.io/api/v1/crates/raw-window-handle/0.6.2/download
+read-fonts 0.39.2 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/read-fonts/0.39.2/download
+read-fonts 0.41.0 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/read-fonts/0.41.0/download
+read-fonts 0.45.1 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/read-fonts/0.45.1/download
+ron 0.12.2 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/ron/0.12.2/download
+rstar 0.13.0 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/rstar/0.13.0/download
+rustc-hash 1.1.0 (Apache-2.0/MIT): https://crates.io/api/v1/crates/rustc-hash/1.1.0/download
+rustc-hash 2.1.3 (Apache-2.0 OR MIT): https://crates.io/api/v1/crates/rustc-hash/2.1.3/download
+rustversion 1.0.23 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/rustversion/1.0.23/download
+ryu 1.0.23 (Apache-2.0 OR BSL-1.0): https://crates.io/api/v1/crates/ryu/1.0.23/download
+scopeguard 1.2.0 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/scopeguard/1.2.0/download
+self_cell 1.3.0 (Apache-2.0 OR GPL-2.0-only): https://crates.io/api/v1/crates/self_cell/1.3.0/download
+send_wrapper 0.6.0 (MIT/Apache-2.0): https://crates.io/api/v1/crates/send_wrapper/0.6.0/download
+serde 1.0.229 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/serde/1.0.229/download
+serde_core 1.0.229 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/serde_core/1.0.229/download
+serde_derive 1.0.229 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/serde_derive/1.0.229/download
+serde_json 1.0.154 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/serde_json/1.0.154/download
+serde_spanned 1.1.2 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/serde_spanned/1.1.2/download
+simd-adler32 0.3.10 (MIT): https://crates.io/api/v1/crates/simd-adler32/0.3.10/download
+siphasher 1.0.4 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/siphasher/1.0.4/download
+skrifa 0.42.1 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/skrifa/0.42.1/download
+skrifa 0.44.0 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/skrifa/0.44.0/download
+skrifa 0.48.0 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/skrifa/0.48.0/download
+slab 0.4.12 (MIT): https://crates.io/api/v1/crates/slab/0.4.12/download
+slotmap 1.1.1 (Zlib): https://crates.io/api/v1/crates/slotmap/1.1.1/download
+smallvec 1.16.4 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/smallvec/1.16.4/download
+smol_str 0.2.2 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/smol_str/0.2.2/download
+spirv 0.4.0+sdk-1.4.341.0 (Apache-2.0): https://crates.io/api/v1/crates/spirv/0.4.0+sdk-1.4.341.0/download
+stable_deref_trait 1.2.1 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/stable_deref_trait/1.2.1/download
+static_assertions 1.1.0 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/static_assertions/1.1.0/download
+strict-num 0.1.1 (MIT): https://crates.io/api/v1/crates/strict-num/0.1.1/download
+stringprep 0.1.5 (MIT/Apache-2.0): https://crates.io/api/v1/crates/stringprep/0.1.5/download
+subsetter 0.2.6 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/subsetter/0.2.6/download
+syn 2.0.119 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/syn/2.0.119/download
+syn 3.0.9 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/syn/3.0.9/download
+synstructure 0.14.0 (MIT): https://crates.io/api/v1/crates/synstructure/0.14.0/download
+sys-locale 0.3.2 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/sys-locale/0.3.2/download
+termcolor 1.4.1 (Unlicense OR MIT): https://crates.io/api/v1/crates/termcolor/1.4.1/download
+thiserror 2.0.21 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/thiserror/2.0.21/download
+thiserror-impl 2.0.21 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/thiserror-impl/2.0.21/download
+tiff 0.11.3 (MIT): https://crates.io/api/v1/crates/tiff/0.11.3/download
+tiny-skia 0.12.0 (BSD-3-Clause): https://crates.io/api/v1/crates/tiny-skia/0.12.0/download
+tiny-skia-path 0.12.0 (BSD-3-Clause): https://crates.io/api/v1/crates/tiny-skia-path/0.12.0/download
+tinystr 0.8.5 (Unicode-3.0): https://crates.io/api/v1/crates/tinystr/0.8.5/download
+tinyvec 1.13.3 (Zlib OR Apache-2.0 OR MIT): https://crates.io/api/v1/crates/tinyvec/1.13.3/download
+toml 1.1.8+spec-1.1.0 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/toml/1.1.8+spec-1.1.0/download
+toml_datetime 1.1.2+spec-1.1.0 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/toml_datetime/1.1.2+spec-1.1.0/download
+toml_parser 1.1.5+spec-1.1.0 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/toml_parser/1.1.5+spec-1.1.0/download
+toml_writer 1.1.3+spec-1.1.0 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/toml_writer/1.1.3+spec-1.1.0/download
+tracing 0.1.44 (MIT): https://crates.io/api/v1/crates/tracing/0.1.44/download
+tracing-attributes 0.1.31 (MIT): https://crates.io/api/v1/crates/tracing-attributes/0.1.31/download
+tracing-core 0.1.36 (MIT): https://crates.io/api/v1/crates/tracing-core/0.1.36/download
+type-map 0.5.1 (MIT/Apache-2.0): https://crates.io/api/v1/crates/type-map/0.5.1/download
+typeid 1.0.3 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/typeid/1.0.3/download
+unicode-bidi 0.3.18 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/unicode-bidi/0.3.18/download
+unicode-general-category 1.1.0 (Apache-2.0): https://crates.io/api/v1/crates/unicode-general-category/1.1.0/download
+unicode-ident 1.0.27 ((MIT OR Apache-2.0) AND Unicode-3.0): https://crates.io/api/v1/crates/unicode-ident/1.0.27/download
+unicode-normalization 0.1.26 ((MIT OR Apache-2.0) AND Unicode-3.0): https://crates.io/api/v1/crates/unicode-normalization/0.1.26/download
+unicode-properties 0.1.4 (MIT/Apache-2.0): https://crates.io/api/v1/crates/unicode-properties/0.1.4/download
+unicode-segmentation 1.13.3 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/unicode-segmentation/1.13.3/download
+unicode-width 0.2.2 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/unicode-width/0.2.2/download
+utf16_iter 1.0.5 (Apache-2.0 OR MIT): https://crates.io/api/v1/crates/utf16_iter/1.0.5/download
+utf8_iter 1.0.4 (Apache-2.0 OR MIT): https://crates.io/api/v1/crates/utf8_iter/1.0.4/download
+uuid 1.29.0 (Apache-2.0 OR MIT): https://crates.io/api/v1/crates/uuid/1.29.0/download
+vello_common 0.2.0 (Apache-2.0 OR MIT): https://crates.io/api/v1/crates/vello_common/0.2.0/download
+vello_cpu 0.2.0 (Apache-2.0 OR MIT): https://crates.io/api/v1/crates/vello_cpu/0.2.0/download
+version_check 0.9.5 (MIT/Apache-2.0): https://crates.io/api/v1/crates/version_check/0.9.5/download
+wasm-bindgen 0.2.129 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/wasm-bindgen/0.2.129/download
+wasm-bindgen-futures 0.4.79 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/wasm-bindgen-futures/0.4.79/download
+wasm-bindgen-macro 0.2.129 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/wasm-bindgen-macro/0.2.129/download
+wasm-bindgen-macro-support 0.2.129 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/wasm-bindgen-macro-support/0.2.129/download
+wasm-bindgen-shared 0.2.129 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/wasm-bindgen-shared/0.2.129/download
+web-sys 0.3.106 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/web-sys/0.3.106/download
+web-time 1.1.0 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/web-time/1.1.0/download
+weezl 0.1.12 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/weezl/0.1.12/download
+wgpu 30.0.1 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/wgpu/30.0.1/download
+wgpu-core 30.0.1 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/wgpu-core/30.0.1/download
+wgpu-core-deps-wasm 30.0.1 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/wgpu-core-deps-wasm/30.0.1/download
+wgpu-hal 30.0.1 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/wgpu-hal/30.0.1/download
+wgpu-naga-bridge 30.0.1 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/wgpu-naga-bridge/30.0.1/download
+wgpu-types 30.0.1 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/wgpu-types/30.0.1/download
+winit 0.30.13 (Apache-2.0): git+https://github.com/storytold/winit.git?rev=a517b3846ee8457d84ee4975110bfda6797c44dc#a517b3846ee8457d84ee4975110bfda6797c44dc
+winnow 1.0.4 (MIT): https://crates.io/api/v1/crates/winnow/1.0.4/download
+write-fonts 0.48.1 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/write-fonts/0.48.1/download
+write16 1.0.0 (Apache-2.0 OR MIT): https://crates.io/api/v1/crates/write16/1.0.0/download
+writeable 0.6.4 (Unicode-3.0): https://crates.io/api/v1/crates/writeable/0.6.4/download
+xmp-writer 0.3.3 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/xmp-writer/0.3.3/download
+yoke 0.8.4 (Unicode-3.0): https://crates.io/api/v1/crates/yoke/0.8.4/download
+yoke-derive 0.8.4 (Unicode-3.0): https://crates.io/api/v1/crates/yoke-derive/0.8.4/download
+zerocopy 0.8.63 (BSD-2-Clause OR Apache-2.0 OR MIT): https://crates.io/api/v1/crates/zerocopy/0.8.63/download
+zerocopy-derive 0.8.63 (BSD-2-Clause OR Apache-2.0 OR MIT): https://crates.io/api/v1/crates/zerocopy-derive/0.8.63/download
+zerofrom 0.1.8 (Unicode-3.0): https://crates.io/api/v1/crates/zerofrom/0.1.8/download
+zerofrom-derive 0.1.8 (Unicode-3.0): https://crates.io/api/v1/crates/zerofrom-derive/0.1.8/download
+zerotrie 0.2.5 (Unicode-3.0): https://crates.io/api/v1/crates/zerotrie/0.2.5/download
+zerovec 0.11.9 (Unicode-3.0): https://crates.io/api/v1/crates/zerovec/0.11.9/download
+zerovec-derive 0.11.7 (Unicode-3.0): https://crates.io/api/v1/crates/zerovec-derive/0.11.7/download
+zlib-rs 0.6.8 (Zlib): https://crates.io/api/v1/crates/zlib-rs/0.6.8/download
+zmij 1.0.23 (MIT): https://crates.io/api/v1/crates/zmij/1.0.23/download
+zune-core 0.5.3 (MIT OR Apache-2.0 OR Zlib): https://crates.io/api/v1/crates/zune-core/0.5.3/download
+zune-jpeg 0.5.15 (MIT OR Apache-2.0 OR Zlib): https://crates.io/api/v1/crates/zune-jpeg/0.5.15/download

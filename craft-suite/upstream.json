@@ -20,8 +20,8 @@
     "plugin_version": "0.9.2"
   },
   "cadcraft": {
-    "tag": "v0.6.2",
-    "commit": "00c7613f1af3c73f7157fa91d9fe2635c6f23c06",
-    "plugin_version": "0.5.7"
+    "tag": "v0.18.0",
+    "commit": "32238e83c2c8bf643994132883e94bc96961f649",
+    "plugin_version": "0.5.8"
   }
 }
