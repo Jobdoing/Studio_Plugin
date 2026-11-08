@@ -31,6 +31,12 @@ def patch(name, old, new):
 engine = "crates/engine/src/"
 ui = "crates/ui-egui/src/"
 web = "apps/cadcraft-web/src/main.rs"
+# Reuse the dependency's existing WASM stream implementation; keep every native guard.
+dwg_pin, = (package for package in tomllib.loads((source / "Cargo.lock").read_text())["package"] if package["name"] == "acadrust")
+assert dwg_pin["version"] == "0.6.6" and dwg_pin["checksum"] == "8923c99ea1f151cb7fc17ce2fc14f8b1e330fa22611e535602d985c0cc3c89a2"
+patch("crates/dwg/build.rs", 'if arch == "wasm32" || (os == "freebsd" && arch == "aarch64") {', 'if os == "freebsd" && arch == "aarch64" {')
+patch("crates/dwg/Cargo.toml", '[target.\'cfg(not(any(target_arch = "wasm32", all(target_os = "freebsd", target_arch = "aarch64"))))\'.dependencies]', '[target.\'cfg(not(all(target_os = "freebsd", target_arch = "aarch64")))\'.dependencies]')
+patch("crates/dwg/src/lib.rs", 'mod native {', '// NOTE(ceiling): WASM uses the existing in-process fallback without native crash/timeout isolation; move conversion to a dedicated Web Worker to restore it.\nmod native {')
 patch(engine + "lib.rs", "mod doc_state;", "mod doc_state;\npub mod studio_save;")
 shutil.copyfile(suite / "src/cad-save.rs", source / engine / "studio_save.rs")
 # Intercept the real engine save entrance, including menus, aliases, scripts and LISP.

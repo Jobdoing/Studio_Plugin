@@ -95,7 +95,12 @@ plural forms. `scripts/convert-cad-catalog.py <upstream>` regenerates the catalo
 with OpenCC and the reviewed Taiwan terminology. After preparation, run
 `scripts/check-cad-save.py <prepared-upstream> <external-log-directory>` for save
 receipt mutation checks. See `docs/cadcraft-v018-integration.md` for acceptance
-and the upstream WASM DWG limitation. The CAD bootstrap pin in `assemble.py`
+and WASM DWG verification with its worker-isolation ceiling. Run
+`scripts/check-cad-dwg-wasm.py <prepared-upstream> <fresh-external-output>` to
+generate a small upstream fixture natively, read/write it in WASM, check input
+and output limits, and independently reopen the result natively. It verifies
+the unmodified acadrust archive and prepares a browser check page as well.
+The CAD bootstrap pin in `assemble.py`
 only covers v0.18.0 / plugin 0.5.8; the release pipeline must record later pins
 in `upstream.json`.
 
