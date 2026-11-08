@@ -22,6 +22,8 @@ mod studio_draft_tests {
             text: text.into(),
             style,
             focus: true,
+            selection: None,
+            typing_from: None,
         });
         app
     }
@@ -41,19 +43,37 @@ mod studio_draft_tests {
 
     #[test]
     fn drawable_draft_blocks_close_and_cancel_keeps_the_draft() {
-        let mut app = app_with_draft("Uncommitted Studio text");
-        let id = app.views[0].id;
-        assert!(!app.session.get(id).unwrap().dirty);
-        assert!(app.has_unsaved_work(0));
-        let context = egui::Context::default();
-        assert!(!app.request_quit(&context));
-        app.resolve_close(&context, None);
-        assert_eq!(app.views.len(), 1);
-        assert_eq!(
-            app.views[0].content.draft.as_ref().unwrap().text,
-            "Uncommitted Studio text"
-        );
-        assert!(app.has_unsaved_work(0));
+        for existing in [false, true] {
+            let mut app = app_with_draft("Uncommitted Studio text");
+            let id = app.views[0].id;
+            if existing {
+                let mut draft = app.views[0].content.draft.clone().unwrap();
+                assert!(app.commit_typing_in(id));
+                let bytes = app.session.save_bytes(id).unwrap();
+                app.session.mark_saved(id, bytes, None).unwrap();
+                let doc = app.session.get(id).unwrap();
+                assert_eq!(doc.added().len(), 1, "the fixture contains saved editable text");
+                let pdfcraft_engine::AddedContent::Text(style) = &doc.added()[0].content else {
+                    panic!("the saved item must be text")
+                };
+                draft.index = Some(0);
+                draft.style = style.clone();
+                draft.text = "Changed saved text".into();
+                app.views[0].document_changed(&doc.info);
+                app.views[0].content.draft = Some(draft);
+            }
+            assert!(!app.session.get(id).unwrap().dirty);
+            assert!(app.has_unsaved_work(0));
+            let context = egui::Context::default();
+            assert!(!app.request_quit(&context));
+            app.resolve_close(&context, None);
+            assert_eq!(app.views.len(), 1);
+            assert_eq!(
+                app.views[0].content.draft.as_ref().unwrap().text,
+                if existing { "Changed saved text" } else { "Uncommitted Studio text" }
+            );
+            assert!(app.has_unsaved_work(0));
+        }
     }
 
     #[test]
