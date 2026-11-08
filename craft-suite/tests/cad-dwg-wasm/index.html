@@ -1,0 +1,17 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>CADCraft DWG WASM check</title>
+<link rel="icon" href="data:,">
+<pre id="result">Running DWG WASM checks</pre>
+<script type="module">
+import init, { verify } from './web/studio_dwg_check.js';
+try {
+  await init();
+  const input = new Uint8Array(await (await fetch('./native.dwg')).arrayBuffer());
+  const output = verify(input);
+  window.dwgResult = { status: 'passed', runtime: navigator.userAgent, inputBytes: input.length, outputBytes: output.length };
+} catch (error) {
+  window.dwgResult = { status: 'failed', error: String(error) };
+}
+document.querySelector('#result').textContent = JSON.stringify(window.dwgResult);
+</script>

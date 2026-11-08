@@ -13,7 +13,17 @@ def patch(name, old, new):
     path.write_text(text.replace(old, new))
 
 ui = "crates/ui-egui/src/"
-if editor == "wordcraft":
+if editor == "cadcraft":
+    # CAD captures save intent at the engine entrance, including non-UI callers.
+    import shutil
+    suite = Path(__file__).resolve().parents[1]
+    patch(ui + "lib.rs", "mod closing;", "mod closing;\n#[cfg(test)]\nmod studio_save_tests;")
+    shutil.copyfile(suite / "src/cad-save-tests.rs", source / ui / "studio_save_tests.rs")
+    web = source / "apps/cadcraft-web/src/main.rs"
+    text = web.read_text()
+    assert "mod studio_format_tests" not in text
+    web.write_text(text + "\n" + (suite / "src/cad-web-tests.rs").read_text())
+elif editor == "wordcraft":
     commands = ui + "app/commands.rs"
     files = ui + "app/files.rs"
     patch(ui + "dialogs/dispatch.rs", '''        ui.label(tl!("Password:"));
@@ -130,6 +140,7 @@ else:
 import shutil
 suite = Path(__file__).resolve().parents[1]
 files = {
+    "cadcraft": [("studio.rs", "apps/cadcraft-web/src/studio.rs")],
     "wordcraft": [("studio.rs", "apps/wordcraft-web/src/studio.rs")],
     "gridcraft": [("studio.rs", "apps/gridcraft-web/src/studio.rs"), ("grid-web.rs", "apps/gridcraft-web/src/host.rs"), ("grid-save.rs", ui + "studio_save.rs")],
     "deckcraft": [("studio.rs", ui + "studio.rs"), ("studio.rs", "apps/deckcraft-web/src/web/studio.rs"), ("deck-save.rs", ui + "studio_io.rs")],

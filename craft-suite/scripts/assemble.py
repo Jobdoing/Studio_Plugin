@@ -10,8 +10,8 @@ editor = sys.argv[1]
 source, build, output, font_dir = (Path(p).resolve() for p in sys.argv[2:])
 suite = Path(__file__).resolve().parents[1]
 upstream = json.loads((suite / "upstream.json").read_text())[editor]
-title = {"wordcraft": "WordCraft", "deckcraft": "DeckCraft", "gridcraft": "GridCraft", "pdfcraft": "PdfCraft"}[editor]
-language = {"wordcraft": "zh-Hant", "deckcraft": "zh-Hant", "gridcraft": "zh-Hant", "pdfcraft": "zh-Hant"}[editor]
+title = {"wordcraft": "WordCraft", "deckcraft": "DeckCraft", "gridcraft": "GridCraft", "pdfcraft": "PdfCraft", "cadcraft": "CADCraft"}[editor]
+language = {"wordcraft": "zh-Hant", "deckcraft": "zh-Hant", "gridcraft": "zh-Hant", "pdfcraft": "zh-Hant", "cadcraft": "zh-Hant"}[editor]
 canvas_id = "pdfcraft" if editor == "pdfcraft" else f"{editor}_canvas"
 loading = "" if editor == "pdfcraft" else f'<div id="{editor}_loading">Loading {title}…</div>'
 if output.exists():
@@ -41,7 +41,7 @@ const bytes = await new Response(response.body.pipeThrough(new DecompressionStre
 await init({{ module_or_path: bytes }});
 ''')
 (output / "plugin.json").write_text(json.dumps({
-    "id": editor, "title": title, "kind": "app", "scope": "project", "desktop_only": True,
+    "id": "cad-viewer" if editor == "cadcraft" else editor, "title": title, "kind": "app", "scope": "project", "desktop_only": True,
     "version": upstream.get("plugin_version", upstream["tag"].removeprefix("v")), "uses": {"studio-docs": {"access": "write"}},
 }, indent=2) + "\n")
 (output / "index.html").write_text(f'''<!doctype html>
