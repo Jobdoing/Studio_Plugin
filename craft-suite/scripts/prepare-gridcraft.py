@@ -1,4 +1,4 @@
-"""Apply the Studio integration to GridCraft v0.17.0."""
+"""Apply the Studio integration to GridCraft v0.19.1."""
 import shutil
 import sys
 import hashlib
@@ -17,26 +17,26 @@ for name, digest in {
 # Reject a different upstream tree before changing any file, including sliced rewrites.
 expected = {
     "crates/ui-egui/src/control.rs": "707e845170b50eddbfde2b8bc3eb996a6e4bc294c44b887e172bc7266168ce38",
-    'apps/gridcraft-web/src/web.rs': '4a6411a7380055f5a03682917316729f763088ca25d3357032f785e80972e6d1',
-    'crates/ui-egui/src/lib.rs': '3e8244639d4d4575c2d44547338c10f92ba09375bc1f36e4f6274d71bb11e9ce',
+    'apps/gridcraft-web/src/web.rs': 'eaa4a96ca602219edc38fd43ae5c90e1a0d31b25815ad939bd75cd2d5ab3d4fc',
+    'crates/ui-egui/src/lib.rs': 'acec56ce6d9d8ed33245f9448d554ed62403e2571ffc88a2a70383101a0f8ab6',
     'crates/ui-egui/src/backstage.rs': '1eaf0c15a8b387dd0e659de62f5f8f3ca718fb0e159cbc9aedb742f7fa59da65',
     'crates/ui-egui/src/dialogs.rs': 'e4eb60333fb4d5f4f26c4295c78c636d1eef511a0a4b332c9abc300bcbaa57e1',
     'crates/ui-egui/src/ribbon.rs': '10670d745f0c4bacbb7e5a273ace8df5a02d1fe182b66c62e313f34dd64072a0',
-    'crates/ui-egui/src/theme.rs': '9e888c32e57e82baaf680fda02b619f600e81a9c4374c3ec7e16fb2ebab0ed01',
+    'crates/ui-egui/src/theme.rs': '22c5312977a9e42f7595eeac27f52ad3bad95aa94db57ff6f55c2deda488ec6b',
     'apps/gridcraft-web/index.html': 'b92b0a676c6b6e98b1a61f48024e007eb9045f8298cb9c9e8c1b0116cdfaeb13',
     'crates/ui-egui/src/services.rs': 'b2853b65102c1b67c7ef41fe2ffe515e97960f5faf7b448df4b4d644500551a1',
     'crates/ui-egui/src/app.rs': 'd98863561e3bb561683fa029fc44abf4469bbce19f41fbf152062fe017353190',
-    'crates/ui-egui/src/app/commands.rs': 'd43d48f24a65c29efa39ba36d20a3225332a21c2fc8850d7fc98eeb64a7da818',
+    'crates/ui-egui/src/app/commands.rs': '13d2b338fe6feef7be4b862dec8dd9f876f7fadd2a8c9e7c4c3bfe2c767510e3',
     'crates/ui-egui/src/app/files.rs': '4f3f3dbb6ac2fcd5fe93a1ff3072f02192b80bad99c682fa6e4be257cd42345d',
     'crates/ui-egui/src/app/quit.rs': 'f8bbd4727501101a36c82ef94ef8d22bccecf76153bfe2558855d091c09df54f',
     'crates/ui-egui/src/dialogs/show.rs': '1b5eb08223c3d9c5e18a5a2daaab4d51eef19ea8050fb3e2612db9ac6c1455bd',
     'crates/ui-egui/src/backstage/options.rs': '7460a5ac545c813e6bc876c50a7ae3ed6b6dab09db7fbfee8041529416847906',
-    'crates/ui-egui/src/ribbon/title_bar.rs': 'adae16c2446caf8656aec607a980168ce2bfb8d0155ab0d92c5bdaba8bb9f6dd',
-    'crates/ui-egui/src/theme/font_fallback.rs': '3c27ae87637711b58b17877d54e66c47d0007ce15488a381e851d312841fcecc',
+    'crates/ui-egui/src/ribbon/title_bar.rs': '51b8d73a52e5ac2b9d84d7475a4e6ec7e71389edc3a1c1ca57b89a816dceae75',
+    'crates/ui-egui/src/theme/font_fallback.rs': 'd1e5ffd9ff2700f99261c0bd60e143c27bf49d00ddc375cccac74dcb64251df2',
 }
 for name, digest in expected.items():
     if hashlib.sha256((source / name).read_bytes()).hexdigest() != digest:
-        raise RuntimeError(f'Expected unmodified GridCraft v0.17.0: {name}')
+        raise RuntimeError(f'Expected unmodified GridCraft v0.19.1: {name}')
 
 
 def patch(path, changes):
