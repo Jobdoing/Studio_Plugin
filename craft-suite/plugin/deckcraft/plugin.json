@@ -4,7 +4,7 @@
   "kind": "app",
   "scope": "project",
   "desktop_only": true,
-  "version": "0.8.3",
+  "version": "0.8.4",
   "uses": {
     "studio-docs": {
       "access": "write"

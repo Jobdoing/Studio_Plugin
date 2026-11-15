@@ -3,12 +3,13 @@ import { chooseDocument, chooseLocation } from "./picker.mjs";
 
 const files = createFiles(window.studio, chooseLocation, chooseDocument);
 const extensions = {
+  drawing: ["dwg", "dxf", "shx"],
   document: ["docx", "docm", "dotx", "dotm", "doc", "dot", "odt", "rtf", "txt", "md", "html", "htm", "tex", "json", "xml"],
   picture: ["png", "jpg", "jpeg", "gif", "webp", "bmp", "wmf", "emf", "svg", "tif", "tiff", "jp2", "j2k", "jpx"],
   font: ["ttf", "otf", "ttc", "otc"],
   recipients: ["csv", "tsv", "xlsx"],
   pdf: ["pdf", "png", "jpg", "jpeg", "txt", "md", "html", "htm", "svg"],
-  spreadsheet: ["xlsx", "xlsm", "xltx", "xltm", "xls", "xlsb", "ods", "csv", "tsv", "txt", "json", "scjson"],
+  spreadsheet: ["xlsx", "xlsm", "xltx", "xltm", "xls", "xlsb", "ods", "csv", "tsv", "txt", "slk", "json", "scjson"],
   "pdf-document": ["pdf", "png", "jpg", "jpeg", "tif", "tiff", "gif", "bmp", "jp2", "j2k", "jpx", "txt", "text"],
   "pdf-only": ["pdf"],
   "pdf-data": ["xfdf", "fdf", "xml", "xdp", "csv", "txt", "pdf"],

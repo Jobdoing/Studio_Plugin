@@ -5,9 +5,9 @@
     "plugin_version": "0.8.2"
   },
   "deckcraft": {
-    "tag": "v0.16.0",
-    "commit": "a3e2254d3de32ed1718f156f070b54a34b949b54",
-    "plugin_version": "0.8.3"
+    "tag": "v0.18.1",
+    "commit": "7cc73ab1895ed2e30c8afbcada20c70b9ea0a440",
+    "plugin_version": "0.8.4"
   },
   "gridcraft": {
     "tag": "v0.19.1",

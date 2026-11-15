@@ -1,6 +1,6 @@
 Based on DeckCraft by the ArtCraft Team and DeckCraft contributors.
 Copyright (c) 2026 ArtCraft Team and the DeckCraft contributors.
-Upstream: https://github.com/storytold/deckcraft/tree/a3e2254d3de32ed1718f156f070b54a34b949b54
+Upstream: https://github.com/storytold/deckcraft/tree/7cc73ab1895ed2e30c8afbcada20c70b9ea0a440
 License: MIT OR Apache-2.0; full texts and original NOTICE are included.
 Studio modifications: document-center and local file I/O, confirmed asynchronous saves, available Chinese defaults
 and Noto Sans CJK TC where needed (OFL-1.1). This is an independently modified Studio plugin.

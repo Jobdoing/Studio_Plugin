@@ -275,6 +275,19 @@
     "source_url": "https://crates.io/api/v1/crates/core_maths/0.1.1/download"
   },
   {
+    "name": "craft-audio",
+    "version": "0.1.0",
+    "license": "MIT OR Apache-2.0",
+    "repository": "https://github.com/storytold/craft-libs",
+    "texts": [
+      "000-LICENSE-APACHE",
+      "001-ATTRIBUTION.md",
+      "002-NOTICE",
+      "003-LICENSE-MIT"
+    ],
+    "source": "git+https://github.com/storytold/craft-libs?rev=75895c0321d8cb6e175a42466cba050352b117c5#75895c0321d8cb6e175a42466cba050352b117c5"
+  },
+  {
     "name": "craft-fonts-build",
     "version": "0.1.0",
     "license": "MIT OR Apache-2.0",
@@ -289,7 +302,7 @@
       "006-OFL.txt",
       "007-OFL.txt"
     ],
-    "source": "git+https://github.com/storytold/craft-libs?rev=c5a1cbfb5f9049f9270955caffb5bee5997aebf7#c5a1cbfb5f9049f9270955caffb5bee5997aebf7"
+    "source": "git+https://github.com/storytold/craft-libs?rev=6e03f65bf45181db77ba6229716e6624db9eb25b#6e03f65bf45181db77ba6229716e6624db9eb25b"
   },
   {
     "name": "craft-i18n",
@@ -302,7 +315,7 @@
       "002-NOTICE",
       "003-LICENSE-MIT"
     ],
-    "source": "git+https://github.com/storytold/craft-libs?rev=c5a1cbfb5f9049f9270955caffb5bee5997aebf7#c5a1cbfb5f9049f9270955caffb5bee5997aebf7"
+    "source": "git+https://github.com/storytold/craft-libs?rev=6e03f65bf45181db77ba6229716e6624db9eb25b#6e03f65bf45181db77ba6229716e6624db9eb25b"
   },
   {
     "name": "craft-media",
@@ -315,7 +328,7 @@
       "002-NOTICE",
       "003-LICENSE-MIT"
     ],
-    "source": "git+https://github.com/storytold/craft-libs?rev=c5a1cbfb5f9049f9270955caffb5bee5997aebf7#c5a1cbfb5f9049f9270955caffb5bee5997aebf7"
+    "source": "git+https://github.com/storytold/craft-libs?rev=75895c0321d8cb6e175a42466cba050352b117c5#75895c0321d8cb6e175a42466cba050352b117c5"
   },
   {
     "name": "craft-pdf",
@@ -328,7 +341,7 @@
       "002-NOTICE",
       "003-LICENSE-MIT"
     ],
-    "source": "git+https://github.com/storytold/craft-libs?rev=c5a1cbfb5f9049f9270955caffb5bee5997aebf7#c5a1cbfb5f9049f9270955caffb5bee5997aebf7"
+    "source": "git+https://github.com/storytold/craft-libs?rev=6e03f65bf45181db77ba6229716e6624db9eb25b#6e03f65bf45181db77ba6229716e6624db9eb25b"
   },
   {
     "name": "craft-ui",
@@ -341,7 +354,20 @@
       "002-NOTICE",
       "003-LICENSE-MIT"
     ],
-    "source": "git+https://github.com/storytold/craft-libs?rev=c5a1cbfb5f9049f9270955caffb5bee5997aebf7#c5a1cbfb5f9049f9270955caffb5bee5997aebf7"
+    "source": "git+https://github.com/storytold/craft-libs?rev=6e03f65bf45181db77ba6229716e6624db9eb25b#6e03f65bf45181db77ba6229716e6624db9eb25b"
+  },
+  {
+    "name": "craft-web-api",
+    "version": "0.1.0",
+    "license": "MIT OR Apache-2.0",
+    "repository": "https://github.com/storytold/craft-libs",
+    "texts": [
+      "000-LICENSE-APACHE",
+      "001-ATTRIBUTION.md",
+      "002-NOTICE",
+      "003-LICENSE-MIT"
+    ],
+    "source": "git+https://github.com/storytold/craft-libs?rev=fd5e2feff6ea25bed371a99cc732b3968d621505#fd5e2feff6ea25bed371a99cc732b3968d621505"
   },
   {
     "name": "craft-web-host",
@@ -354,7 +380,7 @@
       "002-NOTICE",
       "003-LICENSE-MIT"
     ],
-    "source": "git+https://github.com/storytold/craft-libs?rev=2e2312ddaf21bc3d85cd3395d0955c7d239306f6#2e2312ddaf21bc3d85cd3395d0955c7d239306f6"
+    "source": "git+https://github.com/storytold/craft-libs?rev=fd5e2feff6ea25bed371a99cc732b3968d621505#fd5e2feff6ea25bed371a99cc732b3968d621505"
   },
   {
     "name": "crc32fast",
@@ -432,7 +458,7 @@
   },
   {
     "name": "deckcraft-anim",
-    "version": "0.16.0",
+    "version": "0.18.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -445,7 +471,7 @@
   },
   {
     "name": "deckcraft-av1",
-    "version": "0.16.0",
+    "version": "0.18.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -458,7 +484,7 @@
   },
   {
     "name": "deckcraft-bitstream",
-    "version": "0.16.0",
+    "version": "0.18.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -471,7 +497,7 @@
   },
   {
     "name": "deckcraft-color",
-    "version": "0.16.0",
+    "version": "0.18.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -484,7 +510,7 @@
   },
   {
     "name": "deckcraft-engine",
-    "version": "0.16.0",
+    "version": "0.18.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -497,7 +523,7 @@
   },
   {
     "name": "deckcraft-fonts",
-    "version": "0.16.0",
+    "version": "0.18.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -510,7 +536,7 @@
   },
   {
     "name": "deckcraft-format",
-    "version": "0.16.0",
+    "version": "0.18.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -523,7 +549,7 @@
   },
   {
     "name": "deckcraft-geom",
-    "version": "0.16.0",
+    "version": "0.18.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -536,7 +562,7 @@
   },
   {
     "name": "deckcraft-h264",
-    "version": "0.16.0",
+    "version": "0.18.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -549,33 +575,7 @@
   },
   {
     "name": "deckcraft-hevc",
-    "version": "0.16.0",
-    "license": "MIT OR Apache-2.0",
-    "repository": null,
-    "texts": [
-      "000-LICENSE-APACHE",
-      "001-ATTRIBUTION.md",
-      "002-NOTICE",
-      "003-LICENSE-MIT"
-    ],
-    "source": null
-  },
-  {
-    "name": "deckcraft-isobmff",
-    "version": "0.16.0",
-    "license": "MIT OR Apache-2.0",
-    "repository": null,
-    "texts": [
-      "000-LICENSE-APACHE",
-      "001-ATTRIBUTION.md",
-      "002-NOTICE",
-      "003-LICENSE-MIT"
-    ],
-    "source": null
-  },
-  {
-    "name": "deckcraft-matroska",
-    "version": "0.16.0",
+    "version": "0.18.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -588,7 +588,7 @@
   },
   {
     "name": "deckcraft-media",
-    "version": "0.16.0",
+    "version": "0.18.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -601,7 +601,7 @@
   },
   {
     "name": "deckcraft-metafile",
-    "version": "0.16.0",
+    "version": "0.18.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -614,33 +614,7 @@
   },
   {
     "name": "deckcraft-model",
-    "version": "0.16.0",
-    "license": "MIT OR Apache-2.0",
-    "repository": null,
-    "texts": [
-      "000-LICENSE-APACHE",
-      "001-ATTRIBUTION.md",
-      "002-NOTICE",
-      "003-LICENSE-MIT"
-    ],
-    "source": null
-  },
-  {
-    "name": "deckcraft-ogg",
-    "version": "0.16.0",
-    "license": "MIT OR Apache-2.0",
-    "repository": null,
-    "texts": [
-      "000-LICENSE-APACHE",
-      "001-ATTRIBUTION.md",
-      "002-NOTICE",
-      "003-LICENSE-MIT"
-    ],
-    "source": null
-  },
-  {
-    "name": "deckcraft-opus",
-    "version": "0.16.0",
+    "version": "0.18.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -653,7 +627,7 @@
   },
   {
     "name": "deckcraft-pdf",
-    "version": "0.16.0",
+    "version": "0.18.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -666,7 +640,7 @@
   },
   {
     "name": "deckcraft-pptx",
-    "version": "0.16.0",
+    "version": "0.18.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -679,7 +653,7 @@
   },
   {
     "name": "deckcraft-render",
-    "version": "0.16.0",
+    "version": "0.18.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -692,7 +666,7 @@
   },
   {
     "name": "deckcraft-text",
-    "version": "0.16.0",
+    "version": "0.18.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -705,7 +679,7 @@
   },
   {
     "name": "deckcraft-ui-egui",
-    "version": "0.16.0",
+    "version": "0.18.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -718,7 +692,7 @@
   },
   {
     "name": "deckcraft-vp9",
-    "version": "0.16.0",
+    "version": "0.18.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -731,7 +705,7 @@
   },
   {
     "name": "deckcraft-web",
-    "version": "0.16.0",
+    "version": "0.18.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -1533,7 +1507,7 @@
       "003-LICENSE-MIT",
       "004-LICENSE"
     ],
-    "source": "git+https://github.com/storytold/craft-libs?rev=c5a1cbfb5f9049f9270955caffb5bee5997aebf7#c5a1cbfb5f9049f9270955caffb5bee5997aebf7"
+    "source": "git+https://github.com/storytold/craft-libs?rev=6e03f65bf45181db77ba6229716e6624db9eb25b#6e03f65bf45181db77ba6229716e6624db9eb25b"
   },
   {
     "name": "kurbo",
