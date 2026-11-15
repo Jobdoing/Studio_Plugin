@@ -618,6 +618,8 @@ pub(super) fn translate(text: &str) -> Option<&'static str> {
         "Product" => "乘積",
         "Include forecast statistics" => "包含預測統計資料",
         "Chart" => "圖表",
+        "Diagram" => "圖解",
+        "Decorative Text" => "裝飾文字",
         "Line chart" => "折線圖",
         "Column chart" => "直條圖",
         "At each change in (column letter):" => "每次變更（欄字母）：",
