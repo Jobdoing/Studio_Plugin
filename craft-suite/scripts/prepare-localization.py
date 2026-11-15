@@ -9,7 +9,7 @@ editor, directory = sys.argv[1:]
 assert editor in ('gridcraft', 'deckcraft', 'cadcraft'), 'Unsupported localization editor'
 source = Path(directory).resolve()
 suite = Path(__file__).resolve().parents[1]
-expected = {'gridcraft': '0.19.1', 'deckcraft': '0.16.0', 'cadcraft': '0.20.1'}[editor]
+expected = {'gridcraft': '0.19.1', 'deckcraft': '0.18.1', 'cadcraft': '0.20.1'}[editor]
 actual = tomllib.loads((source / 'Cargo.toml').read_text())['workspace']['package']['version']
 if actual != expected:
     raise RuntimeError(f'Expected {editor} {expected}; got {actual}')
