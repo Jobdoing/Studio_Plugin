@@ -1,6 +1,6 @@
 --- a/apps/deckcraft-web/Cargo.toml
 +++ b/apps/deckcraft-web/Cargo.toml
-@@ -29,4 +29,4 @@ rfd = { workspace = true }
+@@ -31,4 +31,4 @@ rfd = { workspace = true }
  wasm-bindgen = "0.2"
  wasm-bindgen-futures = "0.4"
  js-sys = "0.3"
@@ -105,7 +105,7 @@
      }
  
      /// Turn on the automatic check for a newer release at start-up (desktop shell only; tests and
-@@ -205,6 +207,7 @@ impl SlideApp {
+@@ -213,6 +215,7 @@ impl SlideApp {
      /// opening/inbox results, screenshot completions/deadlines, AutoRecover pacing and media
      /// clocks. UI events are handled in [`Self::ui`], where a forced hidden paint also arrives.
      pub fn logic(&mut self, ctx: &egui::Context) {
@@ -113,7 +113,7 @@
          #[cfg(target_arch = "wasm32")]
          crate::studio_io::poll(self, ctx);
          if !Self::root_viewport_admitted(ctx) {
-@@ -266,6 +269,7 @@ impl SlideApp {
+@@ -274,6 +277,7 @@ impl SlideApp {
      /// no-document paths, reaches the same outer reset observation and finalizer below. No early
      /// route may publish or inspect IME output on its own.
      pub fn ui(&mut self, ui: &mut egui::Ui) {
@@ -2705,7 +2705,7 @@
      ("app.smartArtPictureDialog", "Insert Picture in SmartArt…", None, "{id?, index}"),
 --- a/crates/ui-egui/src/media.rs
 +++ b/crates/ui-egui/src/media.rs
-@@ -524,7 +524,7 @@ pub fn control_bar(ui: &mut Ui, rect: Rect, status: Option<&VoiceStatus>, clip:
+@@ -561,7 +561,7 @@ pub fn control_bar(ui: &mut Ui, rect: Rect, status: Option<&VoiceStatus>, clip:
      // Time label on the right, timeline between.
      let label = clock(pos);
      let label_w = 64.0;
@@ -2714,7 +2714,7 @@
      let track = Rect::from_min_max(pos2(x + 6.0, rect.center().y - 3.0), pos2(rect.max.x - label_w - 6.0, rect.center().y + 3.0));
      if track.width() > 10.0 {
          painter.rect_filled(track, CornerRadius::same(3), Color32::from_gray(90));
-@@ -559,7 +559,7 @@ pub fn control_bar(ui: &mut Ui, rect: Rect, status: Option<&VoiceStatus>, clip:
+@@ -596,7 +596,7 @@ pub fn control_bar(ui: &mut Ui, rect: Rect, status: Option<&VoiceStatus>, clip:
          painter.text(
              pos2(rect.min.x, rect.max.y + 3.0),
              Align2::LEFT_TOP,
@@ -4204,8 +4204,8 @@
                      deckcraft_model::AnimStart::WithPrevious => "With Previous",
                      deckcraft_model::AnimStart::AfterPrevious => "After Previous",
                  });
--                dropdown(ui, "astart", s.unwrap_or(""), 112.0, cur.is_some(), |ui| {
-+                dropdown(ui, "astart", crate::i18n::tr(s.unwrap_or("")), 112.0, cur.is_some(), |ui| {
+-                dropdown(ui, "Start", s.unwrap_or(""), 112.0, cur.is_some(), |ui| {
++                dropdown(ui, "Start", crate::i18n::tr(s.unwrap_or("")), 112.0, cur.is_some(), |ui| {
                      for (l, v) in [("On Click", "onClick"), ("With Previous", "withPrevious"), ("After Previous", "afterPrevious")] {
 -                        if ui.button(l).clicked() {
 +                        if ui.button(crate::i18n::tr(l)).clicked() {
@@ -4662,7 +4662,7 @@
      }
  }
 @@ -174,9 +175,9 @@ fn font_group(app: &mut SlideApp, ui: &mut Ui, st: &Value) {
-                 dropdown(ui, "font", &font, 150.0, en, |ui| {
+                 dropdown(ui, "Font", &font, 150.0, en, |ui| {
                      for (k, f) in fams.iter().enumerate() {
                          let label = if k == 0 && theme_fonts.len() == 2 {
 -                            format!("{f} (Headings)")
@@ -6137,7 +6137,7 @@
  }
  
  /// A ribbon group: contents, then a thin vertical separator.
-@@ -384,7 +393,7 @@ pub fn color_grid(ui: &mut Ui, scheme: &ColorScheme, none_label: Option<&str>) -
+@@ -388,7 +397,7 @@ pub fn color_grid(ui: &mut Ui, scheme: &ColorScheme, none_label: Option<&str>) -
      let t = Tokens::get(ui.ctx());
      let mut out = None;
      ui.set_min_width(220.0);
@@ -6146,7 +6146,7 @@
      let slots = [
          SchemeSlot::Lt1,
          SchemeSlot::Dk1,
-@@ -407,7 +416,7 @@ pub fn color_grid(ui: &mut Ui, scheme: &ColorScheme, none_label: Option<&str>) -
+@@ -411,7 +420,7 @@ pub fn color_grid(ui: &mut Ui, scheme: &ColorScheme, none_label: Option<&str>) -
              Stroke::new(if resp.hovered() { 2.0 } else { 1.0 }, if resp.hovered() { t.accent } else { t.border }),
              egui::StrokeKind::Inside,
          );
@@ -6155,7 +6155,7 @@
      };
      egui::Grid::new("theme_colors").spacing(vec2(3.0, 1.0)).show(ui, |ui| {
          for slot in slots {
-@@ -446,7 +455,7 @@ pub fn color_grid(ui: &mut Ui, scheme: &ColorScheme, none_label: Option<&str>) -
+@@ -450,7 +459,7 @@ pub fn color_grid(ui: &mut Ui, scheme: &ColorScheme, none_label: Option<&str>) -
          }
      });
      ui.add_space(4.0);
@@ -6164,7 +6164,7 @@
      ui.horizontal(|ui| {
          ui.spacing_mut().item_spacing.x = 3.0;
          for (c, name) in deckcraft_color::STANDARD_COLORS {
-@@ -457,7 +466,7 @@ pub fn color_grid(ui: &mut Ui, scheme: &ColorScheme, none_label: Option<&str>) -
+@@ -461,7 +470,7 @@ pub fn color_grid(ui: &mut Ui, scheme: &ColorScheme, none_label: Option<&str>) -
      });
      ui.separator();
      if let Some(n) = none_label
@@ -6173,7 +6173,7 @@
      {
          out = Some(None);
      }
-@@ -465,8 +474,8 @@ pub fn color_grid(ui: &mut Ui, scheme: &ColorScheme, none_label: Option<&str>) -
+@@ -469,8 +478,8 @@ pub fn color_grid(ui: &mut Ui, scheme: &ColorScheme, none_label: Option<&str>) -
      let id = ui.scope_id().with("hex");
      let mut hex: String = ui.data_mut(|d| d.get_temp::<String>(id).unwrap_or_default());
      ui.horizontal(|ui| {
@@ -6184,7 +6184,7 @@
          if r.lost_focus()
              && ui.input(|i| i.key_pressed(egui::Key::Enter))
              && let Some(c) = Rgba::from_hex(&hex)
-@@ -475,7 +484,7 @@ pub fn color_grid(ui: &mut Ui, scheme: &ColorScheme, none_label: Option<&str>) -
+@@ -479,7 +488,7 @@ pub fn color_grid(ui: &mut Ui, scheme: &ColorScheme, none_label: Option<&str>) -
          }
      });
      ui.data_mut(|d| d.insert_temp(id, hex));
@@ -6193,7 +6193,7 @@
          crate::eyedropper::request(ui.ctx());
          ui.close();
      }
-@@ -507,7 +516,8 @@ pub fn gallery(
+@@ -511,7 +520,8 @@ pub fn gallery(
          if sel {
              painter.rect_stroke(rect.expand(1.0), CornerRadius::same(4), Stroke::new(1.5, t.accent), egui::StrokeKind::Inside);
          }
@@ -6203,7 +6203,7 @@
              clicked = Some(i);
          }
      }
-@@ -573,6 +583,7 @@ pub fn text_draft(stored: Option<(String, String)>, current: &str) -> String {
+@@ -577,6 +587,7 @@ pub fn text_draft(stored: Option<(String, String)>, current: &str) -> String {
  
  /// Section header inside panes.
  pub fn section(ui: &mut Ui, title: &str, open: bool) -> bool {
