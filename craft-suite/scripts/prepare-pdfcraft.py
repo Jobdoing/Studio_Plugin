@@ -72,7 +72,7 @@ patch("canvas/tests.rs", [
 path = ui / "app/files.rs"
 text = path.read_text()
 text = replace(text, '                self.notify_fmt("Downloading attachments on the web arrives with M3.10 ({n} bytes ready)", &[("n", &bytes.len().to_string())]);', '                crate::studio_io::write(self, vec![(crate::files::attachment_file_name(&att.name), std::sync::Arc::new(bytes))], |_| {});')
-text = section(text, '                if let Some(h) = rfd::AsyncFileDialog::new()', '\n            });\n        }\n    }', '''                match crate::studio::open_many("pdf-document").await {
+text = section(text, '                if let Some(h) = Self::open_picker().pick_file().await {', '\n            });\n        }\n    }', '''                match crate::studio::open_many("pdf-document").await {
                     Ok(files) => {
                         inbox.lock().unwrap_or_else(std::sync::PoisonError::into_inner).extend(files);
                     }
@@ -88,21 +88,22 @@ editing = ui / "editing/save.rs"
 text = editing.read_text()
 text = section(text, '            // An embedding page that asked for saves', '\n        }\n    }', '            crate::studio_io::start_save(self, index, id, &name, bytes, Box::new(after))')
 text = replace(text, '            let _ = path;', '            let _ = (path, target);')
+# Save As writes a clean copy without earlier revisions, as the native save does (#2165); a signed or read-only document stays incremental.
+text = replace(text, '            let bytes = match self.session.save_bytes(id) {', '            let full = target == SaveTarget::As && self.session.get(id).is_some_and(|d| d.read_only_reason.is_none() && !d.is_signed());\n            let bytes = match if full { self.session.save_full_bytes(id) } else { self.session.save_bytes(id) } {')
 begin = text.index('/// Offer bytes as a browser download.')
 finish = text.index('\n    Ok(())\n}', begin) + len('\n    Ok(())\n}')
 text = replace(text, text[begin:finish], '')
 editing.write_text(text)
 patch("editing.rs", [('#[cfg(target_arch = "wasm32")]\npub(crate) use save::download;\n', '')])
-patch("editing/close.rs", [('        self.unsaved_flag.store(self.first_dirty().is_some(), std::sync::atomic::Ordering::Relaxed);', '        self.unsaved_flag.store(self.first_dirty().is_some(), std::sync::atomic::Ordering::Relaxed);\n        #[cfg(target_arch = "wasm32")]\n        crate::studio::dirty(self.first_dirty().is_some());')])
+# Upstream's unsaved flag also covers an OCR review that is still open; Studio hears the same answer.
+patch("editing/close.rs", [('        self.unsaved_flag.store(self.work_at_risk(), std::sync::atomic::Ordering::Relaxed);', '        self.unsaved_flag.store(self.work_at_risk(), std::sync::atomic::Ordering::Relaxed);\n        #[cfg(target_arch = "wasm32")]\n        crate::studio::dirty(self.work_at_risk());')])
 editing = ui / "editing.rs"
 text = editing.read_text()
 text = replace(text, '            v.pending_edit.is_some()\n                || v.forms.focus.is_some()', '            v.pending_edit.is_some()\n                || self.studio_has_bookmark_draft(id)\n                || v.comments.has_studio_drafts(self.session.get(id).map(|doc| &doc.info))\n                || v.forms.focus.is_some()')
 # Upstream now commits paragraph and content drafts, restoring them when edits fail.
-text = replace(text, '        self.commit_form_typing() && self.commit_open_fill_text(id) && self.commit_open_text_edits(id)', '        self.commit_form_typing() && self.commit_open_fill_text(id) && self.commit_open_text_edits(id) && self.studio_commit_comment_drafts(id) && self.studio_commit_bookmark_draft(id)')
-text = replace(text, '            || v.content.blocked().is_some()', '            || v.content.blocked().is_some()\n            || v.content.has_unsaved_draft(doc.added())')
+text = replace(text, '        self.commit_form_typing() && self.commit_open_fill_text(i, id) && self.commit_open_text_edits(i, id)', '        self.commit_form_typing() && self.commit_open_fill_text(i, id) && self.commit_open_text_edits(i, id) && self.studio_commit_comment_drafts(id) && self.studio_commit_bookmark_draft(id)')
 text = replace(text, '|| v.line_editor.as_ref().map_or_else(|| false, |ed| ed.has_unsaved_text())', '|| v.line_editor.as_ref().map_or_else(|| false, |ed| ed.has_changes())')
-text = replace(text, '            || v.pending_edit.is_some()', '            || v.pending_edit.is_some()\n            || v.comments.has_studio_drafts(Some(&doc.info))')
-text = replace(text, '            || v.content.has_unsaved_draft(doc.added())', '            || v.content.has_unsaved_draft(doc.added())\n            || self.studio_has_bookmark_draft(v.id)')
+text = replace(text, '        v.pending_edit.is_some()\n            || v.content.blocked().is_some()', '        v.pending_edit.is_some()\n            || v.comments.has_studio_drafts(Some(&doc.info))\n            || v.content.blocked().is_some()\n            || v.content.has_unsaved_draft(doc.added())\n            || self.studio_has_bookmark_draft(v.id)')
 text = replace(text, '                self.bookmark_rename = Some((vec![n], "Untitled".into()));', '                self.bookmark_rename = Some((vec![n], "Untitled".into()));\n                self.studio_bookmark_owner = Some(id);')
 text = replace(text, '                self.bookmark_rename = Some((path, title));', '                self.bookmark_rename = Some((path, title));\n                self.studio_bookmark_owner = Some(id);')
 text = replace(text, "fn bookmark_at<'a>(", "pub(crate) fn bookmark_at<'a>(")
@@ -157,12 +158,14 @@ text = replace(text, '        self.notify_tr("Importing data arrives on the web 
 text = replace(text, '        self.notify_tr("Merging data files needs the desktop app");', '        crate::studio_io::read(self, "pdf-data", true, None, |app, files| app.merge_data_files(files));')
 files.write_text(text)
 
-patch("workflows/create_ui.rs", [('''        match crate::editing::download(&name, &bytes) {
-            Ok(()) => saved(self, name),
-            Err(e) => self.notify_fmt("Couldn't download {name}: {e}", &[("name", &name), ("e", &e.to_string())]),
-        }''', '        crate::studio_io::write(self, vec![(name.clone(), bytes)], move |app| saved(app, name));'),
-    ('        self.notify_tr("On the web, open or drop an image to convert it");', '        crate::studio_io::read(self, "picture", true, None, |app, files| app.begin_image_import(files));'),
-    ('pub use pdfcraft_engine::CONVERTIBLE;', '#[cfg(not(target_arch = "wasm32"))]\npub use pdfcraft_engine::CONVERTIBLE;')])
+patch("workflows/create_ui.rs", [('''            match crate::editing::download(&name, &bytes) {
+                Ok(()) => saved(self, name),
+                Err(e) => self.notify_fmt("Couldn't download {name}: {e}", &[("name", &name), ("e", &e.to_string())]),
+            }''', '            crate::studio_io::write(self, vec![(name.clone(), bytes)], move |app| saved(app, name));'),
+    ('        self.notify_tr("On the web, open or drop an image to convert it");', '        crate::studio_io::read(self, "picture", true, None, |app, files| app.begin_image_import(files));')])
+patch("canvas/zoom_snap.rs", [('''        if let Err(e) = crate::editing::download(&name, &png) {
+            self.notify_error(e);
+        }''', '        crate::studio_io::write(self, vec![(name, std::sync::Arc::new(png))], |_| {});')])
 patch("tools/measure_ui.rs", [('''            if let Err(e) = crate::editing::download("measurements.csv", csv.as_bytes()) {
                 app.notify(&e);
             }''', '            crate::studio_io::write(app, vec![("measurements.csv".into(), std::sync::Arc::new(csv.into_bytes()))], |_| {});')])
@@ -198,13 +201,13 @@ path.write_text(text)
 
 # Workers keep their existing progress accounting, but only count acknowledged uploads.
 for name, old, new in [
-    ("workflows/actions_ui.rs", '''                let r = pdfcraft_engine::actions::run_on(&action, &name, Arc::new(bytes), |_, _| {}).and_then(|r| {
+    ("workflows/actions_ui.rs", '''                let r = pdfcraft_engine::actions::run_on(&action, &name, Arc::new(bytes), javascript, |_, _| {}).and_then(|r| {
                     #[cfg(not(target_arch = "wasm32"))]
                     write_result(&dir, &name, &r.bytes).map_err(|e| e.to_string())?;
                     #[cfg(target_arch = "wasm32")]
                     crate::editing::download(&name, &r.bytes)?;
                     Ok(())
-                });''', '''                let r = match pdfcraft_engine::actions::run_on(&action, &name, Arc::new(bytes), |_, _| {}) {
+                });''', '''                let r = match pdfcraft_engine::actions::run_on(&action, &name, Arc::new(bytes), javascript, |_, _| {}) {
                     Ok(result) => crate::studio::save(&name, &result.bytes).await,
                     Err(error) => Err(error),
                 };'''),
@@ -222,31 +225,55 @@ for name, old, new in [
     text = text[:begin] + '        #[cfg(not(target_arch = "wasm32"))]\n' + native + '\n        #[cfg(target_arch = "wasm32")]\n' + web + tail + text[finish:]
     path.write_text(text)
 
-# Keep upstream OCR buckets, cancellation and notes; await each Studio receipt before counting.
-path = ui / "workflows/ocr_ui.rs"
+# The web batch reads pages in Web Workers; a finished copy counts only after Studio confirms it.
+path = ui / "workflows/ocr_web.rs"
 text = path.read_text()
-begin = text.index('pub(crate) fn run_batch_files(')
-end = text.index('\n/// The batch summary:', begin)
-web = replace(text[begin:end], 'pub(crate) fn run_batch_files(', '#[cfg(any(target_arch = "wasm32", test))]\nasync fn run_studio_batch_files<F: std::future::Future<Output = Result<(), String>>>(')
-web = replace(web, '    mut write: impl FnMut(&str, &pdfcraft_engine::ocr::FileResult) -> Result<(), String>,', '    mut write: impl FnMut(String, Arc<Vec<u8>>) -> F,')
-web = replace(web, 'match write(&name, &res)', 'match write(name.clone(), res.bytes.clone()).await')
-web = replace(web, 'let r = pdfcraft_engine::ocr::recognize_file(&name, Arc::new(bytes), None, settings.clone(), recognizers, |_, _| true);', 'let r = pdfcraft_engine::guard(|| pdfcraft_engine::ocr::recognize_file(&name, Arc::new(bytes), None, settings.clone(), recognizers, |_, _| true)).unwrap_or_else(Err);')
-text = text[:end] + '\n' + web + text[end:]
-old = '            let write = move |name: &str, r: &pdfcraft_engine::ocr::FileResult| crate::editing::download(name, &r.bytes);'
-begin = text.rindex('        let work = move || {', 0, text.index(old))
-end = text.index('\n        #[cfg(not(target_arch = "wasm32"))]\n        if self.run_inline', begin)
-native = text[begin:end]
-web = replace(native, '        let work = move || {', '        let work = async move {')
-web = section(web, '            #[cfg(not(target_arch = "wasm32"))]\n            let write', '            if let Ok(mut s) = p.lock()', '            let msg = run_studio_batch_files(files, settings, &recognizers, &p, |name, bytes| async move { crate::studio::save(&name, &bytes).await }).await;\n')
-native = replace(native, '            #[cfg(target_arch = "wasm32")]\n' + old + '\n', '')
-text = text[:begin] + '        #[cfg(not(target_arch = "wasm32"))]\n' + native + '\n        #[cfg(target_arch = "wasm32")]\n' + web + text[end:]
-text = replace(text, '        #[cfg(target_arch = "wasm32")]\n        work();\n        self.ocr_batch', '        #[cfg(target_arch = "wasm32")]\n        wasm_bindgen_futures::spawn_local(work);\n        self.ocr_batch')
-text = replace(text, '    /// A batch over scanned files:', (suite / "src/pdf-ocr-tests.rs").read_text() + '\n    /// A batch over scanned files:')
+text = replace(text, '    current: Option<(String, Box<FileJob>, Pages)>,\n    total: usize,', '    current: Option<(String, Box<FileJob>, Pages)>,\n    /// A finished copy waiting for the Studio receipt; the next file starts after it.\n    delivering: Option<(String, pdfcraft_engine::ocr::FileResult, crate::studio_io::Delivery)>,\n    total: usize,')
+text = replace(text, '            current: None,\n            total,', '            current: None,\n            delivering: None,\n            total,')
+text = replace(text, '''    pub fn pump(&mut self, cancel: bool, ctx: &egui::Context) -> bool {
+''', '''    pub fn pump(&mut self, cancel: bool, ctx: &egui::Context) -> bool {
+        if let Some((name, r, delivery)) = self.delivering.take() {
+            match delivery.receipt() {
+                None => self.delivering = Some((name, r, delivery)),
+                Some(Ok(())) => {
+                    self.ok += 1;
+                    self.words += r.words();
+                    if let Some(note) = crate::ocr_ui::low_confidence_note(&name, &r, self.settings.low_confidence_threshold) {
+                        self.notes.push(note);
+                    }
+                }
+                Some(Err(e)) => self.failed.push(format!("{name}: {e}")),
+            }
+            return false;
+        }
+''')
+text = section(text, '        let saved = file.finish(found).and_then(|r| {', '        false\n    }\n}', '''        match file.finish(found) {
+            Ok(r) => {
+                let ctx = ctx.clone();
+                let delivery = crate::studio_io::deliver(move || ctx.request_repaint(), name.clone(), r.bytes.clone());
+                self.delivering = Some((name, r, delivery));
+            }
+            Err(e) => self.failed.push(format!("{name}: {e}")),
+        }
+''')
 path.write_text(text)
 
 # Editable OCR output keeps its review until Studio confirms delivery.
 path = ui / "workflows/ocr_verify.rs"
 text = path.read_text()
+# The Studio default language is Chinese; this test looks for an English label.
+text = replace(text, '''            let mut app = PdfCraftApp::new();
+            app.open_bytes("scan.pdf", None, bytes.clone()).expect("fixture");
+            app
+        });
+        h.run_steps(4);
+        assert!(h.state_mut().execute("ocr.correct"));''', '''            let mut app = PdfCraftApp::new();
+            app.set_option("language", "en").unwrap();
+            app.open_bytes("scan.pdf", None, bytes.clone()).expect("fixture");
+            app
+        });
+        h.run_steps(4);
+        assert!(h.state_mut().execute("ocr.correct"));''')
 text = section(text, '        let saved = crate::editing::download(&name, &bytes);', '\n    }\n}', '''        with_state(app, |v, _| v.phase = Phase::Saving);
         crate::studio_io::write_or_else(app, vec![(name, bytes)],
             |app| with_state(app, |v, _| v.finish()),
@@ -256,7 +283,7 @@ path.write_text(text)
 # Reuse the existing image mutations, with the same document-generation guard.
 path = ui / "tools/content_ui.rs"
 text = path.read_text()
-for method in ["add_image_dialog", "replace_page_image_dialog", "choose_field_image", "replace_image_dialog"]:
+for method in ["add_image_dialog", "replace_page_image_dialog", "choose_field_image_target", "replace_image_dialog"]:
     begin = text.index(f"fn {method}(")
     end = text.index('\n    }', begin)
     body = text[begin:end]

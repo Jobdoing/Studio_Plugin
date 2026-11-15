@@ -86,7 +86,13 @@ pub(crate) fn poll(app: &mut PdfCraftApp) {
             }
             if let Some(doc) = app.session.get(pending.id)
                 && let Some(view) = app.views.get_mut(index)
-            { view.document_changed(&doc.info); }
+            {
+                view.document_changed(&doc.info);
+                // As the native save does: what was saved isn't asked about again (#2149). A delivered
+                // redaction step stays counted, so Save no longer asks where for it.
+                view.redactions_downloaded = view.redactions_applied;
+            }
+            app.placed_signatures.remove(&pending.id);
             if app.has_unsaved_work(index) { return; }
             (pending.after)(app);
         }
@@ -149,4 +155,24 @@ pub(crate) fn write_or_else(
         if let Some(ctx) = ctx { ctx.request_repaint(); }
     });
     app.studio_pending_writes.push(PendingWrite { after: Box::new(after), failed: Box::new(failed), result });
+}
+
+/// One output file sent to Studio; the receipt arrives later and settles once.
+pub(crate) struct Delivery(Arc<Mutex<Option<Result<(), String>>>>);
+
+pub(crate) fn deliver(repaint: impl Fn() + 'static, name: String, bytes: Arc<Vec<u8>>) -> Delivery {
+    let result = Arc::new(Mutex::new(None));
+    let done = result.clone();
+    wasm_bindgen_futures::spawn_local(async move {
+        let outcome = crate::studio::save(&name, &bytes).await;
+        *done.lock().unwrap_or_else(std::sync::PoisonError::into_inner) = Some(outcome);
+        repaint();
+    });
+    Delivery(result)
+}
+
+impl Delivery {
+    pub(crate) fn receipt(&self) -> Option<Result<(), String>> {
+        self.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner).take()
+    }
 }
