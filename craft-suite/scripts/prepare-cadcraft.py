@@ -1,4 +1,4 @@
-"""Adapt pristine CADCraft v0.18.0 to the shared Studio file host."""
+"""Adapt pristine CADCraft v0.20.1 to the shared Studio file host."""
 import hashlib
 import os
 from pathlib import Path
@@ -9,9 +9,9 @@ import tomllib
 
 source = Path(sys.argv[1]).resolve()
 suite = Path(__file__).resolve().parents[1]
-commit = "32238e83c2c8bf643994132883e94bc96961f649"
-assert subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=source, text=True).strip() == commit, "Expected CADCraft v0.18.0 commit"
-assert tomllib.loads((source / "Cargo.toml").read_text())["workspace"]["package"]["version"] == "0.18.0"
+commit = "7526dc62c14e71b3c8d46e73bbf1fa29ef506af1"
+assert subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=source, text=True).strip() == commit, "Expected CADCraft v0.20.1 commit"
+assert tomllib.loads((source / "Cargo.toml").read_text())["workspace"]["package"]["version"] == "0.20.1"
 font_dir = Path(os.environ["CRAFT_FONTS_DIR"])
 for name, digest in {
     "fonts/NotoSansCJKtc-Regular.otf": "dce08bd4fd91aa8aa76ed8fea4b694c2dfb8550f67871e326843212ddbeb88b4",
@@ -69,11 +69,12 @@ patch(ui + "closing.rs", "            Choice::Save => {", """            Choice:
                     self.studio_close = Some(uid);
                     return;
                 }""")
-patch(ui + "closing.rs", '                let saved = r.is_ok() && self.doc_index(uid)', '''                if r.is_ok() && cadcraft_engine::studio_save::pending(uid) {
-                    self.studio_close = Some(uid);
-                    return;
-                }
-                let saved = r.is_ok() && self.doc_index(uid)''')
+# Upstream moved the post-save settlement into close_after_save, which both the direct and the deferred-dialog paths reach.
+patch(ui + "closing.rs", '        let saved = r.is_ok() && self.doc_index(uid)', '''        if r.is_ok() && cadcraft_engine::studio_save::pending(uid) {
+            self.studio_close = Some(uid);
+            return;
+        }
+        let saved = r.is_ok() && self.doc_index(uid)''')
 path = source / ui / "closing.rs"
 path.write_text(path.read_text() + "\n" + (suite / "src/cad-save-poll.rs").read_text())
 # Preserve native file services, but disable the upstream host and direct browser file paths.
@@ -101,17 +102,10 @@ patch(web, """            if let (Err(e), Some(bridge)) = (&result, &bridge) {
 patch(web, "                        // `?cpu`: no render state for the app, so the canvas draws with egui shapes.", "                        app.ui.interface_language = cadcraft_ui_egui::i18n::Preference::TraditionalChinese;\n                        // `?cpu`: no render state for the app, so the canvas draws with egui shapes.")
 shutil.copyfile(suite / "src/studio.rs", source / "apps/cadcraft-web/src/studio.rs")
 shutil.copyfile(suite / "src/cad-web.rs", source / "apps/cadcraft-web/src/upload.rs")
-patch("apps/cadcraft-web/Cargo.toml", 'wasm-bindgen = "0.2"', 'js-sys = "0.3"\nwasm-bindgen = "0.2"')
-path = source / "Cargo.lock"
-text = path.read_text()
-start = text.index('name = "cadcraft-web"\n')
-end = text.index('\n[[package]]', start)
-entry = text[start:end]
-assert entry.count(' "log",') == 1
-path.write_text(text[:start] + entry.replace(' "log",', ' "js-sys",\n "log",') + text[end:])
+# NOTE: upstream v0.20.1 already depends on js-sys in apps/cadcraft-web (its page API), so no manifest or lock edit is needed.
 # The pinned TC face is the sole exception to the upstream font-family exclusion policy.
 patch("crates/fonts/build.rs", "if BARRED_FAMILIES.iter().any(|barred| family.starts_with(barred)) {", 'if *family != "Noto Sans CJK TC" && BARRED_FAMILIES.iter().any(|barred| family.starts_with(barred)) {')
 patch("crates/fonts/build.rs", 'let web_face = (*family == "BIZ UDPGothic" && *style == "Regular")', 'let web_face = (["Noto Sans CJK TC", "BIZ UDPGothic"].contains(family) && *style == "Regular")')
 patch("crates/fonts/src/craft_fonts.rs", 'assert!(!BARRED.iter().any(|b| f.family.starts_with(b)),', 'assert!(f.family == "Noto Sans CJK TC" || !BARRED.iter().any(|b| f.family.starts_with(b)),')
 patch(ui + "i18n/tests.rs", '["ko", "zh", "ar", "vi", "ka"].contains(&language.code)', '["ko", "zh", "zh-hant", "ar", "vi", "ka"].contains(&language.code)')
-print("CADCraft v0.18.0 Studio source adapter applied")
+print("CADCraft v0.20.1 Studio source adapter applied")
