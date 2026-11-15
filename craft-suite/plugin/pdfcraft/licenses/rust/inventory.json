@@ -904,7 +904,7 @@
       "002-NOTICE",
       "003-LICENSE-MIT"
     ],
-    "source": "git+https://github.com/storytold/craft-libs?rev=787a7a0f972fd1d7a7618fdbeca3a5267a0407ff#787a7a0f972fd1d7a7618fdbeca3a5267a0407ff"
+    "source": "git+https://github.com/storytold/craft-libs?rev=60ede99985ef1e5df87a2aca66ed538eb23dec99#60ede99985ef1e5df87a2aca66ed538eb23dec99"
   },
   {
     "name": "craft-quit",
@@ -943,7 +943,20 @@
       "002-NOTICE",
       "003-LICENSE-MIT"
     ],
-    "source": "git+https://github.com/storytold/craft-libs?rev=787a7a0f972fd1d7a7618fdbeca3a5267a0407ff#787a7a0f972fd1d7a7618fdbeca3a5267a0407ff"
+    "source": "git+https://github.com/storytold/craft-libs?rev=6e03f65bf45181db77ba6229716e6624db9eb25b#6e03f65bf45181db77ba6229716e6624db9eb25b"
+  },
+  {
+    "name": "craft-web-api",
+    "version": "0.1.0",
+    "license": "MIT OR Apache-2.0",
+    "repository": "https://github.com/storytold/craft-libs",
+    "texts": [
+      "000-LICENSE-APACHE",
+      "001-ATTRIBUTION.md",
+      "002-NOTICE",
+      "003-LICENSE-MIT"
+    ],
+    "source": "git+https://github.com/storytold/craft-libs?rev=fd5e2feff6ea25bed371a99cc732b3968d621505#fd5e2feff6ea25bed371a99cc732b3968d621505"
   },
   {
     "name": "craft-web-host",
@@ -956,7 +969,7 @@
       "002-NOTICE",
       "003-LICENSE-MIT"
     ],
-    "source": "git+https://github.com/storytold/craft-libs?rev=2e2312ddaf21bc3d85cd3395d0955c7d239306f6#2e2312ddaf21bc3d85cd3395d0955c7d239306f6"
+    "source": "git+https://github.com/storytold/craft-libs?rev=fd5e2feff6ea25bed371a99cc732b3968d621505#fd5e2feff6ea25bed371a99cc732b3968d621505"
   },
   {
     "name": "craft-winprint-gdi",
@@ -967,7 +980,7 @@
       "000-LICENSE-APACHE",
       "001-LICENSE-MIT"
     ],
-    "source": "git+https://github.com/storytold/winprint.rs?rev=417ac3c4d14d3da5485a99c7d5ce8f05664ec312#417ac3c4d14d3da5485a99c7d5ce8f05664ec312"
+    "source": "git+https://github.com/storytold/winprint.rs?rev=64e7afd4d1483512385012c340ecaaaf0f3beb7f#64e7afd4d1483512385012c340ecaaaf0f3beb7f"
   },
   {
     "name": "crc32fast",
@@ -1288,7 +1301,7 @@
       "000-LICENSE-APACHE",
       "001-LICENSE-MIT"
     ],
-    "source": "git+https://github.com/storytold/egui.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a"
+    "source": "git+https://github.com/storytold/egui.git?rev=725a39fca940f77149ffbb9c58eef405a16997bc#725a39fca940f77149ffbb9c58eef405a16997bc"
   },
   {
     "name": "ed25519",
@@ -1314,6 +1327,17 @@
     "source_url": "https://crates.io/api/v1/crates/ed25519-dalek/3.0.0/download"
   },
   {
+    "name": "edit-session",
+    "version": "0.1.0-alpha.2",
+    "license": "MIT OR Apache-2.0",
+    "repository": "https://github.com/PerchAnton/edit-session",
+    "texts": [
+      "000-LICENSE-APACHE",
+      "001-LICENSE-MIT"
+    ],
+    "source": null
+  },
+  {
     "name": "eframe",
     "version": "0.37.0",
     "license": "MIT OR Apache-2.0",
@@ -1322,7 +1346,7 @@
       "000-LICENSE-APACHE",
       "001-LICENSE-MIT"
     ],
-    "source": "git+https://github.com/storytold/egui.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a"
+    "source": "git+https://github.com/storytold/egui.git?rev=725a39fca940f77149ffbb9c58eef405a16997bc#725a39fca940f77149ffbb9c58eef405a16997bc"
   },
   {
     "name": "egui",
@@ -1333,7 +1357,7 @@
       "000-LICENSE-APACHE",
       "001-LICENSE-MIT"
     ],
-    "source": "git+https://github.com/storytold/egui.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a"
+    "source": "git+https://github.com/storytold/egui.git?rev=725a39fca940f77149ffbb9c58eef405a16997bc#725a39fca940f77149ffbb9c58eef405a16997bc"
   },
   {
     "name": "egui-wgpu",
@@ -1344,7 +1368,7 @@
       "000-LICENSE-APACHE",
       "001-LICENSE-MIT"
     ],
-    "source": "git+https://github.com/storytold/egui.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a"
+    "source": "git+https://github.com/storytold/egui.git?rev=725a39fca940f77149ffbb9c58eef405a16997bc#725a39fca940f77149ffbb9c58eef405a16997bc"
   },
   {
     "name": "egui_extras",
@@ -1355,7 +1379,7 @@
       "000-LICENSE-APACHE",
       "001-LICENSE-MIT"
     ],
-    "source": "git+https://github.com/storytold/egui.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a"
+    "source": "git+https://github.com/storytold/egui.git?rev=725a39fca940f77149ffbb9c58eef405a16997bc#725a39fca940f77149ffbb9c58eef405a16997bc"
   },
   {
     "name": "egui_glow",
@@ -1366,7 +1390,7 @@
       "000-LICENSE-APACHE",
       "001-LICENSE-MIT"
     ],
-    "source": "git+https://github.com/storytold/egui.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a"
+    "source": "git+https://github.com/storytold/egui.git?rev=725a39fca940f77149ffbb9c58eef405a16997bc#725a39fca940f77149ffbb9c58eef405a16997bc"
   },
   {
     "name": "either",
@@ -1401,7 +1425,7 @@
       "000-LICENSE-APACHE",
       "001-LICENSE-MIT"
     ],
-    "source": "git+https://github.com/storytold/egui.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a"
+    "source": "git+https://github.com/storytold/egui.git?rev=725a39fca940f77149ffbb9c58eef405a16997bc#725a39fca940f77149ffbb9c58eef405a16997bc"
   },
   {
     "name": "encoding_rs",
@@ -1499,7 +1523,7 @@
       "000-LICENSE-APACHE",
       "001-LICENSE-MIT"
     ],
-    "source": "git+https://github.com/storytold/egui.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a"
+    "source": "git+https://github.com/storytold/egui.git?rev=725a39fca940f77149ffbb9c58eef405a16997bc#725a39fca940f77149ffbb9c58eef405a16997bc"
   },
   {
     "name": "epaint_default_fonts",
@@ -1512,7 +1536,7 @@
       "002-emoji-icon-font-mit-license.txt",
       "003-OFL.txt"
     ],
-    "source": "git+https://github.com/storytold/egui.git?rev=6d518fc799681571963842f95b55a6b68431b15a#6d518fc799681571963842f95b55a6b68431b15a"
+    "source": "git+https://github.com/storytold/egui.git?rev=725a39fca940f77149ffbb9c58eef405a16997bc#725a39fca940f77149ffbb9c58eef405a16997bc"
   },
   {
     "name": "equator",
@@ -2382,6 +2406,28 @@
     "source_url": "https://crates.io/api/v1/crates/icu_provider_blob/2.3.0/download"
   },
   {
+    "name": "icu_segmenter",
+    "version": "2.3.0",
+    "license": "Unicode-3.0",
+    "repository": "https://github.com/unicode-org/icu4x",
+    "texts": [
+      "000-LICENSE"
+    ],
+    "source": "registry+https://github.com/rust-lang/crates.io-index",
+    "source_url": "https://crates.io/api/v1/crates/icu_segmenter/2.3.0/download"
+  },
+  {
+    "name": "icu_segmenter_data",
+    "version": "2.3.0",
+    "license": "Unicode-3.0",
+    "repository": "https://github.com/unicode-org/icu4x",
+    "texts": [
+      "000-LICENSE"
+    ],
+    "source": "registry+https://github.com/rust-lang/crates.io-index",
+    "source_url": "https://crates.io/api/v1/crates/icu_segmenter_data/2.3.0/download"
+  },
+  {
     "name": "idna",
     "version": "1.1.0",
     "license": "MIT OR Apache-2.0",
@@ -3010,7 +3056,7 @@
   },
   {
     "name": "pdfcraft-a11y",
-    "version": "0.19.0",
+    "version": "0.21.1",
     "license": "MIT OR Apache-2.0",
     "repository": "https://github.com/storytold/pdfcraft",
     "texts": [
@@ -3025,7 +3071,7 @@
   },
   {
     "name": "pdfcraft-annot",
-    "version": "0.19.0",
+    "version": "0.21.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -3040,7 +3086,7 @@
   },
   {
     "name": "pdfcraft-audit",
-    "version": "0.19.0",
+    "version": "0.21.1",
     "license": "MIT OR Apache-2.0",
     "repository": "https://github.com/storytold/pdfcraft",
     "texts": [
@@ -3055,7 +3101,7 @@
   },
   {
     "name": "pdfcraft-compare",
-    "version": "0.19.0",
+    "version": "0.21.1",
     "license": "MIT OR Apache-2.0",
     "repository": "https://github.com/storytold/pdfcraft",
     "texts": [
@@ -3070,7 +3116,7 @@
   },
   {
     "name": "pdfcraft-content",
-    "version": "0.19.0",
+    "version": "0.21.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -3085,7 +3131,7 @@
   },
   {
     "name": "pdfcraft-cos",
-    "version": "0.19.0",
+    "version": "0.21.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -3100,7 +3146,7 @@
   },
   {
     "name": "pdfcraft-create",
-    "version": "0.19.0",
+    "version": "0.21.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -3115,7 +3161,7 @@
   },
   {
     "name": "pdfcraft-crypt",
-    "version": "0.19.0",
+    "version": "0.21.1",
     "license": "MIT OR Apache-2.0",
     "repository": "https://github.com/storytold/pdfcraft",
     "texts": [
@@ -3130,7 +3176,7 @@
   },
   {
     "name": "pdfcraft-edit",
-    "version": "0.19.0",
+    "version": "0.21.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -3145,7 +3191,7 @@
   },
   {
     "name": "pdfcraft-engine",
-    "version": "0.19.0",
+    "version": "0.21.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -3160,7 +3206,7 @@
   },
   {
     "name": "pdfcraft-export",
-    "version": "0.19.0",
+    "version": "0.21.1",
     "license": "MIT OR Apache-2.0",
     "repository": "https://github.com/storytold/pdfcraft",
     "texts": [
@@ -3175,7 +3221,7 @@
   },
   {
     "name": "pdfcraft-filters",
-    "version": "0.19.0",
+    "version": "0.21.1",
     "license": "MIT OR Apache-2.0",
     "repository": "https://github.com/storytold/pdfcraft",
     "texts": [
@@ -3190,7 +3236,7 @@
   },
   {
     "name": "pdfcraft-fonts",
-    "version": "0.19.0",
+    "version": "0.21.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -3205,7 +3251,7 @@
   },
   {
     "name": "pdfcraft-forms",
-    "version": "0.19.0",
+    "version": "0.21.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -3220,7 +3266,7 @@
   },
   {
     "name": "pdfcraft-geom",
-    "version": "0.19.0",
+    "version": "0.21.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -3235,7 +3281,7 @@
   },
   {
     "name": "pdfcraft-js",
-    "version": "0.19.0",
+    "version": "0.21.1",
     "license": "MIT OR Apache-2.0",
     "repository": "https://github.com/storytold/pdfcraft",
     "texts": [
@@ -3250,7 +3296,7 @@
   },
   {
     "name": "pdfcraft-measure",
-    "version": "0.19.0",
+    "version": "0.21.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -3265,7 +3311,7 @@
   },
   {
     "name": "pdfcraft-model",
-    "version": "0.19.0",
+    "version": "0.21.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -3280,7 +3326,7 @@
   },
   {
     "name": "pdfcraft-ocr",
-    "version": "0.19.0",
+    "version": "0.21.1",
     "license": "MIT OR Apache-2.0",
     "repository": "https://github.com/storytold/pdfcraft",
     "texts": [
@@ -3295,7 +3341,7 @@
   },
   {
     "name": "pdfcraft-optimize",
-    "version": "0.19.0",
+    "version": "0.21.1",
     "license": "MIT OR Apache-2.0",
     "repository": "https://github.com/storytold/pdfcraft",
     "texts": [
@@ -3310,7 +3356,7 @@
   },
   {
     "name": "pdfcraft-organize",
-    "version": "0.19.0",
+    "version": "0.21.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -3325,7 +3371,7 @@
   },
   {
     "name": "pdfcraft-platform",
-    "version": "0.19.0",
+    "version": "0.21.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -3340,7 +3386,7 @@
   },
   {
     "name": "pdfcraft-preflight",
-    "version": "0.19.0",
+    "version": "0.21.1",
     "license": "MIT OR Apache-2.0",
     "repository": "https://github.com/storytold/pdfcraft",
     "texts": [
@@ -3355,7 +3401,7 @@
   },
   {
     "name": "pdfcraft-print",
-    "version": "0.19.0",
+    "version": "0.21.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -3370,7 +3416,7 @@
   },
   {
     "name": "pdfcraft-redact",
-    "version": "0.19.0",
+    "version": "0.21.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -3385,7 +3431,7 @@
   },
   {
     "name": "pdfcraft-render",
-    "version": "0.19.0",
+    "version": "0.21.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -3400,7 +3446,7 @@
   },
   {
     "name": "pdfcraft-sign",
-    "version": "0.19.0",
+    "version": "0.21.1",
     "license": "MIT OR Apache-2.0",
     "repository": "https://github.com/storytold/pdfcraft",
     "texts": [
@@ -3415,7 +3461,7 @@
   },
   {
     "name": "pdfcraft-ui-egui",
-    "version": "0.19.0",
+    "version": "0.21.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -3430,7 +3476,7 @@
   },
   {
     "name": "pdfcraft-web",
-    "version": "0.19.0",
+    "version": "0.21.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -3445,7 +3491,7 @@
   },
   {
     "name": "pdfcraft-xfa",
-    "version": "0.19.0",
+    "version": "0.21.1",
     "license": "MIT OR Apache-2.0",
     "repository": "https://github.com/storytold/pdfcraft",
     "texts": [
@@ -3460,7 +3506,7 @@
   },
   {
     "name": "pdfcraft-xfdf",
-    "version": "0.19.0",
+    "version": "0.21.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -4008,6 +4054,43 @@
     "source_url": "https://crates.io/api/v1/crates/read-fonts/0.44.0/download"
   },
   {
+    "name": "regex",
+    "version": "1.13.1",
+    "license": "MIT OR Apache-2.0",
+    "repository": "https://github.com/rust-lang/regex",
+    "texts": [
+      "000-LICENSE-APACHE",
+      "001-LICENSE-MIT"
+    ],
+    "source": "registry+https://github.com/rust-lang/crates.io-index",
+    "source_url": "https://crates.io/api/v1/crates/regex/1.13.1/download"
+  },
+  {
+    "name": "regex-automata",
+    "version": "0.4.18",
+    "license": "MIT OR Apache-2.0",
+    "repository": "https://github.com/rust-lang/regex",
+    "texts": [
+      "000-LICENSE-APACHE",
+      "001-LICENSE-MIT"
+    ],
+    "source": "registry+https://github.com/rust-lang/crates.io-index",
+    "source_url": "https://crates.io/api/v1/crates/regex-automata/0.4.18/download"
+  },
+  {
+    "name": "regex-syntax",
+    "version": "0.8.11",
+    "license": "MIT OR Apache-2.0",
+    "repository": "https://github.com/rust-lang/regex",
+    "texts": [
+      "000-LICENSE-APACHE",
+      "001-LICENSE-MIT",
+      "002-LICENSE-UNICODE"
+    ],
+    "source": "registry+https://github.com/rust-lang/crates.io-index",
+    "source_url": "https://crates.io/api/v1/crates/regex-syntax/0.8.11/download"
+  },
+  {
     "name": "regress",
     "version": "0.12.0",
     "license": "MIT OR Apache-2.0",
@@ -4323,7 +4406,7 @@
   },
   {
     "name": "rustix",
-    "version": "1.1.5",
+    "version": "1.1.6",
     "license": "Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT",
     "repository": "https://github.com/bytecodealliance/rustix",
     "texts": [
@@ -4333,7 +4416,7 @@
       "003-LICENSE-MIT"
     ],
     "source": "registry+https://github.com/rust-lang/crates.io-index",
-    "source_url": "https://crates.io/api/v1/crates/rustix/1.1.5/download"
+    "source_url": "https://crates.io/api/v1/crates/rustix/1.1.6/download"
   },
   {
     "name": "rustls",
@@ -4633,6 +4716,18 @@
     ],
     "source": "registry+https://github.com/rust-lang/crates.io-index",
     "source_url": "https://crates.io/api/v1/crates/simd-adler32/0.3.10/download"
+  },
+  {
+    "name": "simdutf8",
+    "version": "0.1.5",
+    "license": "MIT OR Apache-2.0",
+    "repository": "https://github.com/rusticstuff/simdutf8",
+    "texts": [
+      "000-LICENSE-Apache",
+      "001-LICENSE-MIT"
+    ],
+    "source": "registry+https://github.com/rust-lang/crates.io-index",
+    "source_url": "https://crates.io/api/v1/crates/simdutf8/0.1.5/download"
   },
   {
     "name": "simplecss",

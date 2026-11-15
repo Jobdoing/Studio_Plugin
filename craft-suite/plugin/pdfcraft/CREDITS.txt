@@ -1,6 +1,6 @@
 Based on PdfCraft by the ArtCraft Team and PdfCraft contributors.
 Copyright (c) 2026 ArtCraft Team and the PdfCraft contributors.
-Upstream: https://github.com/storytold/pdfcraft/tree/8c572792d6760bdc903d6f9a032e3e38e8f71cb8
+Upstream: https://github.com/storytold/pdfcraft/tree/b503b2e62dfeec5598f344e4e287d9c9cbdb34fa
 License: MIT OR Apache-2.0; full texts and original NOTICE are included.
 Studio modifications: document-center and local file I/O, confirmed asynchronous saves, available Chinese defaults
 and Noto Sans CJK TC where needed (OFL-1.1). This is an independently modified Studio plugin.
