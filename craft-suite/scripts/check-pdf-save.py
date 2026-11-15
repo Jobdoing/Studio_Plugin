@@ -25,8 +25,8 @@ with tempfile.TemporaryDirectory(prefix="pdf-save-", dir=scratch) as temporary:
     baseline = run(source, directory / "baseline")
     if baseline.returncode:
         raise RuntimeError(baseline.stdout + baseline.stderr)
-    if 'test result: ok. 15 passed; 0 failed; 0 ignored;' not in baseline.stdout:
-        raise RuntimeError('Expected all 15 save checks without ignored tests: ' + baseline.stdout)
+    if 'test result: ok. 18 passed; 0 failed; 0 ignored;' not in baseline.stdout:
+        raise RuntimeError('Expected all 18 save checks without ignored tests: ' + baseline.stdout)
     text = source.read_text()
     mutations = {
         "generation_guard": ('doc.edit_generation() == pending.generation', 'true'),
@@ -36,6 +36,9 @@ with tempfile.TemporaryDirectory(prefix="pdf-save-", dir=scratch) as temporary:
         "cancel_continuation": ('Err(error) if error == "CANCELLED" => {}', 'Err(error) if error == "CANCELLED" => { (pending.after)(app); }'),
         "batch_failure_continuation": ('Some(Err(error)) => { (write.failed)(app); app.notify_error(error); }', 'Some(Err(_error)) => (write.after)(app)'),
         "output_failure_recovery": ('(write.failed)(app); app.notify_error(error);', 'app.notify_error(error);'),
+        "redactions_delivered": ('view.redactions_downloaded = view.redactions_applied;', ''),
+        "signature_forgotten": ('app.placed_signatures.remove(&pending.id);', ''),
+        "delivery_settles_once": ('.lock().unwrap_or_else(std::sync::PoisonError::into_inner).take()\n    }\n}', '.lock().unwrap_or_else(std::sync::PoisonError::into_inner).clone()\n    }\n}'),
         "output_cancel_recovery": ('Some(Err(error)) if error == "CANCELLED" => (write.failed)(app)', 'Some(Err(error)) if error == "CANCELLED" => {}'),
     }
     for label, (before, after) in mutations.items():
@@ -46,4 +49,4 @@ with tempfile.TemporaryDirectory(prefix="pdf-save-", dir=scratch) as temporary:
         result = run(mutated, directory / label)
         if result.returncode == 0:
             raise RuntimeError(f"Safety mutation survived: {label}")
-    print(f"PdfCraft save adapter: 15 checks passed; {len(mutations)} unsafe mutations rejected")
+    print(f"PdfCraft save adapter: 18 checks passed; {len(mutations)} unsafe mutations rejected")

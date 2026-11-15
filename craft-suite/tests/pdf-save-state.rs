@@ -4,7 +4,7 @@ extern crate self as pdfcraft_engine;
 extern crate self as wasm_bindgen_futures;
 
 use std::sync::Arc;
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash)]
 pub struct DocId(pub u64);
 mod js_sys {
     pub struct Array;
@@ -39,7 +39,7 @@ impl Session {
         Ok(())
     }
 }
-struct View { id: DocId }
+struct View { id: DocId, redactions_applied: usize, redactions_downloaded: usize }
 impl View { fn document_changed(&mut self, _: &()) {} }
 struct PdfCraftApp {
     studio_pending_save: Option<adapter::PendingSave>,
@@ -47,6 +47,7 @@ struct PdfCraftApp {
     studio_pending_reads: Vec<adapter::PendingRead>,
     session: Session,
     views: Vec<View>,
+    placed_signatures: std::collections::HashSet<DocId>,
     ctx: Option<Context>,
     continuations: usize,
     commit_ok: bool,
@@ -58,7 +59,7 @@ impl PdfCraftApp {
         Self {
             studio_pending_save: None, studio_pending_writes: Vec::new(), studio_pending_reads: Vec::new(),
             session: Session { doc: Document { generation: 3, info: () }, dirty: true, marks: 0, reject_save: false, saved_name: None },
-            views: vec![View { id: DocId(7) }], ctx: None, continuations: 0, commit_ok: true,
+            views: vec![View { id: DocId(7), redactions_applied: 2, redactions_downloaded: 0 }], placed_signatures: [DocId(7)].into(), ctx: None, continuations: 0, commit_ok: true,
             typed: false, notifications: Vec::new(),
         }
     }
@@ -104,10 +105,20 @@ mod adapter {
             assert_eq!(app.session.saved_name.as_deref(), Some("renamed.pdf"));
             poll(&mut app); assert_eq!(app.continuations, 1, "a reply must only run once");
         }
+        #[test] fn acknowledged_save_counts_redactions_as_delivered_and_forgets_placed_signature() {
+            let mut app = saving(); reply(&mut app, Ok(()));
+            assert_eq!(app.views[0].redactions_downloaded, 2, "a delivered redaction step must not force Save As again");
+            assert!(app.placed_signatures.is_empty(), "a saved signature is not asked about again");
+        }
+        #[test] fn unacknowledged_save_keeps_redactions_pending_and_signature_placed() {
+            let mut app = saving(); reply(&mut app, Err("ACCESS_DENIED".into()));
+            assert_eq!(app.views[0].redactions_downloaded, 0, "a failed delivery must keep the redaction step undelivered");
+            assert!(!app.placed_signatures.is_empty());
+        }
         #[test] fn newer_edit_is_not_rebased() { let mut app = saving(); app.session.doc.generation += 1; reply(&mut app, Ok(())); unchanged(&app); }
         #[test] fn another_tab_is_not_closed() { let mut app = saving(); app.views[0].id = DocId(8); reply(&mut app, Ok(())); unchanged(&app); }
         #[test] fn moved_document_is_still_saved_by_identity() {
-            let mut app = saving(); app.views.insert(0, crate::View { id: DocId(8) }); reply(&mut app, Ok(()));
+            let mut app = saving(); app.views.insert(0, crate::View { id: DocId(8), redactions_applied: 0, redactions_downloaded: 0 }); reply(&mut app, Ok(()));
             assert!(!app.session.dirty); assert_eq!(app.continuations, 1);
         }
         #[test] fn closed_tab_is_not_rebased() { let mut app = saving(); app.views.clear(); reply(&mut app, Ok(())); unchanged(&app); }
@@ -148,6 +159,13 @@ mod adapter {
                 poll(&mut app);
                 assert!(!app.typed, "the failure callback runs once");
             }
+        }
+        #[test] fn delivery_has_no_receipt_until_studio_answers_and_settles_once() {
+            let delivery = deliver(|| {}, "scan.pdf".into(), Arc::new(vec![1]));
+            assert_eq!(delivery.receipt(), None, "dispatching is not a receipt");
+            *delivery.0.lock().unwrap() = Some(Err("ACCESS_DENIED".into()));
+            assert_eq!(delivery.receipt(), Some(Err("ACCESS_DENIED".into())), "a failed delivery must stay failed");
+            assert_eq!(delivery.receipt(), None, "a receipt settles once");
         }
         #[test] fn acknowledged_output_finishes_review_without_failure_callback() {
             let mut app = PdfCraftApp::new();

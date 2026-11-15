@@ -25,8 +25,18 @@ if (build / "snippets").is_dir():
     shutil.copytree(build / "snippets", output / "snippets")
 for name in ("documents.mjs", "picker.mjs", "runtime.mjs"):
     shutil.copyfile(suite / "src" / name, output / name)
-js, = build.glob("*.js")
-wasm, = build.glob("*.wasm")
+# PdfCraft's OCR worker (trunk + `cargo xtask web-worker-link`) is three hashed files, named for the page by a <meta>.
+worker_files = sorted(build.glob("pdfcraft-ocr-worker-*")) if editor == "pdfcraft" else []
+worker_meta = ""
+if editor == "pdfcraft":
+    found = re.findall(r'<meta name="pdfcraft-ocr-worker" content="\./(pdfcraft-ocr-worker-[0-9a-f]+_loader\.js)"', (build / "index.html").read_text())
+    if len(found) != 1 or sorted(path.name for path in worker_files) != sorted([found[0], found[0].replace("_loader.js", ".js"), found[0].replace("_loader.js", "_bg.wasm")]):
+        raise RuntimeError(f"OCR worker files or the page's <meta> are missing from the build: {found} {[p.name for p in worker_files]}")
+    for path in worker_files:
+        shutil.copyfile(path, output / path.name)
+    worker_meta = f'<meta name="pdfcraft-ocr-worker" content="./{found[0]}">'
+js, = (path for path in build.glob("*.js") if path not in worker_files)
+wasm, = (path for path in build.glob("*.wasm") if path not in worker_files)
 # A missing relative import leaves the editor on its loading screen; fail here instead.
 for script in output.rglob("*.js"):
     for target in re.findall(r"""(?:from|import)\s*\(?\s*['"](\.{1,2}/[^'"]+)['"]""", script.read_text()):
@@ -47,7 +57,7 @@ await init({{ module_or_path: bytes }});
 (output / "index.html").write_text(f'''<!doctype html>
 <html lang="{language}"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{title}</title><link rel="stylesheet" href="/studio-kit.css">
+<title>{title}</title>{worker_meta}<link rel="stylesheet" href="/studio-kit.css">
 <link rel="stylesheet" href="editor.css"><script src="/studio-plugin.js"></script>
 <script type="module" src="boot.mjs"></script></head>
 <body><main class="craft-editor"><section class="craft-surface"><canvas id="{canvas_id}"></canvas>

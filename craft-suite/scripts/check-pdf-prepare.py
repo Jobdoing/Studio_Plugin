@@ -12,7 +12,7 @@ paths = [ui / f"{name}.rs" for name in [
     "lib", "app", "app/files", "i18n/tests", "canvas/tests", "editing", "editing/save", "editing/close", "editing/tests",
     "workflows/files", "workflows/create_ui", "tools/measure_ui", "workflows/print_ui",
     "workflows/create_multiple_ui", "workflows/export_ui", "workflows/actions_ui", "workflows/ocr_ui",
-    "workflows/ocr_verify", "tools/content_ui", "tools/stamps_ui", "tools/fill_sign", "widgets",
+    "workflows/ocr_web", "workflows/ocr_verify", "canvas/zoom_snap", "tools/content_ui", "tools/stamps_ui", "tools/fill_sign", "widgets",
     "tools/edit_text_ui", "tools/comments", "tools/comments/paint", "tools/comments/composer",
     "panels/comments_panel", "commands",
 ]]
