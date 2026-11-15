@@ -458,7 +458,7 @@
       "002-NOTICE",
       "003-LICENSE-MIT"
     ],
-    "source": "git+https://github.com/storytold/craft-libs?rev=c5a1cbfb5f9049f9270955caffb5bee5997aebf7#c5a1cbfb5f9049f9270955caffb5bee5997aebf7"
+    "source": "git+https://github.com/storytold/craft-libs?rev=6e03f65bf45181db77ba6229716e6624db9eb25b#6e03f65bf45181db77ba6229716e6624db9eb25b"
   },
   {
     "name": "craft-proof",
@@ -487,6 +487,19 @@
     "source": "git+https://github.com/storytold/craft-libs?rev=92d392cff132eaf53e13afff77f38b5c11b73aa0#92d392cff132eaf53e13afff77f38b5c11b73aa0"
   },
   {
+    "name": "craft-web-api",
+    "version": "0.1.0",
+    "license": "MIT OR Apache-2.0",
+    "repository": "https://github.com/storytold/craft-libs",
+    "texts": [
+      "000-LICENSE-APACHE",
+      "001-ATTRIBUTION.md",
+      "002-NOTICE",
+      "003-LICENSE-MIT"
+    ],
+    "source": "git+https://github.com/storytold/craft-libs?rev=fd5e2feff6ea25bed371a99cc732b3968d621505#fd5e2feff6ea25bed371a99cc732b3968d621505"
+  },
+  {
     "name": "craft-web-host",
     "version": "0.1.0",
     "license": "MIT OR Apache-2.0",
@@ -497,7 +510,7 @@
       "002-NOTICE",
       "003-LICENSE-MIT"
     ],
-    "source": "git+https://github.com/storytold/craft-libs?rev=2e2312ddaf21bc3d85cd3395d0955c7d239306f6#2e2312ddaf21bc3d85cd3395d0955c7d239306f6"
+    "source": "git+https://github.com/storytold/craft-libs?rev=fd5e2feff6ea25bed371a99cc732b3968d621505#fd5e2feff6ea25bed371a99cc732b3968d621505"
   },
   {
     "name": "craft-window",
@@ -1416,7 +1429,7 @@
       "003-LICENSE-MIT",
       "004-LICENSE"
     ],
-    "source": "git+https://github.com/storytold/craft-libs?rev=c5a1cbfb5f9049f9270955caffb5bee5997aebf7#c5a1cbfb5f9049f9270955caffb5bee5997aebf7"
+    "source": "git+https://github.com/storytold/craft-libs?rev=6e03f65bf45181db77ba6229716e6624db9eb25b#6e03f65bf45181db77ba6229716e6624db9eb25b"
   },
   {
     "name": "kurbo",
@@ -2963,7 +2976,7 @@
   },
   {
     "name": "wordcraft-doc",
-    "version": "0.16.0",
+    "version": "0.18.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -2976,7 +2989,7 @@
   },
   {
     "name": "wordcraft-docbin",
-    "version": "0.16.0",
+    "version": "0.18.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -2989,7 +3002,7 @@
   },
   {
     "name": "wordcraft-docx",
-    "version": "0.16.0",
+    "version": "0.18.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -3002,7 +3015,7 @@
   },
   {
     "name": "wordcraft-engine",
-    "version": "0.16.0",
+    "version": "0.18.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -3015,7 +3028,7 @@
   },
   {
     "name": "wordcraft-fonts",
-    "version": "0.16.0",
+    "version": "0.18.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -3028,7 +3041,7 @@
   },
   {
     "name": "wordcraft-formats",
-    "version": "0.16.0",
+    "version": "0.18.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -3041,7 +3054,7 @@
   },
   {
     "name": "wordcraft-geom",
-    "version": "0.16.0",
+    "version": "0.18.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -3054,7 +3067,7 @@
   },
   {
     "name": "wordcraft-layout",
-    "version": "0.16.0",
+    "version": "0.18.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -3067,7 +3080,7 @@
   },
   {
     "name": "wordcraft-metafile",
-    "version": "0.16.0",
+    "version": "0.18.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -3080,7 +3093,7 @@
   },
   {
     "name": "wordcraft-pdf",
-    "version": "0.16.0",
+    "version": "0.18.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -3093,7 +3106,7 @@
   },
   {
     "name": "wordcraft-render",
-    "version": "0.16.0",
+    "version": "0.18.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -3106,7 +3119,7 @@
   },
   {
     "name": "wordcraft-ui-egui",
-    "version": "0.16.0",
+    "version": "0.18.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -3119,7 +3132,7 @@
   },
   {
     "name": "wordcraft-web",
-    "version": "0.16.0",
+    "version": "0.18.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -3132,7 +3145,7 @@
   },
   {
     "name": "wordcraft-zotero",
-    "version": "0.16.0",
+    "version": "0.18.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [

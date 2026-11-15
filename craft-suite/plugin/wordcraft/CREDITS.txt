@@ -1,6 +1,6 @@
 Based on WordCraft by the ArtCraft Team and WordCraft contributors.
 Copyright (c) 2026 ArtCraft Team and the WordCraft contributors.
-Upstream: https://github.com/storytold/wordcraft/tree/02a802cbafe45b5c8fecc00490c8f6b78c5ba251
+Upstream: https://github.com/storytold/wordcraft/tree/079f478bd85df7bcc567e3bafa7d7219096f9c3c
 License: MIT OR Apache-2.0; full texts and original NOTICE are included.
 Studio modifications: document-center and local file I/O, confirmed asynchronous saves, available Chinese defaults
 and Noto Sans CJK TC where needed (OFL-1.1). This is an independently modified Studio plugin.

@@ -41,10 +41,11 @@ const-oid 0.10.2 (Apache-2.0 OR MIT): https://crates.io/api/v1/crates/const-oid/
 cpubits 0.1.1 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/cpubits/0.1.1/download
 craft-fonts-build 0.1.0 (MIT OR Apache-2.0): git+https://github.com/storytold/craft-libs?rev=92d392cff132eaf53e13afff77f38b5c11b73aa0#92d392cff132eaf53e13afff77f38b5c11b73aa0
 craft-i18n 0.1.0 (MIT OR Apache-2.0): git+https://github.com/storytold/craft-libs?rev=92d392cff132eaf53e13afff77f38b5c11b73aa0#92d392cff132eaf53e13afff77f38b5c11b73aa0
-craft-pdf 0.1.0 (MIT OR Apache-2.0): git+https://github.com/storytold/craft-libs?rev=c5a1cbfb5f9049f9270955caffb5bee5997aebf7#c5a1cbfb5f9049f9270955caffb5bee5997aebf7
+craft-pdf 0.1.0 (MIT OR Apache-2.0): git+https://github.com/storytold/craft-libs?rev=6e03f65bf45181db77ba6229716e6624db9eb25b#6e03f65bf45181db77ba6229716e6624db9eb25b
 craft-proof 0.1.0 (MIT OR Apache-2.0): git+https://github.com/storytold/craft-libs?rev=01315d9c92b5b0e69082d35ca56099461a1efd45#01315d9c92b5b0e69082d35ca56099461a1efd45
 craft-ui 0.1.0 (MIT OR Apache-2.0): git+https://github.com/storytold/craft-libs?rev=92d392cff132eaf53e13afff77f38b5c11b73aa0#92d392cff132eaf53e13afff77f38b5c11b73aa0
-craft-web-host 0.1.0 (MIT OR Apache-2.0): git+https://github.com/storytold/craft-libs?rev=2e2312ddaf21bc3d85cd3395d0955c7d239306f6#2e2312ddaf21bc3d85cd3395d0955c7d239306f6
+craft-web-api 0.1.0 (MIT OR Apache-2.0): git+https://github.com/storytold/craft-libs?rev=fd5e2feff6ea25bed371a99cc732b3968d621505#fd5e2feff6ea25bed371a99cc732b3968d621505
+craft-web-host 0.1.0 (MIT OR Apache-2.0): git+https://github.com/storytold/craft-libs?rev=fd5e2feff6ea25bed371a99cc732b3968d621505#fd5e2feff6ea25bed371a99cc732b3968d621505
 craft-window 0.1.0 (MIT OR Apache-2.0): git+https://github.com/storytold/craft-libs?rev=92d392cff132eaf53e13afff77f38b5c11b73aa0#92d392cff132eaf53e13afff77f38b5c11b73aa0
 crc32fast 1.5.2 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/crc32fast/1.5.2/download
 crossbeam-channel 0.5.17 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/crossbeam-channel/0.5.17/download
@@ -122,7 +123,7 @@ inout 0.2.2 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/inout/0.2.2/dow
 itertools 0.15.0 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/itertools/0.15.0/download
 itoa 1.0.18 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/itoa/1.0.18/download
 js-sys 0.3.106 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/js-sys/0.3.106/download
-krilla 0.8.2 (MIT OR Apache-2.0): git+https://github.com/storytold/craft-libs?rev=c5a1cbfb5f9049f9270955caffb5bee5997aebf7#c5a1cbfb5f9049f9270955caffb5bee5997aebf7
+krilla 0.8.2 (MIT OR Apache-2.0): git+https://github.com/storytold/craft-libs?rev=6e03f65bf45181db77ba6229716e6624db9eb25b#6e03f65bf45181db77ba6229716e6624db9eb25b
 kurbo 0.13.1 (Apache-2.0 OR MIT): https://crates.io/api/v1/crates/kurbo/0.13.1/download
 libm 0.2.16 (MIT): https://crates.io/api/v1/crates/libm/0.2.16/download
 linebender_resource_handle 0.1.1 (Apache-2.0 OR MIT): https://crates.io/api/v1/crates/linebender_resource_handle/0.1.1/download
@@ -251,20 +252,20 @@ wgpu-naga-bridge 30.0.1 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/wgp
 wgpu-types 30.0.1 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/wgpu-types/30.0.1/download
 winit 0.30.13 (Apache-2.0): git+https://github.com/storytold/winit.git?rev=a517b3846ee8457d84ee4975110bfda6797c44dc#a517b3846ee8457d84ee4975110bfda6797c44dc
 winnow 1.0.4 (MIT): https://crates.io/api/v1/crates/winnow/1.0.4/download
-wordcraft-doc 0.16.0 (MIT OR Apache-2.0): None
-wordcraft-docbin 0.16.0 (MIT OR Apache-2.0): None
-wordcraft-docx 0.16.0 (MIT OR Apache-2.0): None
-wordcraft-engine 0.16.0 (MIT OR Apache-2.0): None
-wordcraft-fonts 0.16.0 (MIT OR Apache-2.0): None
-wordcraft-formats 0.16.0 (MIT OR Apache-2.0): None
-wordcraft-geom 0.16.0 (MIT OR Apache-2.0): None
-wordcraft-layout 0.16.0 (MIT OR Apache-2.0): None
-wordcraft-metafile 0.16.0 (MIT OR Apache-2.0): None
-wordcraft-pdf 0.16.0 (MIT OR Apache-2.0): None
-wordcraft-render 0.16.0 (MIT OR Apache-2.0): None
-wordcraft-ui-egui 0.16.0 (MIT OR Apache-2.0): None
-wordcraft-web 0.16.0 (MIT OR Apache-2.0): None
-wordcraft-zotero 0.16.0 (MIT OR Apache-2.0): None
+wordcraft-doc 0.18.1 (MIT OR Apache-2.0): None
+wordcraft-docbin 0.18.1 (MIT OR Apache-2.0): None
+wordcraft-docx 0.18.1 (MIT OR Apache-2.0): None
+wordcraft-engine 0.18.1 (MIT OR Apache-2.0): None
+wordcraft-fonts 0.18.1 (MIT OR Apache-2.0): None
+wordcraft-formats 0.18.1 (MIT OR Apache-2.0): None
+wordcraft-geom 0.18.1 (MIT OR Apache-2.0): None
+wordcraft-layout 0.18.1 (MIT OR Apache-2.0): None
+wordcraft-metafile 0.18.1 (MIT OR Apache-2.0): None
+wordcraft-pdf 0.18.1 (MIT OR Apache-2.0): None
+wordcraft-render 0.18.1 (MIT OR Apache-2.0): None
+wordcraft-ui-egui 0.18.1 (MIT OR Apache-2.0): None
+wordcraft-web 0.18.1 (MIT OR Apache-2.0): None
+wordcraft-zotero 0.18.1 (MIT OR Apache-2.0): None
 write-fonts 0.48.1 (MIT OR Apache-2.0): https://crates.io/api/v1/crates/write-fonts/0.48.1/download
 write16 1.0.0 (Apache-2.0 OR MIT): https://crates.io/api/v1/crates/write16/1.0.0/download
 writeable 0.6.4 (Unicode-3.0): https://crates.io/api/v1/crates/writeable/0.6.4/download

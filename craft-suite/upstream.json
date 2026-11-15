@@ -1,8 +1,8 @@
 {
   "wordcraft": {
-    "tag": "v0.16.0",
-    "commit": "02a802cbafe45b5c8fecc00490c8f6b78c5ba251",
-    "plugin_version": "0.8.2"
+    "tag": "v0.18.1",
+    "commit": "079f478bd85df7bcc567e3bafa7d7219096f9c3c",
+    "plugin_version": "0.8.3"
   },
   "deckcraft": {
     "tag": "v0.18.1",
