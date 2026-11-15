@@ -226,6 +226,9 @@ for name, old, new in [
     path.write_text(text)
 
 # The web batch reads pages in Web Workers; a finished copy counts only after Studio confirms it.
+# NOTE(ceiling): this receipt wiring in ocr_web::Batch is wasm-only, so no native test runs it; only the
+# Delivery helper (tests/pdf-save-state.rs) is covered. Upgrade: a wasm-bindgen-test or a browser check
+# that runs a two-file OCR batch against a failing Studio save.
 path = ui / "workflows/ocr_web.rs"
 text = path.read_text()
 text = replace(text, '    current: Option<(String, Box<FileJob>, Pages)>,\n    total: usize,', '    current: Option<(String, Box<FileJob>, Pages)>,\n    /// A finished copy waiting for the Studio receipt; the next file starts after it.\n    delivering: Option<(String, pdfcraft_engine::ocr::FileResult, crate::studio_io::Delivery)>,\n    total: usize,')
