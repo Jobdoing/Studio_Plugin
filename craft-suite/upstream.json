@@ -10,9 +10,9 @@
     "plugin_version": "0.8.3"
   },
   "gridcraft": {
-    "tag": "v0.17.0",
-    "commit": "a6a6a49a0415087474251b08e887a3581fab9e14",
-    "plugin_version": "0.9.3"
+    "tag": "v0.19.1",
+    "commit": "476448d7d9f3a5f8e93fcf7d98b47fd52293fe7f",
+    "plugin_version": "0.9.4"
   },
   "pdfcraft": {
     "tag": "v0.19.0",

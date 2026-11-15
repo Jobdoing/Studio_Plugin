@@ -1,6 +1,6 @@
 Based on GridCraft by the ArtCraft Team and GridCraft contributors.
 Copyright (c) 2026 ArtCraft Team and the GridCraft contributors.
-Upstream: https://github.com/storytold/gridcraft/tree/a6a6a49a0415087474251b08e887a3581fab9e14
+Upstream: https://github.com/storytold/gridcraft/tree/476448d7d9f3a5f8e93fcf7d98b47fd52293fe7f
 License: MIT OR Apache-2.0; full texts and original NOTICE are included.
 Studio modifications: document-center and local file I/O, confirmed asynchronous saves, available Chinese defaults
 and Noto Sans CJK TC where needed (OFL-1.1). This is an independently modified Studio plugin.

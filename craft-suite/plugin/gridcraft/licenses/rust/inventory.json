@@ -317,7 +317,7 @@
       "006-OFL.txt",
       "007-OFL.txt"
     ],
-    "source": "git+https://github.com/storytold/craft-libs?rev=c5a1cbfb5f9049f9270955caffb5bee5997aebf7#c5a1cbfb5f9049f9270955caffb5bee5997aebf7"
+    "source": "git+https://github.com/storytold/craft-libs?rev=6e03f65bf45181db77ba6229716e6624db9eb25b#6e03f65bf45181db77ba6229716e6624db9eb25b"
   },
   {
     "name": "craft-i18n",
@@ -330,7 +330,7 @@
       "002-NOTICE",
       "003-LICENSE-MIT"
     ],
-    "source": "git+https://github.com/storytold/craft-libs?rev=c5a1cbfb5f9049f9270955caffb5bee5997aebf7#c5a1cbfb5f9049f9270955caffb5bee5997aebf7"
+    "source": "git+https://github.com/storytold/craft-libs?rev=6e03f65bf45181db77ba6229716e6624db9eb25b#6e03f65bf45181db77ba6229716e6624db9eb25b"
   },
   {
     "name": "craft-ui",
@@ -343,7 +343,20 @@
       "002-NOTICE",
       "003-LICENSE-MIT"
     ],
-    "source": "git+https://github.com/storytold/craft-libs?rev=c5a1cbfb5f9049f9270955caffb5bee5997aebf7#c5a1cbfb5f9049f9270955caffb5bee5997aebf7"
+    "source": "git+https://github.com/storytold/craft-libs?rev=6e03f65bf45181db77ba6229716e6624db9eb25b#6e03f65bf45181db77ba6229716e6624db9eb25b"
+  },
+  {
+    "name": "craft-web-api",
+    "version": "0.1.0",
+    "license": "MIT OR Apache-2.0",
+    "repository": "https://github.com/storytold/craft-libs",
+    "texts": [
+      "000-LICENSE-APACHE",
+      "001-ATTRIBUTION.md",
+      "002-NOTICE",
+      "003-LICENSE-MIT"
+    ],
+    "source": "git+https://github.com/storytold/craft-libs?rev=fd5e2feff6ea25bed371a99cc732b3968d621505#fd5e2feff6ea25bed371a99cc732b3968d621505"
   },
   {
     "name": "craft-web-host",
@@ -356,7 +369,7 @@
       "002-NOTICE",
       "003-LICENSE-MIT"
     ],
-    "source": "git+https://github.com/storytold/craft-libs?rev=2e2312ddaf21bc3d85cd3395d0955c7d239306f6#2e2312ddaf21bc3d85cd3395d0955c7d239306f6"
+    "source": "git+https://github.com/storytold/craft-libs?rev=fd5e2feff6ea25bed371a99cc732b3968d621505#fd5e2feff6ea25bed371a99cc732b3968d621505"
   },
   {
     "name": "crc32fast",
@@ -810,7 +823,7 @@
   },
   {
     "name": "gridcraft-calc",
-    "version": "0.17.0",
+    "version": "0.19.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -823,7 +836,7 @@
   },
   {
     "name": "gridcraft-chart",
-    "version": "0.17.0",
+    "version": "0.19.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -836,7 +849,7 @@
   },
   {
     "name": "gridcraft-core",
-    "version": "0.17.0",
+    "version": "0.19.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -849,7 +862,7 @@
   },
   {
     "name": "gridcraft-engine",
-    "version": "0.17.0",
+    "version": "0.19.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -862,7 +875,7 @@
   },
   {
     "name": "gridcraft-formula",
-    "version": "0.17.0",
+    "version": "0.19.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -875,7 +888,7 @@
   },
   {
     "name": "gridcraft-functions",
-    "version": "0.17.0",
+    "version": "0.19.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -888,7 +901,7 @@
   },
   {
     "name": "gridcraft-math",
-    "version": "0.17.0",
+    "version": "0.19.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -901,7 +914,7 @@
   },
   {
     "name": "gridcraft-model",
-    "version": "0.17.0",
+    "version": "0.19.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -914,7 +927,7 @@
   },
   {
     "name": "gridcraft-numfmt",
-    "version": "0.17.0",
+    "version": "0.19.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -927,7 +940,7 @@
   },
   {
     "name": "gridcraft-pdf",
-    "version": "0.17.0",
+    "version": "0.19.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -940,7 +953,7 @@
   },
   {
     "name": "gridcraft-ui-egui",
-    "version": "0.17.0",
+    "version": "0.19.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -954,7 +967,7 @@
   },
   {
     "name": "gridcraft-web",
-    "version": "0.17.0",
+    "version": "0.19.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
@@ -967,7 +980,7 @@
   },
   {
     "name": "gridcraft-xlsx",
-    "version": "0.17.0",
+    "version": "0.19.1",
     "license": "MIT OR Apache-2.0",
     "repository": null,
     "texts": [
