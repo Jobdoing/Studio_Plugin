@@ -175,7 +175,7 @@
         let observed = discarded.clone();
         app.services.studio_discard = Some(Box::new(move |token| observed.borrow_mut().push(token.to_string())));
         app.dialog = Some(dialogs::Dialog::Password {
-            name: "Protected.docx".into(), params: json!({"studioSource": "protected-source"}),
+            name: "Protected.docx".into(), then: "file.open".into(), params: json!({"studioSource": "protected-source"}),
             password: Default::default(), message: String::new(),
         });
         let mut fonts = false;
